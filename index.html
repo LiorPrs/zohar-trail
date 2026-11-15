@@ -1256,7 +1256,7 @@
       document.getElementById('modalOfficialLink').href = currentSegment.official_url || 'https://www.teva.org.il/israel-national-trail';
 
       const siteUrl = window.location.origin + window.location.pathname;
-      const waText = `היי! מי מצטרף אליי לצעוד את *מקטע ${currentSegment.id} בשביל ישראל* (${currentSegment.title}) לזכרו של זוהר תמיר ז"ל? 🥾🤍\n📏 מרחק: ${currentSegment.distance} ק"מ | ⛰️ קושי: ${currentSegment.difficulty}\n🌤️ עונה מומלצת: ${seasonInfo.label}\nלפרטים ושריון באתר: ${siteUrl}`;
+      const waText = `היי! מי מצטרף אליי לצעוד את *מקטע ${currentSegment.id} בשביל ישראל* (${currentSegment.title}) לזכרו של זוהר? 🥾🤍\n📏 מרחק: ${currentSegment.distance} ק"מ | ⛰️ קושי: ${currentSegment.difficulty}\n🌤️ עונה מומלצת: ${seasonInfo.label}\nלפרטים ושריון באתר: ${siteUrl}`;
       document.getElementById('modalWhatsappShareBtn').href = `https://wa.me/?text=${encodeURIComponent(waText)}`;
 
       const { completed, planned } = getSegmentMemories(segmentId);
