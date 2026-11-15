@@ -192,11 +192,24 @@
             <!-- פילוח מהיר לפי אזורים (לחיצה מסננת מיד את האזור) -->
             <div id="regionBreakdownBar" class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 pt-3 border-t border-slate-100 text-xs"></div>
 
+            <!-- מד קילומטרים שבוצעו לאורך השביל -->
+            <div class="mt-3 pt-3 border-t border-slate-100">
+              <div class="flex items-center justify-between text-xs font-bold mb-1.5">
+                <span class="text-slate-700 flex items-center gap-1">🥾 מד קילומטרים שבוצעו:</span>
+                <span class="text-emerald-700 font-extrabold">
+                  <span id="completedKm">0</span> / <span id="totalTrailKm">0</span> ק"מ (<span id="completedKmPct">0%</span>)
+                </span>
+              </div>
+              <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200/80">
+                <div id="completedKmBar" class="h-full bg-gradient-to-l from-emerald-500 to-teal-500 rounded-full transition-all duration-700 ease-out" style="width: 0%"></div>
+              </div>
+            </div>
+
             <!-- מקרא צבעים -->
             <div class="flex flex-wrap gap-3 md:gap-4 mt-3 pt-2.5 border-t border-slate-100 text-[11px] text-slate-600">
-              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> בוצע (<span id="completedKm">0</span> ק"מ)</span>
+              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> בוצע</span>
               <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> שוריין</span>
-              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-red-600 inline-block"></span> עבר הזמן המשוער</span>
+              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-red-600 inline-block animate-pulse"></span> עבר הזמן המשוער</span>
               <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-slate-900 inline-block"></span> לא נבחר</span>
             </div>
           </div>
@@ -961,6 +974,7 @@
       let overdueSegs = 0;
       let availableSegs = 0;
       let completedKm = 0;
+      let totalKm = 0;
 
       const regionOrder = ['צפון', 'מרכז', 'ירושלים', 'דרום'];
       const regionStats = {
@@ -974,6 +988,7 @@
       blockBar.innerHTML = '';
 
       segmentsData.forEach(seg => {
+        totalKm += Number(seg.distance) || 0;
         const { completed, planned } = getSegmentMemories(seg.id);
         const reg = regionStats[seg.region] ? seg.region : 'דרום';
         regionStats[reg].total++;
@@ -1017,6 +1032,13 @@
       document.getElementById('plannedCount').textContent = activePlannedSegs;
       document.getElementById('availableCount').textContent = availableSegs;
       document.getElementById('completedKm').textContent = completedKm.toFixed(1);
+      const totalKmEl = document.getElementById('totalTrailKm');
+      const kmPctEl = document.getElementById('completedKmPct');
+      const kmBarEl = document.getElementById('completedKmBar');
+      const kmPct = totalKm > 0 ? Math.min(100, Math.round((completedKm / totalKm) * 100)) : 0;
+      if (totalKmEl) totalKmEl.textContent = totalKm.toFixed(1);
+      if (kmPctEl) kmPctEl.textContent = `${kmPct}%`;
+      if (kmBarEl) kmBarEl.style.width = `${kmPct}%`;
 
       // עדכון גרף עיגולים קונצנטריים (חיצוני = בוצע, פנימי = שוריין)
       const totalSegs = segmentsData.length || 56;
@@ -1114,7 +1136,7 @@
           const anyActive = planned.some(p => !isPlanOverdue(p.hike_date));
           iconSize = [24, 24];
           if (anyActive) {
-            iconHtml = `<div class="w-6 h-6 rounded-full bg-amber-500 border-2 border-white shadow-md animate-pulse"></div>`;
+            iconHtml = `<div class="w-5 h-5 rounded-full bg-amber-500 border-2 border-white shadow-md hover:scale-110 transition-transform"></div>`;
           } else {
             iconHtml = `<div class="w-6 h-6 rounded-full bg-red-600 border-2 border-white shadow-md animate-pulse"></div>`;
           }
