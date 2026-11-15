@@ -100,9 +100,6 @@
     <div class="block md:hidden relative w-full h-56 sm:h-64 overflow-hidden bg-amber-100">
       <img src="banner-mobile.jpg" onerror="this.style.display='none'" alt="נופי שביל ישראל" class="w-full h-full object-cover object-center" />
       <div class="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent"></div>
-      <div id="heroMobileBadgeText" class="absolute top-3 right-3 bg-white/95 backdrop-blur-xs px-3 py-1 rounded-full text-[11px] font-bold text-orange-900 shadow-sm border border-orange-200">
-        🤍 יוזמה של החברים של זוהר • לזכרו
-      </div>
     </div>
 
     <div class="relative z-10 max-w-6xl mx-auto px-4 pb-10 pt-0 md:py-14">
@@ -124,9 +121,6 @@
 
         <!-- טקסט הנצחה ומד התקדמות מבוסס מקטעים -->
         <div class="flex-1 text-center md:text-right mt-2 md:mt-0">
-          <div class="hidden md:inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-900 text-xs font-bold mb-3 shadow-2xs">
-            <span id="heroBadgeText">🤍 יוזמה של החברים של זוהר • לזכרו</span>
-          </div>
           <h1 id="heroTitleText" class="text-2xl sm:text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-3 md:mb-4 leading-tight">
             ממשיכים את הצעדים של זוהר בשביל ישראל
           </h1>
@@ -146,20 +140,54 @@
             </button>
           </div>
 
-          <!-- מד התקדמות השביל לפי כל 56 המקטעים + פילוח אזורים -->
-          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm max-w-2xl mx-auto md:mx-0 text-right">
-            <div class="flex flex-wrap items-center justify-between gap-2 text-sm font-bold mb-2.5">
-              <span class="text-slate-800">מפת התקדמות 56 המקטעים (מצפון לדרום):</span>
-              <div class="flex flex-wrap items-center gap-1.5 text-xs">
-                <span class="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800">🟢 <span id="completedCount">0</span> בוצעו</span>
-                <span class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-800">🟠 <span id="plannedCount">0</span> שוריינו</span>
-                <span id="overdueSummaryBadge" class="hidden px-2 py-0.5 rounded-md bg-red-100 text-red-800">🔴 <span id="overdueCount">0</span> עבר הזמן</span>
-                <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">⚫ <span id="availableCount">56</span> פנויים</span>
+          <!-- מד התקדמות השביל לפי כל 56 המקטעים + גרף עיגולים קונצנטריים + פילוח אזורים -->
+          <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm max-w-2xl mx-auto md:mx-0 text-right">
+            <div class="flex flex-col sm:flex-row items-center gap-4 mb-3">
+              <!-- גרף עיגולים: חיצוני ירוק (בוצע), פנימי כתום (שוריין) -->
+              <div class="relative w-28 h-28 shrink-0 flex items-center justify-center" title="עיגול חיצוני: בוצע | עיגול פנימי: שוריין">
+                <svg class="w-28 h-28 -rotate-90" viewBox="0 0 100 100">
+                  <!-- מסלול רקע חיצוני (בוצע) -->
+                  <circle cx="50" cy="50" r="42" fill="none" stroke="#e2e8f0" stroke-width="8" />
+                  <!-- טבעת חיצונית: בוצע (היקף = 2 * pi * 42 = 263.89) -->
+                  <circle id="outerCompletedRing" cx="50" cy="50" r="42" fill="none" stroke="#10b981" stroke-width="8"
+                          stroke-linecap="round" stroke-dasharray="263.89" stroke-dashoffset="263.89"
+                          class="transition-all duration-700 ease-out" />
+                  <!-- מסלול רקע פנימי (שוריין) -->
+                  <circle cx="50" cy="50" r="30" fill="none" stroke="#fef3c7" stroke-width="7" />
+                  <!-- טבעת פנימית: שוריין (היקף = 2 * pi * 30 = 188.50) -->
+                  <circle id="innerPlannedRing" cx="50" cy="50" r="30" fill="none" stroke="#f59e0b" stroke-width="7"
+                          stroke-linecap="round" stroke-dasharray="188.50" stroke-dashoffset="188.50"
+                          class="transition-all duration-700 ease-out" />
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center text-center leading-tight pointer-events-none">
+                  <span id="completedPctText" class="text-sm font-extrabold text-emerald-700">0%</span>
+                  <span class="text-[9px] font-bold text-slate-400">בוצע</span>
+                  <span id="plannedPctText" class="text-[11px] font-extrabold text-amber-600 mt-0.5">0%</span>
+                  <span class="text-[8px] font-bold text-slate-400">שוריין</span>
+                </div>
+              </div>
+
+              <!-- פירוט מספרי ורצועת 56 קוביות -->
+              <div class="flex-1 w-full">
+                <div class="flex flex-wrap items-center justify-between gap-2 text-sm font-bold mb-2">
+                  <span class="text-slate-800">התקדמות 56 המקטעים (מצפון לדרום):</span>
+                  <div class="flex flex-wrap items-center gap-1.5 text-xs">
+                    <span class="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800">🟢 <span id="completedCount">0</span> בוצעו</span>
+                    <span class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-800">🟠 <span id="plannedCount">0</span> שוריינו</span>
+                    <span id="overdueSummaryBadge" class="hidden px-2 py-0.5 rounded-md bg-red-100 text-red-800">🔴 <span id="overdueCount">0</span> עבר הזמן</span>
+                    <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">⚫ <span id="availableCount">56</span> פנויים</span>
+                  </div>
+                </div>
+
+                <!-- רצועת 56 קוביות אינטראקטיביות -->
+                <div id="segmentsBlockBar" class="grid gap-1 my-2" style="grid-template-columns: repeat(28, minmax(0, 1fr));" title="לחצו על כל מקטע לצפייה או שריון"></div>
+
+                <div class="flex flex-wrap items-center gap-3 text-[11px] text-slate-500 mt-1">
+                  <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full border-2 border-emerald-500 inline-block"></span> עיגול חיצוני: בוצע (<span id="completedPctLegend">0%</span>)</span>
+                  <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full border-2 border-amber-500 inline-block"></span> עיגול פנימי: שוריין (<span id="plannedPctLegend">0%</span>)</span>
+                </div>
               </div>
             </div>
-
-            <!-- רצועת 56 קוביות אינטראקטיביות (כל קובייה = מקטע אמיתי, לחיצה פותחת אותו!) -->
-            <div id="segmentsBlockBar" class="grid gap-1 my-2.5" style="grid-template-columns: repeat(28, minmax(0, 1fr));" title="לחצו על כל מקטע לצפייה או שריון"></div>
 
             <!-- פילוח מהיר לפי אזורים (לחיצה מסננת מיד את האזור) -->
             <div id="regionBreakdownBar" class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 pt-3 border-t border-slate-100 text-xs"></div>
@@ -184,14 +212,17 @@
     <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5">
         <div>
-          <h2 class="text-2xl font-bold text-slate-900">מפת שביל ישראל האמיתית</h2>
+          <h2 class="text-2xl font-bold text-slate-900">מפת השביל בחלוקה למקטעים</h2>
           <p class="text-sm text-slate-500">עשו זום פנימה לכל הר ונחל, ולחצו על הסיכות לאורך השביל כדי לראות מי צעד או מתכנן לצעוד</p>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
           <select id="mapLayerSelect" onchange="changeMapLayer()" class="px-3 py-1.5 text-xs font-bold bg-slate-100 border border-slate-300 rounded-lg text-slate-700">
             <option value="hiking">🥾 מפת שבילים (Israel Hiking)</option>
             <option value="osm">🗺️ מפת רחובות ויישובים</option>
           </select>
+          <button onclick="resetMapView()" class="px-3 py-1.5 text-xs font-bold bg-orange-50 hover:bg-orange-100 text-orange-800 border border-orange-200 rounded-lg transition" title="החזרת המפה לתצוגת כל הארץ">
+            🎯 איפוס מפה
+          </button>
           <button onclick="loadData()" class="px-3 py-1.5 text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition">
             🔄 רענן
           </button>
@@ -202,6 +233,9 @@
         <!-- מפת Leaflet אינטראקטיבית -->
         <div class="lg:col-span-7 relative rounded-2xl border border-slate-300 overflow-hidden shadow-inner">
           <div id="realIsraelMap" class="w-full h-[460px] md:h-[520px]"></div>
+          <button type="button" onclick="resetMapView()" class="absolute bottom-4 left-3 z-20 px-3 py-1.5 rounded-xl bg-white/95 hover:bg-white text-slate-800 border border-slate-300 shadow-md text-xs font-extrabold flex items-center gap-1 transition">
+            <span>🎯 איפוס תצוגת מפה</span>
+          </button>
         </div>
 
         <!-- פאנל תצוגה מקדימה של המקטע הנבחר במפה -->
@@ -302,22 +336,20 @@
       <div id="segmentsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
     </section>
 
-    <!-- יומן המסע של זוהר – פיד תמונות וזיכרונות מרוכז -->
-    <section id="journeyFeedSection" class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 md:p-8">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+    <!-- גלויות מהדרך – אלבום זיכרונות אישי מהשביל -->
+    <section id="journeyFeedSection" class="bg-gradient-to-b from-amber-50/60 via-orange-50/25 to-white rounded-3xl border border-amber-200/80 shadow-sm p-6 md:p-8">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-7">
         <div>
-          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold mb-2">
-            <span>📸 גלויות מהדרך</span>
-          </div>
-          <h2 class="text-2xl font-bold text-slate-900">יומן המסע של זוהר (<span id="journeyFeedCount">0</span> זיכרונות)</h2>
-          <p class="text-sm text-slate-500">כל התמונות והתשובות ל"עצירה של 5 דקות" שעלו מכל רחבי השביל</p>
+          <span class="text-xs font-bold tracking-wide text-amber-800 block mb-1">✉️ מהתרמיל אל הלב</span>
+          <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900">גלויות מהדרך <span class="text-base font-bold text-amber-800">(<span id="journeyFeedCount">0</span>)</span></h2>
+          <p class="text-sm text-slate-600 mt-0.5">רגעים, תמונות ומילים שכתבו החברים והמטיילים לזכרו של זוהר בעצירה של 5 דקות</p>
         </div>
-        <button onclick="openContactModal()" class="self-start sm:self-auto px-4 py-2 text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl transition">
-          ✉️ יש לכם עדכון או שאלה למנהלים?
+        <button onclick="openContactModal()" class="self-start sm:self-auto px-4 py-2 text-xs font-bold bg-white hover:bg-amber-50 text-amber-950 border border-amber-300 rounded-xl shadow-2xs transition">
+          ✉️ יש לכם גלויה מטיול קודם? שלחו לנו
         </button>
       </div>
 
-      <div id="journeyFeedGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+      <div id="journeyFeedGrid" class="grid grid-cols-1 md:grid-cols-2 gap-7"></div>
     </section>
   </main>
 
@@ -675,6 +707,11 @@
       currentTileLayer.addTo(map);
     }
 
+    function resetMapView() {
+      if (!map) return;
+      map.flyTo([31.45, 35.05], 7, { duration: 0.7 });
+    }
+
     function toggleContrast() {
       document.body.classList.toggle('high-contrast');
     }
@@ -810,37 +847,62 @@
 
       if (approvedMemories.length === 0) {
         grid.innerHTML = `
-          <div class="col-span-full bg-slate-50 border border-dashed border-slate-300 rounded-2xl p-8 text-center text-slate-600">
-            <span class="text-3xl block mb-2">🥾</span>
-            <p class="font-bold text-slate-800">יומן המסע מחכה לגלויה הראשונה מהשטח!</p>
-            <p class="text-xs mt-1">ברגע שקבוצה תסיים מקטע ותעלה תמונה וגלוית "עצירה של 5 דקות", היא תופיע כאן.</p>
+          <div class="col-span-full bg-[#fffdf7] border-2 border-dashed border-amber-300 rounded-2xl p-8 text-center text-slate-600">
+            <span class="text-3xl block mb-2">📮</span>
+            <p class="font-bold text-slate-800">תיבת הגלויות מחכה לגלויה הראשונה מהשטח!</p>
+            <p class="text-xs mt-1">ברגע שקבוצה תסיים מקטע ותעלה תמונה ומחשבה מעצירה של 5 דקות, הגלויה תופיע כאן.</p>
           </div>
         `;
         return;
       }
 
-      grid.innerHTML = approvedMemories.map(item => {
+      grid.innerHTML = approvedMemories.map((item, idx) => {
         const seg = segmentsData.find(s => s.id === item.segment_id);
-        const segTitle = seg ? `מקטע #${seg.id}: ${seg.title} (${seg.region})` : `מקטע #${item.segment_id}`;
+        const segLabel = seg ? `מקטע ${seg.id} • ${seg.title}` : `מקטע ${item.segment_id}`;
+        const regionLabel = seg ? seg.region : 'שביל ישראל';
+        const tiltClass = idx % 2 === 0 ? 'md:-rotate-[0.4deg]' : 'md:rotate-[0.4deg]';
+
         return `
-          <article class="bg-amber-50/35 border border-slate-200 rounded-2xl overflow-hidden shadow-2xs hover:shadow-md transition flex flex-col">
-            ${item.photo_url ? `<img src="${item.photo_url}" alt="${segTitle}" class="w-full h-56 object-cover" />` : ''}
-            <div class="p-5 flex-1 flex flex-col justify-between">
-              <div>
-                <div class="flex items-center justify-between gap-2 text-xs mb-1.5">
-                  <button onclick="openModal(${item.segment_id})" class="font-extrabold text-blue-800 hover:underline text-right">${segTitle}</button>
-                  <span class="text-slate-500 shrink-0">📅 ${item.hike_date}</span>
+          <article class="relative bg-[#fffdf7] border border-amber-300/90 rounded-2xl p-4 sm:p-5 shadow-md hover:shadow-lg transition-all ${tiltClass} hover:rotate-0 flex flex-col justify-between">
+            <!-- חלק עליון: חותמת דואר ובול מקטע -->
+            <div>
+              <div class="flex items-start justify-between gap-3 pb-3 mb-3 border-b border-dashed border-amber-300">
+                <div>
+                  <span class="inline-block text-[11px] font-bold text-amber-800 uppercase tracking-wider">גלויה משביל ישראל • ${regionLabel}</span>
+                  <button onclick="openModal(${item.segment_id})" class="block text-base sm:text-lg font-extrabold text-slate-900 hover:text-orange-700 text-right leading-snug mt-0.5 transition">
+                    ${segLabel}
+                  </button>
                 </div>
-                <div class="text-xs font-bold text-emerald-700 mb-3">🥾 צעדו: ${item.hiker_name}</div>
-                <div class="text-sm text-slate-700 leading-relaxed bg-white p-3.5 rounded-xl border border-amber-100">
-                  ${formatStoryHtml(item.story)}
+                <!-- בול דואר מעוצב -->
+                <div class="shrink-0 w-16 h-16 rounded-lg border-2 border-dashed border-orange-400 bg-orange-50/80 flex flex-col items-center justify-center text-center p-1 rotate-2 shadow-2xs select-none">
+                  <div class="w-6 h-1.5 rounded-xs trail-stripe mb-1"></div>
+                  <span class="text-[10px] font-extrabold text-orange-900 leading-none">מקטע #${item.segment_id}</span>
+                  <span class="text-[9px] text-slate-600 mt-1 font-medium">${item.hike_date}</span>
                 </div>
               </div>
-              <div class="mt-4 pt-2 border-t border-slate-100 flex justify-end">
-                <button onclick="openModal(${item.segment_id})" class="text-xs font-bold text-orange-600 hover:underline">
-                  לצפייה במקטע ←
-                </button>
+
+              <!-- תמונת פולארויד מהשטח -->
+              ${item.photo_url ? `
+                <div class="bg-white p-2 pb-3 rounded-xl border border-slate-200 shadow-xs mb-4">
+                  <img src="${item.photo_url}" alt="${segLabel}" class="w-full h-56 sm:h-60 object-cover rounded-lg" />
+                </div>
+              ` : ''}
+
+              <!-- תוכן הגלויה על נייר חמים -->
+              <div class="text-sm text-slate-800 leading-relaxed space-y-1.5 px-1">
+                ${formatStoryHtml(item.story)}
               </div>
+            </div>
+
+            <!-- חתימה אישית בתחתית הגלויה -->
+            <div class="mt-5 pt-3 border-t border-amber-200/80 flex items-center justify-between gap-2">
+              <div class="text-xs text-slate-700">
+                <span class="text-slate-400">נכתב בדרך ע״י </span>
+                <strong class="font-extrabold text-slate-900 text-sm">${item.hiker_name}</strong>
+              </div>
+              <button onclick="openModal(${item.segment_id})" class="text-xs font-bold text-orange-700 hover:text-orange-800 hover:underline">
+                למקטע במפה ←
+              </button>
             </div>
           </article>
         `;
@@ -956,6 +1018,33 @@
       document.getElementById('plannedCount').textContent = activePlannedSegs;
       document.getElementById('availableCount').textContent = availableSegs;
       document.getElementById('completedKm').textContent = completedKm.toFixed(1);
+
+      // עדכון גרף עיגולים קונצנטריים (חיצוני = בוצע, פנימי = שוריין)
+      const totalSegs = segmentsData.length || 56;
+      const completedPct = Math.round((completedSegs / totalSegs) * 100);
+      const totalReservedSegs = activePlannedSegs + overdueSegs;
+      const plannedPct = Math.round((totalReservedSegs / totalSegs) * 100);
+
+      const outerCircumference = 2 * Math.PI * 42; // 263.89
+      const innerCircumference = 2 * Math.PI * 30; // 188.50
+
+      const outerRing = document.getElementById('outerCompletedRing');
+      const innerRing = document.getElementById('innerPlannedRing');
+      if (outerRing) {
+        outerRing.style.strokeDashoffset = outerCircumference * (1 - completedSegs / totalSegs);
+      }
+      if (innerRing) {
+        innerRing.style.strokeDashoffset = innerCircumference * (1 - totalReservedSegs / totalSegs);
+      }
+
+      const cPctEl = document.getElementById('completedPctText');
+      const pPctEl = document.getElementById('plannedPctText');
+      const cLegEl = document.getElementById('completedPctLegend');
+      const pLegEl = document.getElementById('plannedPctLegend');
+      if (cPctEl) cPctEl.textContent = `${completedPct}%`;
+      if (pPctEl) pPctEl.textContent = `${plannedPct}%`;
+      if (cLegEl) cLegEl.textContent = `${completedPct}%`;
+      if (pLegEl) pLegEl.textContent = `${plannedPct}%`;
 
       const overdueBadge = document.getElementById('overdueSummaryBadge');
       if (overdueSegs > 0) {
