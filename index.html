@@ -72,7 +72,11 @@
           <span class="hidden sm:inline">המשימה מזוהר</span>
           <span class="sm:hidden">5 דקות</span>
         </button>
-        <button onclick="openAdminModal()" class="px-2.5 md:px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-800 text-white hover:bg-slate-700 transition flex items-center gap-1" title="ממשק ניהול ואישור תמונות">
+        <button onclick="openContactModal()" class="px-2.5 md:px-3 py-1.5 text-xs font-bold rounded-lg bg-blue-50 text-blue-900 border border-blue-200 hover:bg-blue-100 transition flex items-center gap-1" title="שליחת הודעה לצוות האתר">
+          <span>✉️</span>
+          <span class="hidden md:inline">הודעה למנהלים</span>
+        </button>
+        <button onclick="openAdminModal()" class="px-2.5 md:px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-800 text-white hover:bg-slate-700 transition flex items-center gap-1" title="ממשק ניהול, הודעות ואישור תמונות">
           <span>⚙️ ניהול</span>
           <span id="pendingBadge" class="hidden bg-red-500 text-white text-[10px] px-1.5 py-0.2 rounded-full">0</span>
         </button>
@@ -297,6 +301,24 @@
       <!-- גריד כרטיסיות -->
       <div id="segmentsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
     </section>
+
+    <!-- יומן המסע של זוהר – פיד תמונות וזיכרונות מרוכז -->
+    <section id="journeyFeedSection" class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 md:p-8">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+        <div>
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold mb-2">
+            <span>📸 גלויות מהדרך</span>
+          </div>
+          <h2 class="text-2xl font-bold text-slate-900">יומן המסע של זוהר (<span id="journeyFeedCount">0</span> זיכרונות)</h2>
+          <p class="text-sm text-slate-500">כל התמונות והתשובות ל"עצירה של 5 דקות" שעלו מכל רחבי השביל</p>
+        </div>
+        <button onclick="openContactModal()" class="self-start sm:self-auto px-4 py-2 text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl transition">
+          ✉️ יש לכם עדכון או שאלה למנהלים?
+        </button>
+      </div>
+
+      <div id="journeyFeedGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+    </section>
   </main>
 
   <!-- מודאל מקטע (צפייה, שריון תאריך והעלאת ביצוע) -->
@@ -314,9 +336,12 @@
             <span>•</span>
             <span id="modalSeason" class="font-bold text-sky-800 bg-sky-100 px-2 py-0.5 rounded-md"></span>
           </div>
-          <div class="mt-2">
-            <a id="modalOfficialLink" href="#" target="_blank" rel="noopener" class="text-xs text-orange-600 font-bold hover:underline">
-              לסיפור הדרך ומפת השביל באתר החברה להגנת הטבע ↗
+          <div class="mt-3 flex flex-wrap items-center gap-2">
+            <a id="modalOfficialLink" href="#" target="_blank" rel="noopener" class="px-3 py-1.5 rounded-xl bg-white border border-slate-300 hover:bg-slate-100 text-xs text-slate-800 font-bold transition">
+              סיפור הדרך (החברה להגנת הטבע) ↗
+            </a>
+            <a id="modalWhatsappShareBtn" href="#" target="_blank" rel="noopener" class="px-3 py-1.5 rounded-xl bg-green-600 hover:bg-green-700 text-white text-xs font-bold transition shadow-2xs flex items-center gap-1">
+              <span>📲 הזמן חברים למקטע בוואטסאפ</span>
             </a>
           </div>
         </div>
@@ -468,15 +493,59 @@
     </div>
   </div>
 
+  <!-- מודאל שליחת הודעה למנהלים (צור קשר) -->
+  <div id="contactModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden my-8">
+      <div class="p-5 bg-blue-900 text-white flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-extrabold">✉️ הודעה לצוות המנהלים</h3>
+          <p class="text-xs text-blue-200">עדכון על שריון, הוספת מקטע שצועד בעבר או כל שאלה</p>
+        </div>
+        <button onclick="closeContactModal()" class="w-8 h-8 rounded-full bg-blue-800 hover:bg-blue-700 flex items-center justify-center font-bold">✕</button>
+      </div>
+      <form id="contactAdminForm" onsubmit="submitContactMessage(event)" class="p-6 space-y-3.5">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">השם שלך *</label>
+          <input type="text" id="msgSenderName" required placeholder="שם מלא" class="w-full px-3 py-2 text-base bg-slate-50 border border-slate-300 rounded-xl" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">טלפון או אימייל לחזרה *</label>
+          <input type="text" id="msgSenderContact" required placeholder="050-0000000" class="w-full px-3 py-2 text-base bg-slate-50 border border-slate-300 rounded-xl" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">נושא הפנייה</label>
+          <select id="msgSubject" class="w-full px-3 py-2 text-base bg-slate-50 border border-slate-300 rounded-xl">
+            <option value="עדכון או שינוי תאריך שריון">📅 עדכון או שינוי תאריך שריון</option>
+            <option value="הוספת מקטע שצעדנו בעבר">🥾 הוספת מקטע שצעדנו בעבר</option>
+            <option value="שאלה או הצעה לאתר">💡 שאלה או הצעה לאתר</option>
+            <option value="אחר">💬 אחר</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">תוכן ההודעה *</label>
+          <textarea id="msgBody" rows="3" required placeholder="כתבו כאן את הפרטים..." class="w-full px-3 py-2 text-base bg-slate-50 border border-slate-300 rounded-xl"></textarea>
+        </div>
+        <button type="submit" id="msgSubmitBtn" class="w-full py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded-xl text-sm transition shadow-xs">
+          שליחת הודעה למנהלים
+        </button>
+      </form>
+    </div>
+  </div>
+
   <!-- מודאל ממשק ניהול (Admin Panel) -->
   <div id="adminModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs hidden items-center justify-center p-4 overflow-y-auto">
     <div class="bg-white rounded-3xl max-w-3xl w-full shadow-2xl border border-slate-200 overflow-hidden my-8">
-      <div class="p-5 bg-slate-900 text-white flex items-center justify-between">
+      <div class="p-5 bg-slate-900 text-white flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h3 class="text-lg font-extrabold">⚙️ ממשק ניהול האתר – אישור תמונות וניהול שריונים</h3>
+          <h3 class="text-lg font-extrabold">⚙️ ממשק ניהול האתר – אישורים, הודעות וגיבוי</h3>
           <p class="text-xs text-slate-400">מיועד לצוות המנהלים (החברים והמשפחה)</p>
         </div>
-        <button onclick="closeAdminModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center font-bold">✕</button>
+        <div class="flex items-center gap-2">
+          <button id="exportCsvBtn" onclick="exportMemoriesToCSV()" class="hidden px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition flex items-center gap-1">
+            <span>📥 ייצוא לאקסל (CSV)</span>
+          </button>
+          <button onclick="closeAdminModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center font-bold">✕</button>
+        </div>
       </div>
 
       <!-- מסך התחברות למנהל -->
@@ -492,10 +561,18 @@
 
       <!-- לוח בקרה למנהל -->
       <div id="adminDashboardView" class="p-6 space-y-6 max-h-[78vh] overflow-y-auto hidden">
+        <!-- תיבת הודעות נכנסות מגולשים -->
+        <div class="bg-blue-50/70 border border-blue-200 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="font-extrabold text-blue-950 text-base">✉️ הודעות מגולשים למנהלים (<span id="adminMessagesCount">0</span>)</h4>
+            <button onclick="loadAdminData()" class="text-xs text-blue-700 font-bold hover:underline">רענן</button>
+          </div>
+          <div id="adminMessagesList" class="space-y-2.5"></div>
+        </div>
+
         <div>
           <div class="flex items-center justify-between mb-3">
             <h4 class="font-extrabold text-slate-900 text-base">⏳ ממתינים לאישור פרסום (<span id="adminPendingCount">0</span>)</h4>
-            <button onclick="loadAdminData()" class="text-xs text-blue-600 font-bold hover:underline">רענן רשימה</button>
           </div>
           <div id="adminPendingList" class="space-y-3"></div>
         </div>
@@ -510,9 +587,14 @@
 
   <!-- פוטר -->
   <footer class="bg-slate-900 text-slate-400 py-8 mt-16 text-center text-sm">
-    <div class="max-w-6xl mx-auto px-4">
-      <p class="text-white font-bold mb-1">לזכרו של זוהר תמיר ז"ל</p>
+    <div class="max-w-6xl mx-auto px-4 space-y-2">
+      <p class="text-white font-bold">לזכרו של זוהר תמיר ז"ל</p>
       <p class="text-xs">יוזמה של החברים של זוהר • נתוני השביל באדיבות החברה להגנת הטבע</p>
+      <div class="pt-2">
+        <button onclick="openContactModal()" class="text-xs text-amber-400 hover:text-amber-300 font-bold underline">
+          ✉️ יצירת קשר ושליחת הודעה למנהלי האתר
+        </button>
+      </div>
     </div>
   </footer>
 
@@ -643,6 +725,7 @@
         updateStats();
         renderRealMapPins();
         renderSegments();
+        renderJourneyFeed();
         checkPendingCount();
       } catch (err) {
         console.error('Error loading data:', err);
@@ -668,6 +751,97 @@
           badge.classList.add('hidden');
         }
       } catch (e) {}
+    }
+
+    function openContactModal() {
+      document.getElementById('contactModal').classList.remove('hidden');
+      document.getElementById('contactModal').classList.add('flex');
+    }
+    function closeContactModal() {
+      document.getElementById('contactModal').classList.add('hidden');
+      document.getElementById('contactModal').classList.remove('flex');
+    }
+
+    async function submitContactMessage(e) {
+      e.preventDefault();
+      const btn = document.getElementById('msgSubmitBtn');
+      btn.disabled = true;
+      btn.textContent = 'שולח הודעה...';
+
+      const senderName = document.getElementById('msgSenderName').value.trim();
+      const senderContact = document.getElementById('msgSenderContact').value.trim();
+      const subject = document.getElementById('msgSubject').value;
+      const body = document.getElementById('msgBody').value.trim();
+      const todayStr = new Date().toISOString().split('T')[0];
+
+      try {
+        const payload = {
+          segment_id: 1,
+          hiker_name: senderName,
+          hike_date: todayStr,
+          contact_info: packContactInfo(senderContact, subject),
+          story: body,
+          status: 'message',
+          is_approved: false
+        };
+        const { error } = await sb.from('memories').insert([payload]);
+        if (error) throw error;
+
+        alert('ההודעה נשלחה בהצלחה לצוות המנהלים! נחזור אליך בהקדם.');
+        document.getElementById('contactAdminForm').reset();
+        closeContactModal();
+        await checkPendingCount();
+      } catch (err) {
+        alert('שגיאה בשליחת ההודעה: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'שליחת הודעה למנהלים';
+      }
+    }
+
+    function renderJourneyFeed() {
+      const grid = document.getElementById('journeyFeedGrid');
+      const countEl = document.getElementById('journeyFeedCount');
+      const approvedMemories = memoriesData.filter(m => m.status === 'completed' && m.is_approved);
+      countEl.textContent = approvedMemories.length;
+
+      if (approvedMemories.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full bg-slate-50 border border-dashed border-slate-300 rounded-2xl p-8 text-center text-slate-600">
+            <span class="text-3xl block mb-2">🥾</span>
+            <p class="font-bold text-slate-800">יומן המסע מחכה לגלויה הראשונה מהשטח!</p>
+            <p class="text-xs mt-1">ברגע שקבוצה תסיים מקטע ותעלה תמונה וגלוית "עצירה של 5 דקות", היא תופיע כאן.</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = approvedMemories.map(item => {
+        const seg = segmentsData.find(s => s.id === item.segment_id);
+        const segTitle = seg ? `מקטע #${seg.id}: ${seg.title} (${seg.region})` : `מקטע #${item.segment_id}`;
+        return `
+          <article class="bg-amber-50/35 border border-slate-200 rounded-2xl overflow-hidden shadow-2xs hover:shadow-md transition flex flex-col">
+            ${item.photo_url ? `<img src="${item.photo_url}" alt="${segTitle}" class="w-full h-56 object-cover" />` : ''}
+            <div class="p-5 flex-1 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between gap-2 text-xs mb-1.5">
+                  <button onclick="openModal(${item.segment_id})" class="font-extrabold text-blue-800 hover:underline text-right">${segTitle}</button>
+                  <span class="text-slate-500 shrink-0">📅 ${item.hike_date}</span>
+                </div>
+                <div class="text-xs font-bold text-emerald-700 mb-3">🥾 צעדו: ${item.hiker_name}</div>
+                <div class="text-sm text-slate-700 leading-relaxed bg-white p-3.5 rounded-xl border border-amber-100">
+                  ${formatStoryHtml(item.story)}
+                </div>
+              </div>
+              <div class="mt-4 pt-2 border-t border-slate-100 flex justify-end">
+                <button onclick="openModal(${item.segment_id})" class="text-xs font-bold text-orange-600 hover:underline">
+                  לצפייה במקטע ←
+                </button>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
     }
 
     function packContactInfo(phone, publicNote) {
@@ -1081,6 +1255,10 @@
       document.getElementById('modalSeason').textContent = `🌤️ עונה מומלצת: ${seasonInfo.label}`;
       document.getElementById('modalOfficialLink').href = currentSegment.official_url || 'https://www.teva.org.il/israel-national-trail';
 
+      const siteUrl = window.location.origin + window.location.pathname;
+      const waText = `היי! מי מצטרף אליי לצעוד את *מקטע ${currentSegment.id} בשביל ישראל* (${currentSegment.title}) לזכרו של זוהר תמיר ז"ל? 🥾🤍\n📏 מרחק: ${currentSegment.distance} ק"מ | ⛰️ קושי: ${currentSegment.difficulty}\n🌤️ עונה מומלצת: ${seasonInfo.label}\nלפרטים ושריון באתר: ${siteUrl}`;
+      document.getElementById('modalWhatsappShareBtn').href = `https://wa.me/?text=${encodeURIComponent(waText)}`;
+
       const { completed, planned } = getSegmentMemories(segmentId);
 
       const plannedSec = document.getElementById('modalPlannedSection');
@@ -1315,6 +1493,7 @@
       if (isAdminLoggedIn) {
         document.getElementById('adminLoginView').classList.add('hidden');
         document.getElementById('adminDashboardView').classList.remove('hidden');
+        document.getElementById('exportCsvBtn').classList.remove('hidden');
         loadAdminData();
       }
     }
@@ -1330,6 +1509,7 @@
         isAdminLoggedIn = true;
         document.getElementById('adminLoginView').classList.add('hidden');
         document.getElementById('adminDashboardView').classList.remove('hidden');
+        document.getElementById('exportCsvBtn').classList.remove('hidden');
         loadAdminData();
       } else {
         alert('קוד שגוי. נסו שוב.');
@@ -1350,8 +1530,39 @@
         if (error) throw error;
         allMemoriesAdmin = data || [];
 
-        const pending = allMemoriesAdmin.filter(m => !m.is_approved);
-        const approved = allMemoriesAdmin.filter(m => m.is_approved);
+        const messages = allMemoriesAdmin.filter(m => m.status === 'message');
+        const pending = allMemoriesAdmin.filter(m => m.status !== 'message' && !m.is_approved);
+        const approved = allMemoriesAdmin.filter(m => m.status !== 'message' && m.is_approved);
+
+        const messagesList = document.getElementById('adminMessagesList');
+        document.getElementById('adminMessagesCount').textContent = messages.length;
+        if (messages.length === 0) {
+          messagesList.innerHTML = '<p class="text-xs text-slate-500">אין הודעות חדשות מגולשים.</p>';
+        } else {
+          messagesList.innerHTML = messages.map(msg => {
+            const { phone, publicNote } = parseContactInfo(msg.contact_info);
+            const contactRaw = phone || msg.contact_info || '';
+            const waBtn = contactRaw && /\d{7,}/.test(contactRaw)
+              ? `<a href="${formatWhatsappLink(contactRaw)}" target="_blank" rel="noopener" class="px-2 py-0.5 bg-green-100 hover:bg-green-200 text-green-800 rounded text-[11px] font-bold">💬 וואטסאפ (${contactRaw})</a>`
+              : `<span class="text-xs text-slate-600 font-medium">📞 ${contactRaw}</span>`;
+            return `
+              <div class="bg-white border border-blue-200 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="space-y-1">
+                  <div class="flex flex-wrap items-center gap-2 text-xs">
+                    <span class="font-extrabold text-slate-900">${msg.hiker_name}</span>
+                    ${publicNote ? `<span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded font-bold">${publicNote}</span>` : ''}
+                    ${waBtn}
+                    <span class="text-slate-400 text-[11px]">${msg.hike_date}</span>
+                  </div>
+                  <p class="text-xs text-slate-700 leading-relaxed">${msg.story || ''}</p>
+                </div>
+                <button onclick="deleteMemory('${msg.id}')" class="self-end sm:self-center px-2.5 py-1 bg-slate-100 hover:bg-red-100 text-slate-700 hover:text-red-700 rounded-lg text-xs font-bold shrink-0">
+                  ✓ טופל / מחיקה
+                </button>
+              </div>
+            `;
+          }).join('');
+        }
 
         document.getElementById('adminPendingCount').textContent = pending.length;
 
@@ -1543,6 +1754,45 @@
       } catch (err) {
         alert('שגיאה במחיקה: ' + err.message);
       }
+    }
+
+    function exportMemoriesToCSV() {
+      const records = allMemoriesAdmin.filter(m => m.status !== 'message');
+      if (records.length === 0) {
+        alert('אין עדיין רשומות לייצוא.');
+        return;
+      }
+
+      const headers = ['מספר מקטע', 'שם המקטע', 'אזור', 'סטטוס', 'שם המטייל/קבוצה', 'טלפון', 'תאריך', 'הערה פומבית', 'טקסט גלויית 5 דקות', 'קישור לתמונה'];
+      const rows = records.map(item => {
+        const seg = segmentsData.find(s => s.id === item.segment_id);
+        const { phone, publicNote } = parseContactInfo(item.contact_info);
+        const statusHeb = item.status === 'completed' ? (item.is_approved ? 'בוצע ומאושר' : 'ממתין לאישור') : 'משוריין';
+        return [
+          item.segment_id,
+          seg ? seg.title : '',
+          seg ? seg.region : '',
+          statusHeb,
+          item.hiker_name || '',
+          phone,
+          item.hike_date || '',
+          publicNote,
+          (item.story || '').replace(/\n/g, ' | '),
+          item.photo_url || ''
+        ].map(val => `"${String(val).replace(/"/g, '""')}"`).join(',');
+      });
+
+      const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const dateStamp = new Date().toISOString().split('T')[0];
+      link.href = url;
+      link.download = `zohar-trail-backup-${dateStamp}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
     }
 
     loadData();
