@@ -86,22 +86,26 @@
     </div>
   </nav>
 
-  <!-- פתיח (Hero) עם באנרים רספונסיביים (מחשב + נייד) -->
-  <header class="relative overflow-hidden border-b border-slate-200 bg-amber-50">
-    <!-- תמונת באנר למחשב (מוצגת מ-md ומעלה) -->
+  <!-- פתיח (Hero): במובייל באנר חזותי נקי למעלה + תמונת זוהר חופפת + טקסט על רקע נקי; במחשב באנר רחב -->
+  <header class="relative overflow-hidden border-b border-slate-200 bg-gradient-to-b from-amber-50/70 via-white to-white">
+    <!-- תמונת באנר למחשב בלבד (מוצגת מ-md ומעלה) -->
     <img src="banner-desktop.jpg" onerror="this.style.display='none'" alt="נופי שביל ישראל" class="hidden md:block absolute inset-0 w-full h-full object-cover object-left" />
-    <!-- תמונת באנר לנייד (מוצגת מתחת ל-md) -->
-    <img src="banner-mobile.jpg" onerror="this.style.display='none'" alt="נופי שביל ישראל" class="block md:hidden absolute inset-0 w-full h-full object-cover object-bottom opacity-45" />
-    
-    <!-- שכבת ריכוך חזקה וברורה למובייל ולמחשב להבטחת קריאות מלאה של הטקסטים מעל הבאנר -->
-    <div class="hero-overlay absolute inset-0" style="background: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.92) 65%, rgba(255,255,255,0.78) 100%);"></div>
-    <div class="hero-overlay hidden md:block absolute inset-0" style="background: linear-gradient(270deg, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.88) 55%, rgba(255,255,255,0.15) 100%);"></div>
+    <div class="hero-overlay hidden md:block absolute inset-0" style="background: linear-gradient(270deg, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.88) 55%, rgba(255,255,255,0.12) 100%);"></div>
 
-    <div class="relative z-10 max-w-6xl mx-auto px-4 py-10 md:py-14">
-      <div class="flex flex-col md:flex-row items-center gap-8 md:gap-12">
-        <!-- מסגרת תמונת פורטרט -->
-        <div class="relative shrink-0">
-          <div class="w-44 h-44 md:w-56 md:h-56 rounded-3xl overflow-hidden border-4 border-white shadow-xl bg-slate-200 flex items-center justify-center relative group">
+    <!-- באנר מובייל ייעודי (מוצג במלואו ללא טקסט מעליו!) -->
+    <div class="block md:hidden relative w-full h-56 sm:h-64 overflow-hidden bg-amber-100">
+      <img src="banner-mobile.jpg" onerror="this.style.display='none'" alt="נופי שביל ישראל" class="w-full h-full object-cover object-center" />
+      <div class="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent"></div>
+      <div class="absolute top-3 right-3 bg-white/95 backdrop-blur-xs px-3 py-1 rounded-full text-[11px] font-bold text-orange-900 shadow-sm border border-orange-200">
+        🤍 יוזמה של החברים של זוהר • לזכרו
+      </div>
+    </div>
+
+    <div class="relative z-10 max-w-6xl mx-auto px-4 pb-10 pt-0 md:py-14">
+      <div class="flex flex-col md:flex-row items-center gap-6 md:gap-12">
+        <!-- מסגרת תמונת פורטרט (חופפת באלגנטיות את תחתית הבאנר במובייל) -->
+        <div class="relative shrink-0 -mt-20 md:mt-0">
+          <div class="w-36 h-36 sm:w-44 sm:h-44 md:w-56 md:h-56 rounded-3xl overflow-hidden border-4 border-white shadow-xl bg-slate-200 flex items-center justify-center relative group">
             <img id="zoharHeroImg" src="zohar.jpg" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=600&q=80';" alt="זוהר תמיר ז״ל" class="w-full h-full object-cover" />
             <label for="heroImgInput" class="absolute inset-0 bg-black/50 text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center cursor-pointer p-2 text-center">
               <span>📷 לחץ לתצוגת תמונה של זוהר</span>
@@ -109,20 +113,20 @@
             </label>
             <input type="file" id="heroImgInput" accept="image/*" class="hidden" onchange="previewHeroImage(event)" />
           </div>
-          <div class="absolute -bottom-3 right-1/2 translate-x-1/2 bg-orange-600 text-white text-xs font-bold px-3.5 py-1 rounded-full shadow">
+          <div class="absolute -bottom-3 right-1/2 translate-x-1/2 bg-orange-600 text-white text-xs font-bold px-3.5 py-1 rounded-full shadow whitespace-nowrap">
             זוהר תמיר ז"ל
           </div>
         </div>
 
         <!-- טקסט הנצחה ומד התקדמות -->
-        <div class="flex-1 text-center md:text-right">
-          <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-orange-50/95 border border-orange-200 text-orange-900 text-xs font-bold mb-3 shadow-2xs">
+        <div class="flex-1 text-center md:text-right mt-2 md:mt-0">
+          <div class="hidden md:inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-900 text-xs font-bold mb-3 shadow-2xs">
             <span>🤍 יוזמה של החברים של זוהר • לזכרו</span>
           </div>
-          <h1 class="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-4 drop-shadow-2xs">
+          <h1 class="text-2xl sm:text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-3 md:mb-4 leading-tight">
             ממשיכים את הצעדים של זוהר בשביל ישראל
           </h1>
-          <div class="text-slate-700 text-base md:text-lg leading-relaxed max-w-2xl mb-6 font-normal space-y-3">
+          <div class="text-slate-700 text-sm sm:text-base md:text-lg leading-relaxed max-w-2xl mb-6 font-normal space-y-3">
             <p>
               זוהר אהב את הארץ, את השבילים הפתוחים, את השקט של הטבע ואת הרגעים האמיתיים של שיחה ועצירה בדרך. החלום הגדול שלו לפני הגיוס היה לצאת ולכבוש את שביל ישראל — חלום שנקטע מוקדם מדי.
             </p>
@@ -133,7 +137,7 @@
 
           <!-- כפתור גלויית עצירה של 5 דקות -->
           <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-5 justify-center md:justify-start">
-            <button onclick="openPostcardModal()" class="px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl text-sm shadow-sm transition flex items-center justify-center gap-2">
+            <button onclick="openPostcardModal()" class="px-4 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl text-sm shadow-sm transition flex items-center justify-center gap-2">
               <span>📜 כרטיסיית המשימה מזוהר (עצירה של 5 דקות)</span>
             </button>
           </div>
