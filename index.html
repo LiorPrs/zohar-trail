@@ -540,7 +540,10 @@
           <h3 class="text-lg font-extrabold">⚙️ ממשק ניהול האתר – אישורים, הודעות וגיבוי</h3>
           <p class="text-xs text-slate-400">מיועד לצוות המנהלים (החברים והמשפחה)</p>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="snapTrailBtn" onclick="snapAllPinsToRealTrail()" class="hidden px-3 py-1.5 bg-orange-600 hover:bg-orange-500 text-white font-bold rounded-xl text-xs transition flex items-center gap-1" title="מושך את תוואי שביל ישראל האמיתי מ-OpenStreetMap ומצמיד את כל 56 הסיכות לאמצע המקטע שעל השביל">
+            <span>📍 הצמד 56 סיכות לאמצע השביל</span>
+          </button>
           <button id="exportCsvBtn" onclick="exportMemoriesToCSV()" class="hidden px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition flex items-center gap-1">
             <span>📥 ייצוא לאקסל (CSV)</span>
           </button>
@@ -1256,7 +1259,7 @@
       document.getElementById('modalOfficialLink').href = currentSegment.official_url || 'https://www.teva.org.il/israel-national-trail';
 
       const siteUrl = window.location.origin + window.location.pathname;
-      const waText = `היי! מי מצטרף אליי לצעוד את *מקטע ${currentSegment.id} בשביל ישראל* (${currentSegment.title}) לזכרו של זוהר? 🥾🤍\n📏 מרחק: ${currentSegment.distance} ק"מ | ⛰️ קושי: ${currentSegment.difficulty}\n🌤️ עונה מומלצת: ${seasonInfo.label}\nלפרטים ושריון באתר: ${siteUrl}`;
+      const waText = `היי! מי מצטרף אליי לצעוד את *מקטע ${currentSegment.id} בשביל ישראל* (${currentSegment.title}) לזכרו של זוהר תמיר ז"ל? 🥾🤍\n📏 מרחק: ${currentSegment.distance} ק"מ | ⛰️ קושי: ${currentSegment.difficulty}\n🌤️ עונה מומלצת: ${seasonInfo.label}\nלפרטים ושריון באתר: ${siteUrl}`;
       document.getElementById('modalWhatsappShareBtn').href = `https://wa.me/?text=${encodeURIComponent(waText)}`;
 
       const { completed, planned } = getSegmentMemories(segmentId);
@@ -1494,6 +1497,7 @@
         document.getElementById('adminLoginView').classList.add('hidden');
         document.getElementById('adminDashboardView').classList.remove('hidden');
         document.getElementById('exportCsvBtn').classList.remove('hidden');
+        document.getElementById('snapTrailBtn').classList.remove('hidden');
         loadAdminData();
       }
     }
@@ -1510,6 +1514,7 @@
         document.getElementById('adminLoginView').classList.add('hidden');
         document.getElementById('adminDashboardView').classList.remove('hidden');
         document.getElementById('exportCsvBtn').classList.remove('hidden');
+        document.getElementById('snapTrailBtn').classList.remove('hidden');
         loadAdminData();
       } else {
         alert('קוד שגוי. נסו שוב.');
@@ -1753,6 +1758,110 @@
         await loadData();
       } catch (err) {
         alert('שגיאה במחיקה: ' + err.message);
+      }
+    }
+
+    // הצמדה אוטומטית של כל 56 הסיכות לאמצע המקטע על תוואי שביל ישראל האמיתי (OpenStreetMap Overpass API)
+    async function snapAllPinsToRealTrail() {
+      const btn = document.getElementById('snapTrailBtn');
+      const originalHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳ מושך תוואי שביל ישראל...</span>';
+
+      try {
+        // שליפת הגיאומטריה המלאה של שביל ישראל הרשמי (Relation 1652171) מתוך OpenStreetMap
+        const query = `[out:json][timeout:30];relation(1652171);way(r);out geom;`;
+        const endpoints = [
+          'https://overpass-api.de/api/interpreter',
+          'https://overpass.kumi.systems/api/interpreter'
+        ];
+
+        let osmData = null;
+        for (const ep of endpoints) {
+          try {
+            const res = await fetch(ep, {
+              method: 'POST',
+              body: 'data=' + encodeURIComponent(query)
+            });
+            if (res.ok) {
+              osmData = await res.json();
+              if (osmData && osmData.elements && osmData.elements.length > 0) break;
+            }
+          } catch (e) {}
+        }
+
+        if (!osmData || !osmData.elements || osmData.elements.length === 0) {
+          throw new Error('לא הצלחנו להתחבר לשרת המפות כרגע. נסו שוב בעוד כמה שניות.');
+        }
+
+        // חילוץ כל נקודות האמצע של מקטעי הדרך (Ways) של שביל ישראל האמיתי
+        const trailPoints = [];
+        osmData.elements.forEach(el => {
+          if (el.type === 'way' && Array.isArray(el.geometry)) {
+            el.geometry.forEach(pt => {
+              trailPoints.push({ lat: pt.lat, lng: pt.lon });
+            });
+          }
+        });
+
+        if (trailPoints.length < 100) {
+          throw new Error('התקבלו מעט מדי נקודות מהמפה.');
+        }
+
+        btn.innerHTML = '<span>🧮 מחשב אמצע מקטע על השביל...</span>';
+
+        // פונקציית מרחק גיאוגרפי (Haversine בק"מ)
+        function haversineKm(lat1, lon1, lat2, lon2) {
+          const R = 6371;
+          const dLat = (lat2 - lat1) * Math.PI / 180;
+          const dLon = (lon2 - lon1) * Math.PI / 180;
+          const a = Math.sin(dLat / 2) ** 2 +
+                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                    Math.sin(dLon / 2) ** 2;
+          return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        }
+
+        // לכל אחד מ-56 המקטעים: מוצאים את הנקודה הקרובה ביותר על תוואי שביל ישראל האמיתי
+        const updates = [];
+        for (const seg of segmentsData) {
+          const curLat = Number(seg.lat);
+          const curLng = Number(seg.lng);
+          let bestPt = null;
+          let bestDist = Infinity;
+
+          for (const tp of trailPoints) {
+            const d = haversineKm(curLat, curLng, tp.lat, tp.lng);
+            if (d < bestDist) {
+              bestDist = d;
+              bestPt = tp;
+            }
+          }
+
+          if (bestPt) {
+            updates.push({
+              id: seg.id,
+              lat: Number(bestPt.lat.toFixed(6)),
+              lng: Number(bestPt.lng.toFixed(6))
+            });
+          }
+        }
+
+        btn.innerHTML = '<span>💾 שומר 56 נקודות במסד הנתונים...</span>';
+
+        // עדכון כל 56 המקטעים ב-Supabase במקביל
+        await Promise.all(
+          updates.map(u =>
+            sb.from('segments').update({ lat: u.lat, lng: u.lng }).eq('id', u.id)
+          )
+        );
+
+        await loadData();
+        alert(`הסנכרון הושלם בהצלחה! כל ${updates.length} הסיכות הוצמדו בדיוק למרכז המקטעים על תוואי שביל ישראל האמיתי.`);
+      } catch (err) {
+        alert('שגיאה בהצמדת הסיכות לשביל: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
       }
     }
 
