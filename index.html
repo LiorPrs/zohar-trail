@@ -118,7 +118,7 @@
           </div>
         </div>
 
-        <!-- טקסט הנצחה ומד התקדמות -->
+        <!-- טקסט הנצחה ומד התקדמות מבוסס מקטעים -->
         <div class="flex-1 text-center md:text-right mt-2 md:mt-0">
           <div class="hidden md:inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-900 text-xs font-bold mb-3 shadow-2xs">
             <span>🤍 יוזמה של החברים של זוהר • לזכרו</span>
@@ -142,19 +142,30 @@
             </button>
           </div>
 
-          <!-- מד התקדמות -->
-          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm max-w-xl mx-auto md:mx-0">
-            <div class="flex justify-between text-sm font-bold mb-2">
-              <span class="text-slate-700">התקדמות השביל: <span id="completedCount" class="text-emerald-600">0</span> מתוך <span id="totalCount">0</span> מקטעים</span>
-              <span class="text-orange-600"><span id="completedKm">0</span> ק"מ הושלמו</span>
+          <!-- מד התקדמות השביל לפי כל 56 המקטעים + פילוח אזורים -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm max-w-2xl mx-auto md:mx-0 text-right">
+            <div class="flex flex-wrap items-center justify-between gap-2 text-sm font-bold mb-2.5">
+              <span class="text-slate-800">מפת התקדמות 56 המקטעים (מצפון לדרום):</span>
+              <div class="flex flex-wrap items-center gap-1.5 text-xs">
+                <span class="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800">🟢 <span id="completedCount">0</span> בוצעו</span>
+                <span class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-800">🟠 <span id="plannedCount">0</span> שוריינו</span>
+                <span id="overdueSummaryBadge" class="hidden px-2 py-0.5 rounded-md bg-red-100 text-red-800">🔴 <span id="overdueCount">0</span> עבר הזמן</span>
+                <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">⚫ <span id="availableCount">56</span> פנויים</span>
+              </div>
             </div>
-            <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
-              <div id="progressBar" class="h-full bg-gradient-to-l from-emerald-500 to-blue-600 transition-all duration-700" style="width: 0%"></div>
-            </div>
-            <div class="flex gap-4 mt-2.5 text-xs text-slate-600">
-              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> הושלם</span>
-              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> מתוכנן / משוריין</span>
-              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-slate-400 inline-block"></span> פנוי</span>
+
+            <!-- רצועת 56 קוביות אינטראקטיביות (כל קובייה = מקטע אמיתי, לחיצה פותחת אותו!) -->
+            <div id="segmentsBlockBar" class="grid gap-1 my-2.5" style="grid-template-columns: repeat(28, minmax(0, 1fr));" title="לחצו על כל מקטע לצפייה או שריון"></div>
+
+            <!-- פילוח מהיר לפי אזורים (לחיצה מסננת מיד את האזור) -->
+            <div id="regionBreakdownBar" class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 pt-3 border-t border-slate-100 text-xs"></div>
+
+            <!-- מקרא צבעים -->
+            <div class="flex flex-wrap gap-3 md:gap-4 mt-3 pt-2.5 border-t border-slate-100 text-[11px] text-slate-600">
+              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> בוצע (<span id="completedKm">0</span> ק"מ)</span>
+              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> שוריין</span>
+              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-red-600 inline-block"></span> עבר הזמן המשוער</span>
+              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-slate-900 inline-block"></span> לא נבחר</span>
             </div>
           </div>
         </div>
@@ -201,7 +212,7 @@
     </section>
 
     <!-- אזור סינון ורשימת מקטעים -->
-    <section>
+    <section id="segmentsSection">
       <div class="flex flex-col gap-4 mb-6">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
@@ -647,30 +658,115 @@
       } catch (e) {}
     }
 
+    function isPlanOverdue(hikeDateStr) {
+      if (!hikeDateStr) return false;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const planDate = new Date(hikeDateStr + 'T00:00:00');
+      return planDate < today;
+    }
+
     function getSegmentMemories(segmentId) {
       const completed = memoriesData.filter(m => m.segment_id === segmentId && m.status === 'completed' && m.is_approved);
       const planned = memoriesData.filter(m => m.segment_id === segmentId && m.status === 'planned');
       return { completed, planned };
     }
 
+    function filterByRegionFromProgress(regionName) {
+      const sel = document.getElementById('regionFilter');
+      sel.value = (sel.value === regionName) ? 'all' : regionName;
+      renderSegments();
+      document.getElementById('segmentsSection').scrollIntoView({ behavior: 'smooth' });
+    }
+
     function updateStats() {
-      const total = segmentsData.length;
       let completedSegs = 0;
+      let activePlannedSegs = 0;
+      let overdueSegs = 0;
+      let availableSegs = 0;
       let completedKm = 0;
 
+      const regionOrder = ['צפון', 'מרכז', 'ירושלים', 'דרום'];
+      const regionStats = {
+        'צפון': { total: 0, completed: 0, planned: 0, overdue: 0 },
+        'מרכז': { total: 0, completed: 0, planned: 0, overdue: 0 },
+        'ירושלים': { total: 0, completed: 0, planned: 0, overdue: 0 },
+        'דרום': { total: 0, completed: 0, planned: 0, overdue: 0 }
+      };
+
+      const blockBar = document.getElementById('segmentsBlockBar');
+      blockBar.innerHTML = '';
+
       segmentsData.forEach(seg => {
-        const { completed } = getSegmentMemories(seg.id);
+        const { completed, planned } = getSegmentMemories(seg.id);
+        const reg = regionStats[seg.region] ? seg.region : 'דרום';
+        regionStats[reg].total++;
+
+        let blockColor = 'bg-slate-900 hover:bg-slate-700';
+        let statusLabel = 'לא נבחר';
+
         if (completed.length > 0) {
           completedSegs++;
           completedKm += Number(seg.distance);
+          regionStats[reg].completed++;
+          blockColor = 'bg-emerald-500 hover:bg-emerald-600';
+          statusLabel = 'בוצע';
+        } else if (planned.length > 0) {
+          const anyActive = planned.some(p => !isPlanOverdue(p.hike_date));
+          if (anyActive) {
+            activePlannedSegs++;
+            regionStats[reg].planned++;
+            blockColor = 'bg-amber-500 hover:bg-amber-600';
+            statusLabel = `שוריין (${planned[0].hike_date})`;
+          } else {
+            overdueSegs++;
+            regionStats[reg].overdue++;
+            blockColor = 'bg-red-600 hover:bg-red-700';
+            statusLabel = `עבר הזמן (${planned[0].hike_date})`;
+          }
+        } else {
+          availableSegs++;
         }
+
+        const block = document.createElement('button');
+        block.type = 'button';
+        block.className = `h-3.5 rounded-[3px] transition-transform hover:scale-125 focus:outline-none ${blockColor}`;
+        block.title = `מקטע ${seg.id} (${seg.region}): ${seg.title} — ${statusLabel}`;
+        block.setAttribute('aria-label', `מקטע ${seg.id}: ${seg.title}`);
+        block.onclick = () => openModal(seg.id);
+        blockBar.appendChild(block);
       });
 
-      document.getElementById('totalCount').textContent = total;
       document.getElementById('completedCount').textContent = completedSegs;
+      document.getElementById('plannedCount').textContent = activePlannedSegs;
+      document.getElementById('availableCount').textContent = availableSegs;
       document.getElementById('completedKm').textContent = completedKm.toFixed(1);
-      const pct = total > 0 ? Math.round((completedSegs / total) * 100) : 0;
-      document.getElementById('progressBar').style.width = pct + '%';
+
+      const overdueBadge = document.getElementById('overdueSummaryBadge');
+      if (overdueSegs > 0) {
+        document.getElementById('overdueCount').textContent = overdueSegs;
+        overdueBadge.classList.remove('hidden');
+      } else {
+        overdueBadge.classList.add('hidden');
+      }
+
+      const regionBar = document.getElementById('regionBreakdownBar');
+      regionBar.innerHTML = regionOrder.map(reg => {
+        const st = regionStats[reg];
+        return `
+          <button type="button" onclick="filterByRegionFromProgress('${reg}')" class="bg-slate-50 hover:bg-orange-50 border border-slate-200 hover:border-orange-300 rounded-xl p-2 text-right transition">
+            <div class="font-extrabold text-slate-800 flex items-center justify-between">
+              <span>${reg}</span>
+              <span class="text-[11px] text-slate-500">${st.total} מק'</span>
+            </div>
+            <div class="flex items-center gap-1.5 mt-1 text-[11px] font-bold">
+              <span class="text-emerald-700">🟢 ${st.completed}</span>
+              <span class="text-amber-700">🟠 ${st.planned}</span>
+              ${st.overdue > 0 ? `<span class="text-red-700">🔴 ${st.overdue}</span>` : ''}
+            </div>
+          </button>
+        `;
+      }).join('');
     }
 
     function renderRealMapPins() {
@@ -698,11 +794,19 @@
             </div>
           `;
         } else if (completed.length > 0) {
-          iconHtml = `<div class="w-6 h-6 rounded-full bg-emerald-500 border-2 border-white shadow-md"></div>`;
+          iconSize = [24, 24];
+          iconHtml = `<div class="w-6 h-6 rounded-full bg-emerald-500 border-2 border-white shadow-md hover:scale-110 transition-transform"></div>`;
         } else if (planned.length > 0) {
-          iconHtml = `<div class="w-6 h-6 rounded-full bg-amber-500 border-2 border-white shadow-md animate-pulse"></div>`;
+          const anyActive = planned.some(p => !isPlanOverdue(p.hike_date));
+          iconSize = [24, 24];
+          if (anyActive) {
+            iconHtml = `<div class="w-6 h-6 rounded-full bg-amber-500 border-2 border-white shadow-md animate-pulse"></div>`;
+          } else {
+            iconHtml = `<div class="w-6 h-6 rounded-full bg-red-600 border-2 border-white shadow-md animate-pulse"></div>`;
+          }
         } else {
-          iconHtml = `<div class="w-4 h-4 rounded-full bg-slate-600 border-2 border-white shadow hover:bg-orange-600 transition"></div>`;
+          iconSize = [18, 18];
+          iconHtml = `<div class="w-4 h-4 rounded-full bg-slate-950 border-2 border-white shadow hover:bg-orange-600 transition"></div>`;
         }
 
         const customIcon = L.divIcon({
@@ -736,9 +840,14 @@
       const seasonInfo = getSegmentSeasonInfo(seg);
       const panel = document.getElementById('mapPreviewPanel');
 
-      let statusBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-slate-200 text-slate-700">פנוי להליכה</span>`;
-      if (completed.length > 0) statusBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">✅ הושלם (${completed.length})</span>`;
-      else if (planned.length > 0) statusBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800">📅 מתוכנן (${planned.length})</span>`;
+      let statusBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-slate-900 text-white">⚫ לא נבחר</span>`;
+      if (completed.length > 0) statusBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">🟢 בוצע (${completed.length})</span>`;
+      else if (planned.length > 0) {
+        const anyActive = planned.some(p => !isPlanOverdue(p.hike_date));
+        statusBadge = anyActive
+          ? `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800">🟠 שוריין (${planned.length})</span>`
+          : `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800">🔴 לא בוצע (עבר התאריך)</span>`;
+      }
 
       let contentHtml = '';
       if (completed.length > 0) {
@@ -871,8 +980,14 @@
             previewImg = `<img src="${completed[0].photo_url}" class="w-full h-36 object-cover rounded-xl mb-3" alt="${seg.title}" />`;
           }
         } else if (planned.length > 0) {
-          badge = `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800">📅 משוריין (${planned[0].hike_date})</span>`;
-          borderClass = 'border-amber-300';
+          const anyActive = planned.some(p => !isPlanOverdue(p.hike_date));
+          if (anyActive) {
+            badge = `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800">🟠 שוריין (${planned[0].hike_date})</span>`;
+            borderClass = 'border-amber-300';
+          } else {
+            badge = `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800">🔴 עבר הזמן (${planned[0].hike_date})</span>`;
+            borderClass = 'border-red-300';
+          }
         }
 
         const card = document.createElement('div');
@@ -1090,9 +1205,7 @@
         const natureAns = document.getElementById('compNature').value.trim();
         const growthAns = document.getElementById('compGrowth').value.trim();
         const zoharAns = document.getElementById('compZoharWord').value.trim();
-        const formattedStory = `🌿 מה ראינו בטבע: ${natureAns}
-🧭 צידה לדרך: ${growthAns}
-🤍 מילה לזוהר: ${zoharAns}`;
+        const formattedStory = `🌿 מה ראינו בטבע: ${natureAns}\n🧭 צידה לדרך: ${growthAns}\n🤍 מילה לזוהר: ${zoharAns}`;
 
         const payload = {
           segment_id: currentSegment.id,
