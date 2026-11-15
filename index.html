@@ -647,7 +647,6 @@
     let map = null;
     let currentTileLayer = null;
     let markersLayer = null;
-    let trailPolyline = null;
 
     function getSegmentSeasonInfo(seg) {
       const id = Number(seg.id);
@@ -1077,7 +1076,6 @@
       if (!markersLayer) return;
       markersLayer.clearLayers();
       if (endpointsLayer) endpointsLayer.clearLayers();
-      if (trailPolyline) map.removeLayer(trailPolyline);
 
       // הוספת נקודות התחלה וסיום קבועות של שביל ישראל (קופות אתר החרמון בצפון ובית ספר שדה אילת בדרום)
       if (endpointsLayer) {
@@ -1101,28 +1099,17 @@
         L.marker(endPt, { icon: endIcon, interactive: false }).addTo(endpointsLayer);
       }
 
-      const latLngs = [[33.3046, 35.7689]];
-
       segmentsData.forEach(seg => {
         const lat = seg.lat || (33.24 - (seg.map_y / 100) * 3.7);
         const lng = seg.lng || (34.9 + (seg.map_x / 100) * 0.7);
-        latLngs.push([lat, lng]);
-
         const { completed, planned } = getSegmentMemories(seg.id);
 
         let iconHtml = '';
         let iconSize = [24, 24];
 
-        if (completed.length > 0 && completed[0].photo_url) {
-          iconSize = [42, 42];
-          iconHtml = `
-            <div class="w-10 h-10 rounded-full border-3 border-emerald-500 shadow-lg overflow-hidden bg-white hover:scale-125 transition-transform">
-              <img src="${completed[0].photo_url}" class="w-full h-full object-cover" alt="${seg.title}" />
-            </div>
-          `;
-        } else if (completed.length > 0) {
-          iconSize = [24, 24];
-          iconHtml = `<div class="w-6 h-6 rounded-full bg-emerald-500 border-2 border-white shadow-md hover:scale-110 transition-transform"></div>`;
+        if (completed.length > 0) {
+          iconSize = [22, 22];
+          iconHtml = `<div class="w-5 h-5 rounded-full bg-emerald-500 border-2 border-white shadow-md hover:scale-110 transition-transform"></div>`;
         } else if (planned.length > 0) {
           const anyActive = planned.some(p => !isPlanOverdue(p.hike_date));
           iconSize = [24, 24];
@@ -1152,16 +1139,7 @@
         marker.addTo(markersLayer);
       });
 
-      latLngs.push([29.5123, 34.9228]);
 
-      if (latLngs.length > 1) {
-        trailPolyline = L.polyline(latLngs, {
-          color: '#ea580c',
-          weight: 3,
-          opacity: 0.7,
-          dashArray: '6, 8'
-        }).addTo(map);
-      }
     }
 
     function selectMapSegment(seg) {
