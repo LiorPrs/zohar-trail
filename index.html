@@ -4,6 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>צועדים בשביל זוהר | לזכרו של זוהר תמיר ז"ל</title>
+  
+  <!-- Favicon & WhatsApp / Social Preview -->
+  <link rel="icon" type="image/jpeg" href="favicon.jpg" />
+  <meta property="og:title" content="צועדים בשביל זוהר | לזכרו של זוהר תמיר ז״ל" />
+  <meta property="og:description" content="משלימים יחד את כל 56 מקטעי שביל ישראל לזכרו של זוהר תמיר ז״ל — מדן ועד אילת." />
+  <meta property="og:image" content="favicon.jpg" />
+  <meta property="og:type" content="website" />
+
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
@@ -24,7 +32,7 @@
       background-color: #000 !important;
       color: #fff !important;
     }
-    .high-contrast .bg-white, .high-contrast .bg-slate-50, .high-contrast .bg-amber-50 {
+    .high-contrast .bg-white, .high-contrast .bg-slate-50, .high-contrast .bg-amber-50, .high-contrast .hero-overlay {
       background-color: #111 !important;
       color: #fff !important;
       border-color: #ffd700 !important;
@@ -35,7 +43,6 @@
     .trail-stripe {
       background: linear-gradient(180deg, #ffffff 0%, #ffffff 33.3%, #1d4ed8 33.3%, #1d4ed8 66.6%, #ea580c 66.6%, #ea580c 100%);
     }
-    /* התאמת פופאפ וסיכות במפת Leaflet */
     .leaflet-container {
       font-family: 'Heebo', sans-serif !important;
       z-index: 10;
@@ -50,62 +57,83 @@
 
   <!-- סרגל עליון ונגישות -->
   <nav class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
-    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-4 h-9 rounded-sm border border-slate-300 trail-stripe shadow-xs" title="סימון שביל ישראל"></div>
+    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5">
+        <img src="favicon.jpg" onerror="this.style.display='none'" alt="לוגו" class="w-9 h-9 rounded-lg object-cover border border-slate-200 shadow-xs" />
+        <div class="w-3.5 h-8 rounded-sm border border-slate-300 trail-stripe shadow-xs shrink-0" title="סימון שביל ישראל"></div>
         <div>
-          <span class="font-extrabold text-lg text-slate-900 block leading-none">צועדים בשביל זוהר</span>
-          <span class="text-xs text-slate-500">משלימים את שביל ישראל לזכרו של זוהר תמיר ז"ל</span>
+          <span class="font-extrabold text-base md:text-lg text-slate-900 block leading-none">צועדים בשביל זוהר</span>
+          <span class="text-[11px] md:text-xs text-slate-500 hidden sm:inline">משלימים את שביל ישראל לזכרו של זוהר תמיר ז"ל</span>
         </div>
       </div>
-      <div class="flex items-center gap-2">
-        <button onclick="openAdminModal()" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-800 text-white hover:bg-slate-700 transition flex items-center gap-1" title="ממשק ניהול ואישור תמונות">
+      <div class="flex items-center gap-1.5 md:gap-2">
+        <button onclick="openPostcardModal()" class="px-2.5 md:px-3 py-1.5 text-xs font-bold rounded-lg bg-amber-100 text-amber-900 border border-amber-300 hover:bg-amber-200 transition flex items-center gap-1">
+          <span>📜</span>
+          <span class="hidden sm:inline">המשימה מזוהר</span>
+          <span class="sm:hidden">5 דקות</span>
+        </button>
+        <button onclick="openAdminModal()" class="px-2.5 md:px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-800 text-white hover:bg-slate-700 transition flex items-center gap-1" title="ממשק ניהול ואישור תמונות">
           <span>⚙️ ניהול</span>
           <span id="pendingBadge" class="hidden bg-red-500 text-white text-[10px] px-1.5 py-0.2 rounded-full">0</span>
         </button>
-        <button onclick="toggleContrast()" class="px-2.5 py-1.5 text-xs font-medium rounded-lg border border-slate-300 hover:bg-slate-100 transition" aria-label="ניגודיות גבוהה">
+        <button onclick="toggleContrast()" class="px-2 py-1.5 text-xs font-medium rounded-lg border border-slate-300 hover:bg-slate-100 transition" aria-label="ניגודיות גבוהה">
           👁️
         </button>
-        <button onclick="increaseFont()" class="px-2.5 py-1.5 text-xs font-medium rounded-lg border border-slate-300 hover:bg-slate-100 transition" aria-label="הגדלת טקסט">
+        <button onclick="increaseFont()" class="px-2 py-1.5 text-xs font-medium rounded-lg border border-slate-300 hover:bg-slate-100 transition" aria-label="הגדלת טקסט">
           א+
         </button>
       </div>
     </div>
   </nav>
 
-  <!-- פתיח (Hero) -->
-  <header class="relative bg-gradient-to-b from-amber-50/80 via-white to-slate-50 border-b border-slate-200">
-    <div class="max-w-6xl mx-auto px-4 py-10 md:py-14">
+  <!-- פתיח (Hero) עם באנרים רספונסיביים (מחשב + נייד) -->
+  <header class="relative overflow-hidden border-b border-slate-200 bg-amber-50">
+    <!-- תמונת באנר למחשב (מוצגת מ-md ומעלה) -->
+    <img src="banner-desktop.jpg" onerror="this.style.display='none'" alt="נופי שביל ישראל" class="hidden md:block absolute inset-0 w-full h-full object-cover object-left" />
+    <!-- תמונת באנר לנייד (מוצגת מתחת ל-md) -->
+    <img src="banner-mobile.jpg" onerror="this.style.display='none'" alt="נופי שביל ישראל" class="block md:hidden absolute inset-0 w-full h-full object-cover object-bottom" />
+    
+    <!-- שכבת ריכוך להבטחת קריאות מלאה של הטקסטים מעל הבאנר -->
+    <div class="hero-overlay absolute inset-0 bg-gradient-to-b from-white/92 via-white/88 to-white/75 md:bg-gradient-to-l md:from-white/95 md:via-white/85 md:to-transparent"></div>
+
+    <div class="relative z-10 max-w-6xl mx-auto px-4 py-10 md:py-14">
       <div class="flex flex-col md:flex-row items-center gap-8 md:gap-12">
         <!-- מסגרת תמונת פורטרט -->
         <div class="relative shrink-0">
           <div class="w-44 h-44 md:w-56 md:h-56 rounded-3xl overflow-hidden border-4 border-white shadow-xl bg-slate-200 flex items-center justify-center relative group">
-            <img id="zoharHeroImg" src="https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=600&q=80" alt="זוהר תמיר ז״ל" class="w-full h-full object-cover" />
+            <img id="zoharHeroImg" src="zohar.jpg" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=600&q=80';" alt="זוהר תמיר ז״ל" class="w-full h-full object-cover" />
             <label for="heroImgInput" class="absolute inset-0 bg-black/50 text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center cursor-pointer p-2 text-center">
-              <span>📷 לחץ לבדיקת תמונה של זוהר</span>
-              <span class="text-[10px] text-slate-200 mt-1">(תצוגה מקומית בטסט)</span>
+              <span>📷 לחץ לתצוגת תמונה של זוהר</span>
+              <span class="text-[10px] text-slate-200 mt-1">(או העלה zohar.jpg לגיט)</span>
             </label>
             <input type="file" id="heroImgInput" accept="image/*" class="hidden" onchange="previewHeroImage(event)" />
           </div>
-          <div class="absolute -bottom-3 right-1/2 translate-x-1/2 bg-orange-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow">
+          <div class="absolute -bottom-3 right-1/2 translate-x-1/2 bg-orange-600 text-white text-xs font-bold px-3.5 py-1 rounded-full shadow">
             זוהר תמיר ז"ל
           </div>
         </div>
 
         <!-- טקסט הנצחה ומד התקדמות -->
         <div class="flex-1 text-center md:text-right">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-800 text-xs font-semibold mb-3">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50/95 border border-blue-100 text-blue-800 text-xs font-semibold mb-3 shadow-2xs">
             <span>🥾 פרויקט הנצחה קהילתי • קיבוץ טירת צבי</span>
           </div>
-          <h1 class="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
+          <h1 class="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-4 drop-shadow-2xs">
             ממשיכים את הצעדים של זוהר בשביל ישראל
           </h1>
-          <p class="text-slate-600 text-base md:text-lg leading-relaxed max-w-2xl mb-6">
-            זוהר חלם לצאת לשביל ישראל לפני הגיוס ולא הספיק. אנחנו — החברים, המשפחה ומטיילים מכל הארץ — משלימים יחד את השביל לזכרו, מקטע אחרי מקטע, מדן ועד אילת. בחרו מקטע, שריינו תאריך, ושתפו תמונה וזיכרון מהדרך.
+          <p class="text-slate-700 text-base md:text-lg leading-relaxed max-w-2xl mb-6 font-normal">
+            זוהר חלם לצאת לשביל ישראל לפני הגיוס ולא הספיק. אנחנו — החברים, המשפחה ומטיילים מכל הארץ — משלימים יחד את השביל לזכרו, מקטע אחרי מקטע, מדן ועד אילת. בחרו מקטע, שריינו תאריך, עצרו ל-5 דקות בדרך ושתפו תמונה וזיכרון.
           </p>
 
+          <!-- כפתור גלויית עצירה של 5 דקות + מד התקדמות -->
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-5 justify-center md:justify-start">
+            <button onclick="openPostcardModal()" class="px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl text-sm shadow-sm transition flex items-center justify-center gap-2">
+              <span>📜 כרטיסיית המשימה מזוהר (עצירה של 5 דקות)</span>
+            </button>
+          </div>
+
           <!-- מד התקדמות -->
-          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs max-w-xl">
+          <div class="bg-white/95 backdrop-blur-xs p-4 rounded-2xl border border-slate-200 shadow-sm max-w-xl mx-auto md:mx-0">
             <div class="flex justify-between text-sm font-bold mb-2">
               <span class="text-slate-700">התקדמות השביל: <span id="completedCount" class="text-emerald-600">0</span> מתוך <span id="totalCount">0</span> מקטעים</span>
               <span class="text-orange-600"><span id="completedKm">0</span> ק"מ הושלמו</span>
@@ -113,7 +141,7 @@
             <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
               <div id="progressBar" class="h-full bg-gradient-to-l from-emerald-500 to-blue-600 transition-all duration-700" style="width: 0%"></div>
             </div>
-            <div class="flex gap-4 mt-2.5 text-xs text-slate-500">
+            <div class="flex gap-4 mt-2.5 text-xs text-slate-600">
               <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> הושלם</span>
               <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> מתוכנן / משוריין</span>
               <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-slate-400 inline-block"></span> פנוי</span>
@@ -166,7 +194,7 @@
     <section>
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <div>
-          <h2 class="text-2xl font-bold text-slate-900">מקטעי שביל ישראל</h2>
+          <h2 class="text-2xl font-bold text-slate-900">מקטעי שביל ישראל (56 מקטעים)</h2>
           <p class="text-sm text-slate-500">בחרו מקטע כדי לשריין תאריך הליכה עתידי או להעלות תיעוד לאחר הביצוע</p>
         </div>
 
@@ -223,6 +251,16 @@
       <!-- גוף מודאל -->
       <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
         
+        <!-- באנר קטן למשימה מזוהר בתוך המקטע -->
+        <div class="bg-amber-50 border border-amber-200 rounded-2xl p-3.5 flex items-center justify-between gap-3">
+          <div class="text-xs text-amber-950">
+            <strong>📜 יוצאים למקטע?</strong> אל תשכחו לשמור את כרטיסיית <em>"עצירה של 5 דקות"</em> לדרך.
+          </div>
+          <button onclick="openPostcardModal()" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl text-xs shrink-0 transition">
+            פתיחת הכרטיסייה
+          </button>
+        </div>
+
         <!-- רשימת מתכננים עתידיים -->
         <div id="modalPlannedSection" class="bg-amber-50/80 border border-amber-200 rounded-2xl p-4 hidden">
           <h4 class="font-bold text-amber-900 text-sm mb-2">📅 מטיילים שכבר שריינו תאריך למקטע זה:</h4>
@@ -231,7 +269,7 @@
 
         <!-- גלריית זיכרונות שהושלמו -->
         <div>
-          <h4 class="font-bold text-slate-800 text-sm mb-3">📸 תמונות וזיכרונות מהשביל:</h4>
+          <h4 class="font-bold text-slate-800 text-sm mb-3">📸 תמונות וגלויות מהשביל:</h4>
           <div id="modalCompletedList" class="space-y-4"></div>
         </div>
 
@@ -268,7 +306,7 @@
             </button>
           </form>
 
-          <!-- טופס 2: דיווח ביצוע והעלאת תמונה -->
+          <!-- טופס 2: דיווח ביצוע (מפוצל ל-3 שאלות עצירה של 5 דקות) -->
           <form id="completeForm" onsubmit="submitCompletion(event)" class="space-y-3 bg-emerald-50/50 p-4 rounded-2xl border border-emerald-200 hidden">
             <div id="existingPlanSelectWrapper" class="hidden">
               <label class="block text-xs font-bold text-emerald-900 mb-1">האם שריינתם מראש את המקטע? (בחרו לעדכון אוטומטי)</label>
@@ -288,9 +326,20 @@
               </div>
             </div>
 
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">סיפור מהדרך / הקדשה לזוהר *</label>
-              <textarea id="compStory" rows="3" required placeholder="ספרו איך היה המסלול, מה הזכיר לכם את זוהר..." class="w-full px-3 py-2 text-base bg-white border border-slate-300 rounded-xl"></textarea>
+            <div class="bg-white p-3.5 rounded-xl border border-emerald-200 space-y-3">
+              <div class="text-xs font-extrabold text-emerald-900">📜 גלויית עצירה של 5 דקות בדרך:</div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">🌿 מה ראינו בטבע? (פרט קטן או נוף שתפס אתכם) *</label>
+                <input type="text" id="compNature" required placeholder="למשל: פריחת אירוסים מפתיעה ליד המצוק..." class="w-full px-3 py-2 text-base bg-slate-50 border border-slate-300 rounded-xl" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">🧭 צידה לדרך (תובנה או כוח שלקחתם להמשך) *</label>
+                <input type="text" id="compGrowth" required placeholder="למשל: שגם עלייה תלולה עוברים צעד אחרי צעד..." class="w-full px-3 py-2 text-base bg-slate-50 border border-slate-300 rounded-xl" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">🤍 מילה לזוהר *</label>
+                <textarea id="compZoharWord" rows="2" required placeholder="משפט שהייתם רוצים לספר לזוהר מהנקודה הזו..." class="w-full px-3 py-2 text-base bg-slate-50 border border-slate-300 rounded-xl"></textarea>
+              </div>
             </div>
 
             <div>
@@ -301,10 +350,33 @@
             <button type="submit" id="compSubmitBtn" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm transition shadow-xs">
               שליחת תיעוד ותמונה לאישור
             </button>
-            <p class="text-[11px] text-slate-500 text-center">התמונה והסיפור יופיעו באתר ובמפה מיד לאחר אישור קצר של צוות האתר.</p>
+            <p class="text-[11px] text-slate-500 text-center">התמונה והגלויה יופיעו באתר ובמפה מיד לאחר אישור קצר של צוות האתר.</p>
           </form>
         </div>
 
+      </div>
+    </div>
+  </div>
+
+  <!-- מודאל כרטיסיית המשימה מזוהר (עצירה של 5 דקות להורדה/הדפסה) -->
+  <div id="postcardModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden my-8">
+      <div class="p-4 bg-amber-50 border-b border-amber-200 flex items-center justify-between">
+        <h3 class="font-extrabold text-amber-950 text-base">📜 כרטיסיית שטח – עצירה של 5 דקות</h3>
+        <button onclick="closePostcardModal()" class="w-8 h-8 rounded-full bg-white border border-amber-300 flex items-center justify-center text-amber-900 font-bold">✕</button>
+      </div>
+      <div class="p-5 text-center space-y-4">
+        <p class="text-xs text-slate-600 leading-relaxed">
+          שמרו את הכרטיסייה בטלפון לפני היציאה לשביל (כדי שתהיה זמינה גם כשאין קליטה) או הדפיסו והצטלמו איתה בנקודת התצפית!
+        </p>
+        <div class="rounded-2xl overflow-hidden border border-amber-200 shadow-md bg-amber-50">
+          <img src="postcard-5min.jpg" alt="כרטיסיית עצירה של 5 דקות" class="w-full h-auto object-contain" />
+        </div>
+        <div class="flex gap-2">
+          <a href="postcard-5min.jpg" download="zohar-5min-stop.jpg" class="flex-1 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl text-sm transition shadow-xs">
+            ⬇️ הורדת הכרטיסייה לנייד / הדפסה
+          </a>
+        </div>
       </div>
     </div>
   </div>
@@ -324,17 +396,15 @@
       <div id="adminLoginView" class="p-8 text-center space-y-4">
         <span class="text-4xl block">🔐</span>
         <h4 class="text-lg font-bold text-slate-900">הזינו קוד גישה למנהלים</h4>
-        <p class="text-xs text-slate-500 max-w-sm mx-auto">קוד ברירת המחדל לטסט הוא: <strong>zohar2026</strong> (ניתן לשנות אותו בקלות בקוד)</p>
+        <p class="text-xs text-slate-500 max-w-sm mx-auto">קוד ברירת המחדל לטסט הוא: <strong>zohar2026</strong></p>
         <div class="max-w-xs mx-auto flex gap-2">
           <input type="password" id="adminPassInput" placeholder="קוד מנהל..." class="flex-1 px-3 py-2 text-base border border-slate-300 rounded-xl text-center" onkeydown="if(event.key==='Enter') verifyAdmin()" />
           <button onclick="verifyAdmin()" class="px-4 py-2 bg-slate-900 text-white font-bold rounded-xl text-sm hover:bg-slate-800">כניסה</button>
         </div>
       </div>
 
-      <!-- לוח בקרה למנהל (לאחר התחברות) -->
+      <!-- לוח בקרה למנהל -->
       <div id="adminDashboardView" class="p-6 space-y-6 max-h-[75vh] overflow-y-auto hidden">
-        
-        <!-- תמונות ממתינות לאישור -->
         <div>
           <div class="flex items-center justify-between mb-3">
             <h4 class="font-extrabold text-slate-900 text-base">⏳ ממתינים לאישור פרסום (<span id="adminPendingCount">0</span>)</h4>
@@ -343,12 +413,10 @@
           <div id="adminPendingList" class="space-y-3"></div>
         </div>
 
-        <!-- רשימת כל הפריטים המאושרים והשריונים (למקרה שצריך למחוק/לערוך) -->
         <div class="border-t border-slate-200 pt-5">
           <h4 class="font-extrabold text-slate-900 text-base mb-3">📋 כל הרשומות הפעילות באתר (מאושרים ושריונים)</h4>
           <div id="adminAllList" class="space-y-2"></div>
         </div>
-
       </div>
     </div>
   </div>
@@ -362,12 +430,10 @@
   </footer>
 
   <script>
-    // חיבור למסד הנתונים Supabase שלך
     const SUPABASE_URL = 'https://boslnyksnzcenyexrtyk.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_iW_NlGwjhs63H1QZEpAq1Q_AFzR-TkP';
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // סיסמת ניהול פשוטה לצוות החברים
     const ADMIN_PASSCODE = 'zohar2026';
     let isAdminLoggedIn = false;
 
@@ -377,7 +443,6 @@
     let currentSegment = null;
     let fontScale = 100;
 
-    // משתני מפת Leaflet
     let map = null;
     let currentTileLayer = null;
     let markersLayer = null;
@@ -396,7 +461,6 @@
 
     function initRealMap() {
       if (map) return;
-      // מרכז ישראל (מדן עד אילת)
       map = L.map('realIsraelMap').setView([31.45, 35.05], 7);
       currentTileLayer = tileLayers.hiking;
       currentTileLayer.addTo(map);
@@ -410,7 +474,6 @@
       currentTileLayer.addTo(map);
     }
 
-    // נגישות
     function toggleContrast() {
       document.body.classList.toggle('high-contrast');
     }
@@ -419,7 +482,15 @@
       document.documentElement.style.fontSize = fontScale + '%';
     }
 
-    // תצוגה מקדימה לתמונת זוהר ב-Hero
+    function openPostcardModal() {
+      document.getElementById('postcardModal').classList.remove('hidden');
+      document.getElementById('postcardModal').classList.add('flex');
+    }
+    function closePostcardModal() {
+      document.getElementById('postcardModal').classList.add('hidden');
+      document.getElementById('postcardModal').classList.remove('flex');
+    }
+
     function previewHeroImage(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -430,7 +501,15 @@
       reader.readAsDataURL(file);
     }
 
-    // טעינת נתונים מ-Supabase
+    // עיצוב תצוגת סיפור הגלויה (תומך גם בפורמט החדש של 3 השאלות וגם בטקסט חופשי)
+    function formatStoryHtml(storyText) {
+      if (!storyText) return '';
+      return storyText
+        .replace(/🌿 מה ראינו בטבע:/g, '<strong class="text-emerald-800 block mt-1.5">🌿 מה ראינו בטבע:</strong>')
+        .replace(/🧭 צידה לדרך:/g, '<strong class="text-blue-800 block mt-1.5">🧭 צידה לדרך:</strong>')
+        .replace(/🤍 מילה לזוהר:/g, '<strong class="text-orange-800 block mt-1.5">🤍 מילה לזוהר:</strong>');
+    }
+
     async function loadData() {
       document.getElementById('loadingState').classList.remove('hidden');
       try {
@@ -460,7 +539,6 @@
       }
     }
 
-    // בדיקת כמות ממתינים לאישור (להצגת תגית אדומה בכפתור הניהול)
     async function checkPendingCount() {
       try {
         const { count } = await sb
@@ -483,7 +561,6 @@
       return { completed, planned };
     }
 
-    // עדכון מד התקדמות
     function updateStats() {
       const total = segmentsData.length;
       let completedSegs = 0;
@@ -504,7 +581,6 @@
       document.getElementById('progressBar').style.width = pct + '%';
     }
 
-    // רינדור סיכות וקווי שביל על המפה האמיתית (Leaflet)
     function renderRealMapPins() {
       if (!markersLayer) return;
       markersLayer.clearLayers();
@@ -513,7 +589,6 @@
       const latLngs = [];
 
       segmentsData.forEach(seg => {
-        // שימוש בקואורדינטות GPS אמיתיות (lat, lng) אם קיימות, או גיבוי זמני
         const lat = seg.lat || (33.24 - (seg.map_y / 100) * 3.7);
         const lng = seg.lng || (34.9 + (seg.map_x / 100) * 0.7);
         latLngs.push([lat, lng]);
@@ -554,7 +629,6 @@
         marker.addTo(markersLayer);
       });
 
-      // חיבור הנקודות בקו מקווקו כתום המדמה את רצף המקטעים
       if (latLngs.length > 1) {
         trailPolyline = L.polyline(latLngs, {
           color: '#ea580c',
@@ -578,10 +652,10 @@
         const latest = completed[0];
         contentHtml = `
           <div class="mt-4 bg-white rounded-xl border border-slate-200 overflow-hidden">
-            ${latest.photo_url ? `<img src="${latest.photo_url}" class="w-full h-44 object-cover" />` : ''}
+            ${latest.photo_url ? `<img src="${latest.photo_url}" class="w-full h-40 object-cover" />` : ''}
             <div class="p-4">
               <div class="text-xs font-bold text-emerald-700">${latest.hiker_name} • ${latest.hike_date}</div>
-              <p class="text-sm text-slate-700 mt-1 line-clamp-3">"${latest.story}"</p>
+              <div class="text-xs text-slate-700 mt-1 leading-relaxed">${formatStoryHtml(latest.story)}</div>
             </div>
           </div>
         `;
@@ -621,7 +695,6 @@
       `;
     }
 
-    // רינדור רשימת כרטיסיות
     function renderSegments() {
       const region = document.getElementById('regionFilter').value;
       const status = document.getElementById('statusFilter').value;
@@ -666,7 +739,7 @@
             <h3 class="text-lg font-bold text-slate-900 mb-1">${seg.title}</h3>
             <div class="text-xs text-slate-500 mb-3">${seg.distance} ק"מ • קושי: ${seg.difficulty}</div>
             ${planned.length > 0 && completed.length === 0 ? `<p class="text-xs text-amber-800 bg-amber-50 px-2.5 py-1.5 rounded-lg mb-3">מתוכנן: <strong>${planned[0].hiker_name}</strong></p>` : ''}
-            ${completed.length > 0 ? `<p class="text-xs text-slate-600 line-clamp-2 mb-3">"${completed[0].story}" — <strong>${completed[0].hiker_name}</strong></p>` : ''}
+            ${completed.length > 0 ? `<div class="text-xs text-slate-600 line-clamp-2 mb-3"><strong>${completed[0].hiker_name}:</strong> ${completed[0].story}</div>` : ''}
           </div>
           <button onclick="openModal(${seg.id})" class="w-full py-2 px-3 rounded-xl bg-slate-100 hover:bg-orange-600 hover:text-white text-slate-800 font-bold text-xs transition">
             פרטים / שריון / העלאת תמונה
@@ -676,7 +749,6 @@
       });
     }
 
-    // מודאל מקטע
     function openModal(segmentId) {
       currentSegment = segmentsData.find(s => s.id === segmentId);
       if (!currentSegment) return;
@@ -716,14 +788,14 @@
       const compList = document.getElementById('modalCompletedList');
       if (completed.length > 0) {
         compList.innerHTML = completed.map(c => `
-          <div class="bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden">
+          <div class="bg-amber-50/40 border border-amber-200/80 rounded-2xl overflow-hidden shadow-2xs">
             ${c.photo_url ? `<img src="${c.photo_url}" class="w-full max-h-72 object-cover" />` : ''}
             <div class="p-4">
-              <div class="flex justify-between text-xs text-slate-500 mb-1">
-                <span class="font-bold text-slate-900">${c.hiker_name}</span>
-                <span>${c.hike_date}</span>
+              <div class="flex justify-between text-xs text-slate-500 mb-2 border-b border-amber-100 pb-2">
+                <span class="font-bold text-slate-900">🥾 ${c.hiker_name}</span>
+                <span>📅 ${c.hike_date}</span>
               </div>
-              <p class="text-sm text-slate-700 leading-relaxed">${c.story}</p>
+              <div class="text-sm text-slate-700 leading-relaxed">${formatStoryHtml(c.story)}</div>
             </div>
           </div>
         `).join('');
@@ -769,7 +841,6 @@
       }
     }
 
-    // שליחת שריון עתידי
     async function submitPlan(e) {
       e.preventDefault();
       if (!currentSegment) return;
@@ -790,7 +861,7 @@
         const { error } = await sb.from('memories').insert([payload]);
         if (error) throw error;
 
-        alert('התאריך שוריין בהצלחה! כולם יכולים לראות כעת שאתם מתכננים לצעוד במקטע.');
+        alert('התאריך שוריין בהצלחה! אל תשכחו לשמור את כרטיסיית "עצירה של 5 דקות" לטיול.');
         document.getElementById('planForm').reset();
         await loadData();
         openModal(currentSegment.id);
@@ -802,7 +873,6 @@
       }
     }
 
-    // דחיסת תמונה בדפדפן
     function compressImage(file, maxWidth = 1200, quality = 0.8) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -830,7 +900,6 @@
       });
     }
 
-    // שליחת ביצוע והעלאת תמונה
     async function submitCompletion(e) {
       e.preventDefault();
       if (!currentSegment) return;
@@ -858,11 +927,19 @@
         const photoUrl = publicUrlData.publicUrl;
         const existingPlanId = document.getElementById('existingPlanSelect').value;
 
+        // איחוד 3 תשובות "עצירה של 5 דקות" למבנה אחיד
+        const natureAns = document.getElementById('compNature').value.trim();
+        const growthAns = document.getElementById('compGrowth').value.trim();
+        const zoharAns = document.getElementById('compZoharWord').value.trim();
+        const formattedStory = `🌿 מה ראינו בטבע: ${natureAns}
+🧭 צידה לדרך: ${growthAns}
+🤍 מילה לזוהר: ${zoharAns}`;
+
         const payload = {
           segment_id: currentSegment.id,
           hiker_name: document.getElementById('compName').value.trim(),
           hike_date: document.getElementById('compDate').value,
-          story: document.getElementById('compStory').value.trim(),
+          story: formattedStory,
           photo_url: photoUrl,
           status: 'completed',
           is_approved: false
@@ -881,7 +958,7 @@
           if (insertError) throw insertError;
         }
 
-        alert('תודה! התיעוד והתמונה נשלחו בהצלחה. הם יופיעו באתר ובמפה מיד לאחר אישור קצר של המנהלים.');
+        alert('תודה! הגלויה והתמונה נשלחו בהצלחה. הן יופיעו באתר ובמפה מיד לאחר אישור קצר של המנהלים.');
         document.getElementById('completeForm').reset();
         await loadData();
         closeModal();
@@ -952,7 +1029,7 @@
                 <div class="flex-1">
                   <div class="text-xs font-bold text-blue-800">${segName}</div>
                   <div class="font-bold text-slate-900 text-sm">${item.hiker_name} <span class="text-xs font-normal text-slate-500">(${item.hike_date})</span></div>
-                  <p class="text-xs text-slate-700 mt-1 bg-white p-2 rounded-lg border border-amber-100">${item.story || ''}</p>
+                  <div class="text-xs text-slate-700 mt-1 bg-white p-2 rounded-lg border border-amber-100">${formatStoryHtml(item.story || '')}</div>
                   <div class="flex gap-2 mt-3">
                     <button onclick="approveMemory('${item.id}')" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs transition">
                       ✅ אישור ופרסום באתר
@@ -994,7 +1071,7 @@
         }
 
       } catch (err) {
-        pendingList.innerHTML = `<p class="text-xs text-red-600">שגיאה בטעינת נתוני ניהול: ${err.message}. ודאו שהרצתם את פקודת ה-SQL של ההרשאות.</p>`;
+        pendingList.innerHTML = `<p class="text-xs text-red-600">שגיאה בטעינת נתוני ניהול: ${err.message}</p>`;
       }
     }
 
@@ -1027,7 +1104,6 @@
       }
     }
 
-    // אתחול
     loadData();
   </script>
 </body>
