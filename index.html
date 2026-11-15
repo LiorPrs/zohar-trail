@@ -198,6 +198,33 @@
         </div>
       </div>
 
+      <!-- סרגל עריכת סיכות למנהל (מופיע רק כשהמנהל מפעיל מצב דקירה) -->
+      <div id="adminPinPickerBar" class="hidden mb-4 p-4 rounded-2xl bg-orange-50 border-2 border-orange-400 shadow-sm space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-1 rounded-lg bg-orange-600 text-white text-xs font-extrabold">🎯 מצב דקירת סיכות פעיל</span>
+            <span class="text-xs font-bold text-orange-950">לחצו על קו השביל במפה (או גררו את הסיכה המהבהבת) — נשמר אוטומטית ל-DB!</span>
+          </div>
+          <button onclick="togglePinPickerMode(false)" class="px-3 py-1 rounded-lg bg-slate-800 text-white text-xs font-bold hover:bg-slate-700">
+            ✕ סיום עריכה
+          </button>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="stepPickerSegment(-1)" class="px-3 py-2 rounded-xl bg-white border border-orange-300 hover:bg-orange-100 text-xs font-bold text-slate-800">
+            → הקודם
+          </button>
+          <select id="pickerSegmentSelect" onchange="onPickerSegmentChange()" class="flex-1 min-w-[240px] px-3 py-2 text-sm font-bold bg-white border border-orange-300 rounded-xl text-slate-900"></select>
+          <button onclick="stepPickerSegment(1)" class="px-3 py-2 rounded-xl bg-white border border-orange-300 hover:bg-orange-100 text-xs font-bold text-slate-800">
+            הבא ←
+          </button>
+          <label class="flex items-center gap-1.5 text-xs font-bold text-orange-950 bg-white px-3 py-2 rounded-xl border border-orange-200 cursor-pointer">
+            <input type="checkbox" id="pickerAutoAdvance" checked class="accent-orange-600" />
+            <span>עבור אוטומטית למקטע הבא אחרי דקירה</span>
+          </label>
+        </div>
+        <div id="pickerStatusMsg" class="text-xs font-bold text-emerald-700"></div>
+      </div>
+
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         <!-- מפת Leaflet אינטראקטיבית -->
         <div class="lg:col-span-7 relative rounded-2xl border border-slate-300 overflow-hidden shadow-inner">
@@ -541,8 +568,8 @@
           <p class="text-xs text-slate-400">מיועד לצוות המנהלים (החברים והמשפחה)</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
-          <button id="snapTrailBtn" onclick="snapAllPinsToRealTrail()" class="hidden px-3 py-1.5 bg-orange-600 hover:bg-orange-500 text-white font-bold rounded-xl text-xs transition flex items-center gap-1" title="מושך את תוואי שביל ישראל האמיתי מ-OpenStreetMap ומצמיד את כל 56 הסיכות לאמצע המקטע שעל השביל">
-            <span>📍 הצמד 56 סיכות לאמצע השביל</span>
+          <button id="openPinPickerBtn" onclick="startPinPickerFromAdmin()" class="hidden px-3 py-1.5 bg-orange-600 hover:bg-orange-500 text-white font-bold rounded-xl text-xs transition flex items-center gap-1">
+            <span>🎯 דקירת סיכות על המפה</span>
           </button>
           <button id="exportCsvBtn" onclick="exportMemoriesToCSV()" class="hidden px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition flex items-center gap-1">
             <span>📥 ייצוא לאקסל (CSV)</span>
@@ -660,12 +687,23 @@
       })
     };
 
+    let isPinPickerActive = false;
+    let pickerSelectedSegId = 1;
+    let endpointsLayer = null;
+
     function initRealMap() {
       if (map) return;
       map = L.map('realIsraelMap').setView([31.45, 35.05], 7);
       currentTileLayer = tileLayers.hiking;
       currentTileLayer.addTo(map);
+      endpointsLayer = L.layerGroup().addTo(map);
       markersLayer = L.layerGroup().addTo(map);
+
+      // דקירת נקודה על המפה במצב עריכת מנהל
+      map.on('click', async (e) => {
+        if (!isPinPickerActive) return;
+        await savePickedCoordinate(pickerSelectedSegId, e.latlng.lat, e.latlng.lng, true);
+      });
     }
 
     function changeMapLayer() {
@@ -987,9 +1025,32 @@
     function renderRealMapPins() {
       if (!markersLayer) return;
       markersLayer.clearLayers();
+      if (endpointsLayer) endpointsLayer.clearLayers();
       if (trailPolyline) map.removeLayer(trailPolyline);
 
-      const latLngs = [];
+      // הוספת נקודות התחלה וסיום קבועות של שביל ישראל (קופות אתר החרמון בצפון ובית ספר שדה אילת בדרום)
+      if (endpointsLayer) {
+        const startPt = [33.3046, 35.7689]; // קופות אתר החרמון - התחלת שביל ישראל החדשה
+        const endPt = [29.5123, 34.9228];   // בית ספר שדה אילת - סיום שביל ישראל
+
+        const startIcon = L.divIcon({
+          className: 'custom-pin-icon',
+          html: `<div class="px-2 py-0.5 rounded-full bg-blue-700 text-white text-[10px] font-extrabold border-2 border-white shadow-md whitespace-nowrap">🚩 התחלה: קופות החרמון</div>`,
+          iconSize: [124, 24],
+          iconAnchor: [62, 12]
+        });
+        const endIcon = L.divIcon({
+          className: 'custom-pin-icon',
+          html: `<div class="px-2 py-0.5 rounded-full bg-orange-700 text-white text-[10px] font-extrabold border-2 border-white shadow-md whitespace-nowrap">🏁 סיום: בי"ס שדה אילת</div>`,
+          iconSize: [128, 24],
+          iconAnchor: [64, 12]
+        });
+
+        L.marker(startPt, { icon: startIcon, interactive: false }).addTo(endpointsLayer);
+        L.marker(endPt, { icon: endIcon, interactive: false }).addTo(endpointsLayer);
+      }
+
+      const latLngs = [[33.3046, 35.7689]];
 
       segmentsData.forEach(seg => {
         const lat = seg.lat || (33.24 - (seg.map_y / 100) * 3.7);
@@ -997,11 +1058,15 @@
         latLngs.push([lat, lng]);
 
         const { completed, planned } = getSegmentMemories(seg.id);
+        const isBeingPicked = isPinPickerActive && Number(seg.id) === Number(pickerSelectedSegId);
 
         let iconHtml = '';
         let iconSize = [24, 24];
 
-        if (completed.length > 0 && completed[0].photo_url) {
+        if (isBeingPicked) {
+          iconSize = [36, 36];
+          iconHtml = `<div class="w-9 h-9 rounded-full bg-orange-600 text-white font-extrabold text-xs flex items-center justify-center border-4 border-yellow-300 shadow-2xl animate-bounce">${seg.id}</div>`;
+        } else if (completed.length > 0 && completed[0].photo_url) {
           iconSize = [42, 42];
           iconHtml = `
             <div class="w-10 h-10 rounded-full border-3 border-emerald-500 shadow-lg overflow-hidden bg-white hover:scale-125 transition-transform">
@@ -1020,8 +1085,10 @@
             iconHtml = `<div class="w-6 h-6 rounded-full bg-red-600 border-2 border-white shadow-md animate-pulse"></div>`;
           }
         } else {
-          iconSize = [18, 18];
-          iconHtml = `<div class="w-4 h-4 rounded-full bg-slate-950 border-2 border-white shadow hover:bg-orange-600 transition"></div>`;
+          iconSize = [20, 20];
+          iconHtml = isPinPickerActive
+            ? `<div class="w-5 h-5 rounded-full bg-slate-900 text-white text-[9px] font-bold flex items-center justify-center border border-white shadow">${seg.id}</div>`
+            : `<div class="w-4 h-4 rounded-full bg-slate-950 border-2 border-white shadow hover:bg-orange-600 transition"></div>`;
         }
 
         const customIcon = L.divIcon({
@@ -1031,20 +1098,40 @@
           iconAnchor: [iconSize[0] / 2, iconSize[1] / 2]
         });
 
-        const marker = L.marker([lat, lng], { icon: customIcon });
+        const marker = L.marker([lat, lng], {
+          icon: customIcon,
+          draggable: isBeingPicked
+        });
         marker.bindTooltip(`מקטע ${seg.id}: ${seg.title}`, { direction: 'top' });
+
+        if (isBeingPicked) {
+          marker.on('dragend', async (ev) => {
+            const pos = ev.target.getLatLng();
+            await savePickedCoordinate(seg.id, pos.lat, pos.lng, false);
+          });
+        }
+
         marker.on('click', () => {
+          if (isPinPickerActive) {
+            pickerSelectedSegId = Number(seg.id);
+            document.getElementById('pickerSegmentSelect').value = seg.id;
+            renderRealMapPins();
+            selectMapSegment(seg);
+            return;
+          }
           selectMapSegment(seg);
           map.flyTo([lat, lng], Math.max(map.getZoom(), 10), { duration: 0.8 });
         });
         marker.addTo(markersLayer);
       });
 
+      latLngs.push([29.5123, 34.9228]);
+
       if (latLngs.length > 1) {
         trailPolyline = L.polyline(latLngs, {
           color: '#ea580c',
-          weight: 3,
-          opacity: 0.7,
+          weight: 2.5,
+          opacity: 0.55,
           dashArray: '6, 8'
         }).addTo(map);
       }
@@ -1497,7 +1584,7 @@
         document.getElementById('adminLoginView').classList.add('hidden');
         document.getElementById('adminDashboardView').classList.remove('hidden');
         document.getElementById('exportCsvBtn').classList.remove('hidden');
-        document.getElementById('snapTrailBtn').classList.remove('hidden');
+        document.getElementById('openPinPickerBtn').classList.remove('hidden');
         loadAdminData();
       }
     }
@@ -1514,7 +1601,7 @@
         document.getElementById('adminLoginView').classList.add('hidden');
         document.getElementById('adminDashboardView').classList.remove('hidden');
         document.getElementById('exportCsvBtn').classList.remove('hidden');
-        document.getElementById('snapTrailBtn').classList.remove('hidden');
+        document.getElementById('openPinPickerBtn').classList.remove('hidden');
         loadAdminData();
       } else {
         alert('קוד שגוי. נסו שוב.');
@@ -1761,107 +1848,85 @@
       }
     }
 
-    // הצמדה אוטומטית של כל 56 הסיכות לאמצע המקטע על תוואי שביל ישראל האמיתי (OpenStreetMap Overpass API)
-    async function snapAllPinsToRealTrail() {
-      const btn = document.getElementById('snapTrailBtn');
-      const originalHtml = btn.innerHTML;
-      btn.disabled = true;
-      btn.innerHTML = '<span>⏳ מושך תוואי שביל ישראל...</span>';
+    function startPinPickerFromAdmin() {
+      closeAdminModal();
+      togglePinPickerMode(true);
+      document.getElementById('realIsraelMap').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function togglePinPickerMode(active) {
+      isPinPickerActive = active;
+      const bar = document.getElementById('adminPinPickerBar');
+      const mapEl = document.getElementById('realIsraelMap');
+      if (active) {
+        bar.classList.remove('hidden');
+        mapEl.style.cursor = 'crosshair';
+        const sel = document.getElementById('pickerSegmentSelect');
+        sel.innerHTML = segmentsData.map(s =>
+          `<option value="${s.id}">מקטע #${s.id}: ${s.title} (${s.region} • ${s.distance} ק"מ)</option>`
+        ).join('');
+        sel.value = pickerSelectedSegId;
+        focusPickerSegment(pickerSelectedSegId);
+      } else {
+        bar.classList.add('hidden');
+        mapEl.style.cursor = '';
+        renderRealMapPins();
+      }
+    }
+
+    function focusPickerSegment(segId) {
+      pickerSelectedSegId = Number(segId);
+      const seg = segmentsData.find(s => Number(s.id) === pickerSelectedSegId);
+      if (!seg) return;
+      renderRealMapPins();
+      selectMapSegment(seg);
+      if (seg.lat && seg.lng) {
+        map.flyTo([Number(seg.lat), Number(seg.lng)], Math.max(map.getZoom(), 12), { duration: 0.6 });
+      }
+    }
+
+    function onPickerSegmentChange() {
+      const val = Number(document.getElementById('pickerSegmentSelect').value);
+      focusPickerSegment(val);
+    }
+
+    function stepPickerSegment(delta) {
+      const nextId = Math.min(56, Math.max(1, pickerSelectedSegId + delta));
+      document.getElementById('pickerSegmentSelect').value = nextId;
+      focusPickerSegment(nextId);
+    }
+
+    async function savePickedCoordinate(segId, lat, lng, allowAutoAdvance) {
+      const statusEl = document.getElementById('pickerStatusMsg');
+      const newLat = Number(lat.toFixed(6));
+      const newLng = Number(lng.toFixed(6));
+      statusEl.textContent = `⏳ שומר מיקום למקטע #${segId}...`;
 
       try {
-        // שליפת הגיאומטריה המלאה של שביל ישראל הרשמי (Relation 1652171) מתוך OpenStreetMap
-        const query = `[out:json][timeout:30];relation(1652171);way(r);out geom;`;
-        const endpoints = [
-          'https://overpass-api.de/api/interpreter',
-          'https://overpass.kumi.systems/api/interpreter'
-        ];
+        const { error } = await sb
+          .from('segments')
+          .update({ lat: newLat, lng: newLng })
+          .eq('id', segId);
 
-        let osmData = null;
-        for (const ep of endpoints) {
-          try {
-            const res = await fetch(ep, {
-              method: 'POST',
-              body: 'data=' + encodeURIComponent(query)
-            });
-            if (res.ok) {
-              osmData = await res.json();
-              if (osmData && osmData.elements && osmData.elements.length > 0) break;
-            }
-          } catch (e) {}
+        if (error) throw error;
+
+        const seg = segmentsData.find(s => Number(s.id) === Number(segId));
+        if (seg) {
+          seg.lat = newLat;
+          seg.lng = newLng;
         }
 
-        if (!osmData || !osmData.elements || osmData.elements.length === 0) {
-          throw new Error('לא הצלחנו להתחבר לשרת המפות כרגע. נסו שוב בעוד כמה שניות.');
+        statusEl.textContent = `✅ מקטע #${segId} (${seg ? seg.title : ''}) נשמר ב-DB במיקום (${newLat}, ${newLng})`;
+
+        const autoAdv = document.getElementById('pickerAutoAdvance').checked;
+        if (allowAutoAdvance && autoAdv && segId < 56) {
+          stepPickerSegment(1);
+        } else {
+          renderRealMapPins();
         }
-
-        // חילוץ כל נקודות האמצע של מקטעי הדרך (Ways) של שביל ישראל האמיתי
-        const trailPoints = [];
-        osmData.elements.forEach(el => {
-          if (el.type === 'way' && Array.isArray(el.geometry)) {
-            el.geometry.forEach(pt => {
-              trailPoints.push({ lat: pt.lat, lng: pt.lon });
-            });
-          }
-        });
-
-        if (trailPoints.length < 100) {
-          throw new Error('התקבלו מעט מדי נקודות מהמפה.');
-        }
-
-        btn.innerHTML = '<span>🧮 מחשב אמצע מקטע על השביל...</span>';
-
-        // פונקציית מרחק גיאוגרפי (Haversine בק"מ)
-        function haversineKm(lat1, lon1, lat2, lon2) {
-          const R = 6371;
-          const dLat = (lat2 - lat1) * Math.PI / 180;
-          const dLon = (lon2 - lon1) * Math.PI / 180;
-          const a = Math.sin(dLat / 2) ** 2 +
-                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                    Math.sin(dLon / 2) ** 2;
-          return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        }
-
-        // לכל אחד מ-56 המקטעים: מוצאים את הנקודה הקרובה ביותר על תוואי שביל ישראל האמיתי
-        const updates = [];
-        for (const seg of segmentsData) {
-          const curLat = Number(seg.lat);
-          const curLng = Number(seg.lng);
-          let bestPt = null;
-          let bestDist = Infinity;
-
-          for (const tp of trailPoints) {
-            const d = haversineKm(curLat, curLng, tp.lat, tp.lng);
-            if (d < bestDist) {
-              bestDist = d;
-              bestPt = tp;
-            }
-          }
-
-          if (bestPt) {
-            updates.push({
-              id: seg.id,
-              lat: Number(bestPt.lat.toFixed(6)),
-              lng: Number(bestPt.lng.toFixed(6))
-            });
-          }
-        }
-
-        btn.innerHTML = '<span>💾 שומר 56 נקודות במסד הנתונים...</span>';
-
-        // עדכון כל 56 המקטעים ב-Supabase במקביל
-        await Promise.all(
-          updates.map(u =>
-            sb.from('segments').update({ lat: u.lat, lng: u.lng }).eq('id', u.id)
-          )
-        );
-
-        await loadData();
-        alert(`הסנכרון הושלם בהצלחה! כל ${updates.length} הסיכות הוצמדו בדיוק למרכז המקטעים על תוואי שביל ישראל האמיתי.`);
       } catch (err) {
-        alert('שגיאה בהצמדת הסיכות לשביל: ' + err.message);
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = originalHtml;
+        statusEl.textContent = `❌ שגיאה בשמירה: ${err.message}`;
+        alert('שגיאה בשמירת הקואורדינטה (ודאו שפתחתם הרשאת UPDATE לטבלת segments ב-Supabase): ' + err.message);
       }
     }
 
