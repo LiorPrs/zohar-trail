@@ -96,7 +96,7 @@
     <div class="block md:hidden relative w-full h-56 sm:h-64 overflow-hidden bg-amber-100">
       <img src="banner-mobile.jpg" onerror="this.style.display='none'" alt="נופי שביל ישראל" class="w-full h-full object-cover object-center" />
       <div class="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent"></div>
-      <div class="absolute top-3 right-3 bg-white/95 backdrop-blur-xs px-3 py-1 rounded-full text-[11px] font-bold text-orange-900 shadow-sm border border-orange-200">
+      <div id="heroMobileBadgeText" class="absolute top-3 right-3 bg-white/95 backdrop-blur-xs px-3 py-1 rounded-full text-[11px] font-bold text-orange-900 shadow-sm border border-orange-200">
         🤍 יוזמה של החברים של זוהר • לזכרו
       </div>
     </div>
@@ -121,16 +121,16 @@
         <!-- טקסט הנצחה ומד התקדמות מבוסס מקטעים -->
         <div class="flex-1 text-center md:text-right mt-2 md:mt-0">
           <div class="hidden md:inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-900 text-xs font-bold mb-3 shadow-2xs">
-            <span>🤍 יוזמה של החברים של זוהר • לזכרו</span>
+            <span id="heroBadgeText">🤍 יוזמה של החברים של זוהר • לזכרו</span>
           </div>
-          <h1 class="text-2xl sm:text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-3 md:mb-4 leading-tight">
+          <h1 id="heroTitleText" class="text-2xl sm:text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-3 md:mb-4 leading-tight">
             ממשיכים את הצעדים של זוהר בשביל ישראל
           </h1>
-          <div class="text-slate-700 text-sm sm:text-base md:text-lg leading-relaxed max-w-2xl mb-6 font-normal space-y-3">
-            <p>
+          <div id="heroBodyContainer" class="text-slate-700 text-sm sm:text-base md:text-lg leading-relaxed max-w-2xl mb-6 font-normal space-y-3">
+            <p id="heroPara1Text">
               זוהר אהב את הארץ, את השבילים הפתוחים, את השקט של הטבע ואת הרגעים האמיתיים של שיחה ועצירה בדרך. החלום הגדול שלו לפני הגיוס היה לצאת ולכבוש את שביל ישראל — חלום שנקטע מוקדם מדי.
             </p>
-            <p>
+            <p id="heroPara2Text">
               הקמנו את האתר הזה, החברים של זוהר, כדי לקחת את החלום שלו איתנו על הגב ולהשלים יחד את כל 56 מקטעי השביל — מהחרמון ועד אילת. אנחנו מזמינים את כל מי שאהב אותו, וגם מטיילים שרוצים לצעוד איתנו לזכרו: בחרו מקטע, עצרו ל-5 דקות מול הנוף עם הפתק של זוהר, ושתפו תמונה ומחשבה שתלווה אותנו הלאה.
             </p>
           </div>
@@ -361,6 +361,7 @@
 
           <!-- טופס 1: שריון תאריך -->
           <form id="planForm" onsubmit="submitPlan(event)" class="space-y-3 bg-amber-50/50 p-4 rounded-2xl border border-amber-200">
+            <div id="multiPlanNotice" class="hidden bg-amber-100/90 border border-amber-300 text-amber-950 text-xs p-2.5 rounded-xl font-medium"></div>
             <p class="text-xs text-amber-900">מתכננים ללכת את המקטע בקרוב? רשמו את שמכם והתאריך המתוכנן כדי שכולם יראו שהמקטע בדרך להשלמה.</p>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
@@ -372,9 +373,16 @@
                 <input type="date" id="planDate" required class="w-full px-3 py-2 text-base bg-white border border-slate-300 rounded-xl" />
               </div>
             </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">הערה או דרך ליצירת קשר להצטרפות (אופציונלי)</label>
-              <input type="text" id="planContact" placeholder="למשל: נשמח שעוד יצטרפו! אינסטגרם @omer_t" class="w-full px-3 py-2 text-base bg-white border border-slate-300 rounded-xl" />
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">מספר טלפון נייד (למנהלים בלבד) *</label>
+                <input type="tel" id="planPhone" required placeholder="050-0000000" dir="ltr" class="w-full px-3 py-2 text-base bg-white border border-slate-300 rounded-xl text-right" />
+                <span class="text-[10px] text-slate-500 block mt-0.5">🔒 חסוי — מוצג למנהלי האתר בלבד לתיאום</span>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">הערה פומבית להצטרפות (אופציונלי)</label>
+                <input type="text" id="planPublicNote" placeholder="למשל: נשמח שעוד יצטרפו! @omer_t" class="w-full px-3 py-2 text-base bg-white border border-slate-300 rounded-xl" />
+              </div>
             </div>
             <button type="submit" id="planSubmitBtn" class="w-full py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl text-sm transition shadow-xs">
               שריינו לנו את התאריך
@@ -390,10 +398,14 @@
               </select>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">שם המטייל / הקבוצה *</label>
                 <input type="text" id="compName" required placeholder="השמות שלכם" class="w-full px-3 py-2 text-base bg-white border border-slate-300 rounded-xl" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">טלפון נייד (למנהלים בלבד) *</label>
+                <input type="tel" id="compPhone" required placeholder="050-0000000" dir="ltr" class="w-full px-3 py-2 text-base bg-white border border-slate-300 rounded-xl text-right" />
               </div>
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">תאריך הביצוע *</label>
@@ -479,7 +491,7 @@
       </div>
 
       <!-- לוח בקרה למנהל -->
-      <div id="adminDashboardView" class="p-6 space-y-6 max-h-[75vh] overflow-y-auto hidden">
+      <div id="adminDashboardView" class="p-6 space-y-6 max-h-[78vh] overflow-y-auto hidden">
         <div>
           <div class="flex items-center justify-between mb-3">
             <h4 class="font-extrabold text-slate-900 text-base">⏳ ממתינים לאישור פרסום (<span id="adminPendingCount">0</span>)</h4>
@@ -490,7 +502,7 @@
 
         <div class="border-t border-slate-200 pt-5">
           <h4 class="font-extrabold text-slate-900 text-base mb-3">📋 כל הרשומות הפעילות באתר (מאושרים ושריונים)</h4>
-          <div id="adminAllList" class="space-y-2"></div>
+          <div id="adminAllList" class="space-y-3"></div>
         </div>
       </div>
     </div>
@@ -656,6 +668,32 @@
           badge.classList.add('hidden');
         }
       } catch (e) {}
+    }
+
+    function packContactInfo(phone, publicNote) {
+      const cleanPhone = (phone || '').trim();
+      const cleanNote = (publicNote || '').trim();
+      if (cleanPhone && cleanNote) return `PHONE:${cleanPhone}|NOTE:${cleanNote}`;
+      if (cleanPhone) return `PHONE:${cleanPhone}`;
+      return cleanNote;
+    }
+
+    function parseContactInfo(raw) {
+      if (!raw) return { phone: '', publicNote: '' };
+      if (raw.startsWith('PHONE:')) {
+        const parts = raw.split('|NOTE:');
+        const phone = parts[0].replace('PHONE:', '').trim();
+        const publicNote = parts[1] ? parts[1].trim() : '';
+        return { phone, publicNote };
+      }
+      return { phone: '', publicNote: raw };
+    }
+
+    function formatWhatsappLink(phone) {
+      if (!phone) return '';
+      let digits = phone.replace(/\D/g, '');
+      if (digits.startsWith('0')) digits = '972' + digits.substring(1);
+      return `https://wa.me/${digits}`;
     }
 
     function isPlanOverdue(hikeDateStr) {
@@ -862,10 +900,18 @@
           </div>
         `;
       } else if (planned.length > 0) {
+        const itemsHtml = planned.map(p => {
+          const { publicNote } = parseContactInfo(p.contact_info);
+          const overdueTag = isPlanOverdue(p.hike_date) ? '<span class="text-red-700 font-bold">(עבר התאריך)</span>' : '';
+          return `<div class="py-1 border-b border-amber-200/60 last:border-0">
+            <strong>${p.hiker_name}</strong> • ${p.hike_date} ${overdueTag}
+            ${publicNote ? `<div class="text-xs text-amber-800 mt-0.5">${publicNote}</div>` : ''}
+          </div>`;
+        }).join('');
         contentHtml = `
-          <div class="mt-4 bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-900">
-            <strong>מתוכנן לביצוע:</strong> ${planned[0].hiker_name} בתאריך <strong>${planned[0].hike_date}</strong>
-            ${planned[0].contact_info ? `<div class="text-xs mt-1">${planned[0].contact_info}</div>` : ''}
+          <div class="mt-4 bg-amber-50 border border-amber-200 rounded-xl p-3.5 text-sm text-amber-950">
+            <div class="text-xs font-extrabold text-amber-900 mb-1.5">📅 שוריין ע"י ${planned.length === 1 ? 'קבוצה אחת' : planned.length + ' קבוצות'}:</div>
+            ${itemsHtml}
           </div>
         `;
       } else {
@@ -981,11 +1027,12 @@
           }
         } else if (planned.length > 0) {
           const anyActive = planned.some(p => !isPlanOverdue(p.hike_date));
+          const countText = planned.length > 1 ? ` • ${planned.length} קבוצות` : '';
           if (anyActive) {
-            badge = `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800">🟠 שוריין (${planned[0].hike_date})</span>`;
+            badge = `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800">🟠 שוריין (${planned[0].hike_date}${countText})</span>`;
             borderClass = 'border-amber-300';
           } else {
-            badge = `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800">🔴 עבר הזמן (${planned[0].hike_date})</span>`;
+            badge = `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800">🔴 עבר הזמן (${planned[0].hike_date}${countText})</span>`;
             borderClass = 'border-red-300';
           }
         }
@@ -1010,7 +1057,7 @@
                 🌤️ ${seasonInfo.label}
               </span>
             </div>
-            ${planned.length > 0 && completed.length === 0 ? `<p class="text-xs text-amber-800 bg-amber-50 px-2.5 py-1.5 rounded-lg mb-3">מתוכנן: <strong>${planned[0].hiker_name}</strong></p>` : ''}
+            ${planned.length > 0 && completed.length === 0 ? `<p class="text-xs text-amber-800 bg-amber-50 px-2.5 py-1.5 rounded-lg mb-3">מתוכנן: <strong>${planned.map(p => p.hiker_name).join(', ')}</strong></p>` : ''}
             ${completed.length > 0 ? `<div class="text-xs text-slate-600 line-clamp-2 mb-3"><strong>${completed[0].hiker_name}:</strong> ${completed[0].story}</div>` : ''}
           </div>
           <button onclick="openModal(${seg.id})" class="w-full py-2 px-3 rounded-xl bg-slate-100 hover:bg-orange-600 hover:text-white text-slate-800 font-bold text-xs transition">
@@ -1041,23 +1088,37 @@
       const existingSelectWrapper = document.getElementById('existingPlanSelectWrapper');
       const existingSelect = document.getElementById('existingPlanSelect');
 
+      const multiNotice = document.getElementById('multiPlanNotice');
       if (planned.length > 0) {
         plannedSec.classList.remove('hidden');
-        plannedList.innerHTML = planned.map(p => `
-          <li class="bg-white/80 p-2.5 rounded-xl border border-amber-200 flex justify-between items-center">
-            <div>
-              <strong>${p.hiker_name}</strong> — תאריך מתוכנן: <span class="font-bold">${p.hike_date}</span>
-              ${p.contact_info ? `<div class="text-xs text-slate-600">${p.contact_info}</div>` : ''}
-            </div>
-          </li>
-        `).join('');
+        plannedList.innerHTML = planned.map(p => {
+          const { publicNote } = parseContactInfo(p.contact_info);
+          const overdueBadge = isPlanOverdue(p.hike_date)
+            ? '<span class="px-2 py-0.5 rounded bg-red-100 text-red-800 text-[11px] font-bold mr-1">עבר הזמן</span>'
+            : '<span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-[11px] font-bold mr-1">מתוכנן</span>';
+          return `
+            <li class="bg-white/90 p-2.5 rounded-xl border border-amber-200 flex justify-between items-center">
+              <div>
+                <strong>${p.hiker_name}</strong> — תאריך: <span class="font-bold">${p.hike_date}</span> ${overdueBadge}
+                ${publicNote ? `<div class="text-xs text-slate-600 mt-0.5">${publicNote}</div>` : ''}
+              </div>
+            </li>
+          `;
+        }).join('');
+
+        multiNotice.classList.remove('hidden');
+        multiNotice.innerHTML = `💡 <strong>שימו לב:</strong> מקטע זה כבר שוריין ע"י ${planned.length === 1 ? 'קבוצה אחת' : planned.length + ' קבוצות'} (מופיע למעלה). אפשר לשריין תאריך נוסף במקביל או ליצור איתם קשר להצטרפות!`;
 
         existingSelectWrapper.classList.remove('hidden');
         existingSelect.innerHTML = `<option value="">-- לא שריינו מראש / רישום חדש --</option>` +
-          planned.map(p => `<option value="${p.id}" data-name="${p.hiker_name}" data-date="${p.hike_date}">${p.hiker_name} (${p.hike_date})</option>`).join('');
+          planned.map(p => {
+            const { phone } = parseContactInfo(p.contact_info);
+            return `<option value="${p.id}" data-name="${p.hiker_name}" data-date="${p.hike_date}" data-phone="${phone}">${p.hiker_name} (${p.hike_date})</option>`;
+          }).join('');
       } else {
         plannedSec.classList.add('hidden');
         existingSelectWrapper.classList.add('hidden');
+        multiNotice.classList.add('hidden');
       }
 
       const compList = document.getElementById('modalCompletedList');
@@ -1113,6 +1174,7 @@
       if (opt && opt.value) {
         document.getElementById('compName').value = opt.dataset.name || '';
         document.getElementById('compDate').value = opt.dataset.date || '';
+        if (opt.dataset.phone) document.getElementById('compPhone').value = opt.dataset.phone;
       }
     }
 
@@ -1124,11 +1186,13 @@
       btn.textContent = 'שומר שריון...';
 
       try {
+        const phoneVal = document.getElementById('planPhone').value.trim();
+        const publicNoteVal = document.getElementById('planPublicNote').value.trim();
         const payload = {
           segment_id: currentSegment.id,
           hiker_name: document.getElementById('planName').value.trim(),
           hike_date: document.getElementById('planDate').value,
-          contact_info: document.getElementById('planContact').value.trim(),
+          contact_info: packContactInfo(phoneVal, publicNoteVal),
           status: 'planned',
           is_approved: true
         };
@@ -1207,10 +1271,12 @@
         const zoharAns = document.getElementById('compZoharWord').value.trim();
         const formattedStory = `🌿 מה ראינו בטבע: ${natureAns}\n🧭 צידה לדרך: ${growthAns}\n🤍 מילה לזוהר: ${zoharAns}`;
 
+        const compPhoneVal = document.getElementById('compPhone').value.trim();
         const payload = {
           segment_id: currentSegment.id,
           hiker_name: document.getElementById('compName').value.trim(),
           hike_date: document.getElementById('compDate').value,
+          contact_info: packContactInfo(compPhoneVal, ''),
           story: formattedStory,
           photo_url: photoUrl,
           status: 'completed',
@@ -1295,16 +1361,44 @@
           pendingList.innerHTML = pending.map(item => {
             const seg = segmentsData.find(s => s.id === item.segment_id);
             const segName = seg ? `מקטע #${seg.id}: ${seg.title}` : `מקטע ${item.segment_id}`;
+            const { phone } = parseContactInfo(item.contact_info);
+            const waBtn = phone ? `<a href="${formatWhatsappLink(phone)}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 hover:bg-green-200 text-green-800 rounded text-[11px] font-bold mr-1">📞 ${phone} (וואטסאפ)</a>` : '';
             return `
               <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex flex-col sm:flex-row gap-4 items-start">
                 ${item.photo_url ? `<img src="${item.photo_url}" class="w-full sm:w-32 h-28 object-cover rounded-xl shrink-0 border border-slate-200" />` : ''}
-                <div class="flex-1">
+                <div class="flex-1 w-full">
                   <div class="text-xs font-bold text-blue-800">${segName}</div>
-                  <div class="font-bold text-slate-900 text-sm">${item.hiker_name} <span class="text-xs font-normal text-slate-500">(${item.hike_date})</span></div>
-                  <div class="text-xs text-slate-700 mt-1 bg-white p-2 rounded-lg border border-amber-100">${formatStoryHtml(item.story || '')}</div>
-                  <div class="flex gap-2 mt-3">
-                    <button onclick="approveMemory('${item.id}')" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs transition">
+                  <div class="font-bold text-slate-900 text-sm flex flex-wrap items-center gap-1">${item.hiker_name} <span class="text-xs font-normal text-slate-500">(${item.hike_date})</span> ${waBtn}</div>
+                  <div id="viewBox_${item.id}" class="text-xs text-slate-700 mt-1.5 bg-white p-2.5 rounded-lg border border-amber-100 leading-relaxed">${formatStoryHtml(item.story || '')}</div>
+                  
+                  <!-- טופס עריכה מהיר לפני אישור -->
+                  <div id="editBox_${item.id}" class="hidden mt-2 bg-white p-3 rounded-xl border border-amber-300 space-y-2">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <div>
+                        <label class="block text-[11px] font-bold text-slate-600">שם המטייל / הקבוצה</label>
+                        <input type="text" id="editName_${item.id}" value="${(item.hiker_name || '').replace(/"/g, '&quot;')}" class="w-full px-2.5 py-1.5 text-sm border border-slate-300 rounded-lg" />
+                      </div>
+                      <div>
+                        <label class="block text-[11px] font-bold text-slate-600">תאריך</label>
+                        <input type="date" id="editDate_${item.id}" value="${item.hike_date || ''}" class="w-full px-2.5 py-1.5 text-sm border border-slate-300 rounded-lg" />
+                      </div>
+                    </div>
+                    <div>
+                      <label class="block text-[11px] font-bold text-slate-600">טקסט הגלויה (תשובות המשתתפים)</label>
+                      <textarea id="editStory_${item.id}" rows="4" class="w-full p-2 text-sm border border-slate-300 rounded-lg">${item.story || ''}</textarea>
+                    </div>
+                    <div class="flex gap-2">
+                      <button type="button" onclick="saveMemoryEdits('${item.id}')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-xs transition">💾 שמור עריכה</button>
+                      <button type="button" onclick="toggleEditBox('${item.id}')" class="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg text-xs transition">ביטול</button>
+                    </div>
+                  </div>
+
+                  <div class="flex flex-wrap gap-2 mt-3">
+                    <button onclick="approveMemory('${item.id}')" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs transition">
                       ✅ אישור ופרסום באתר
+                    </button>
+                    <button onclick="toggleEditBox('${item.id}')" class="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 font-bold rounded-lg text-xs transition">
+                      ✏️ עריכת טקסט
                     </button>
                     <button onclick="deleteMemory('${item.id}')" class="px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 font-bold rounded-lg text-xs transition">
                       🗑️ מחיקה
@@ -1322,21 +1416,57 @@
           allList.innerHTML = approved.map(item => {
             const seg = segmentsData.find(s => s.id === item.segment_id);
             const segName = seg ? `#${seg.id} ${seg.title}` : `#${item.segment_id}`;
+            const { phone, publicNote } = parseContactInfo(item.contact_info);
+            const overdue = item.status === 'planned' && isPlanOverdue(item.hike_date);
             const typeBadge = item.status === 'completed'
               ? '<span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded text-[10px] font-bold">הושלם</span>'
-              : '<span class="px-2 py-0.5 bg-amber-100 text-amber-800 rounded text-[10px] font-bold">משוריין</span>';
+              : (overdue
+                  ? '<span class="px-2 py-0.5 bg-red-100 text-red-800 rounded text-[10px] font-bold">עבר הזמן</span>'
+                  : '<span class="px-2 py-0.5 bg-amber-100 text-amber-800 rounded text-[10px] font-bold">משוריין</span>');
+            const waLink = phone ? `<a href="${formatWhatsappLink(phone)}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 hover:bg-green-200 text-green-800 rounded text-[10px] font-bold">💬 ${phone}</a>` : '';
+            const textLabel = item.status === 'completed' ? 'טקסט הגלויה' : 'הערה פומבית להצטרפות';
+            const currentTextVal = item.status === 'completed' ? (item.story || '') : publicNote;
             return `
-              <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between gap-3">
-                <div class="flex items-center gap-3">
-                  ${item.photo_url ? `<img src="${item.photo_url}" class="w-10 h-10 rounded-lg object-cover" />` : ''}
-                  <div>
-                    <div class="text-xs font-bold text-slate-900">${typeBadge} ${segName} — ${item.hiker_name}</div>
-                    <div class="text-[11px] text-slate-500">${item.hike_date} ${item.story ? '• ' + item.story.substring(0, 40) + '...' : ''}</div>
+              <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
+                <div class="flex items-center justify-between gap-3">
+                  <div class="flex items-center gap-3">
+                    ${item.photo_url ? `<img src="${item.photo_url}" class="w-11 h-11 rounded-lg object-cover shrink-0" />` : ''}
+                    <div>
+                      <div class="text-xs font-bold text-slate-900 flex flex-wrap items-center gap-1.5">${typeBadge} ${segName} — ${item.hiker_name} ${waLink}</div>
+                      <div class="text-[11px] text-slate-500">${item.hike_date} ${currentTextVal ? '• ' + currentTextVal.substring(0, 45) + '...' : ''}</div>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-1.5 shrink-0">
+                    <button onclick="toggleEditBox('${item.id}')" class="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 rounded-lg text-xs font-bold">
+                      ✏️ עריכה
+                    </button>
+                    <button onclick="deleteMemory('${item.id}')" class="px-2.5 py-1 bg-white border border-red-200 hover:bg-red-50 text-red-600 rounded-lg text-xs font-bold">
+                      מחיקה
+                    </button>
                   </div>
                 </div>
-                <button onclick="deleteMemory('${item.id}')" class="px-2.5 py-1 bg-white border border-red-200 hover:bg-red-50 text-red-600 rounded-lg text-xs font-bold shrink-0">
-                  מחיקה
-                </button>
+
+                <!-- תיבת עריכה לרשומה קיימת -->
+                <div id="editBox_${item.id}" class="hidden pt-2 border-t border-slate-200 space-y-2">
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div>
+                      <label class="block text-[11px] font-bold text-slate-600">שם המטייל / הקבוצה</label>
+                      <input type="text" id="editName_${item.id}" value="${(item.hiker_name || '').replace(/"/g, '&quot;')}" class="w-full px-2.5 py-1.5 text-sm bg-white border border-slate-300 rounded-lg" />
+                    </div>
+                    <div>
+                      <label class="block text-[11px] font-bold text-slate-600">תאריך</label>
+                      <input type="date" id="editDate_${item.id}" value="${item.hike_date || ''}" class="w-full px-2.5 py-1.5 text-sm bg-white border border-slate-300 rounded-lg" />
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-600">${textLabel}</label>
+                    <textarea id="editStory_${item.id}" rows="3" class="w-full p-2 text-sm bg-white border border-slate-300 rounded-lg">${currentTextVal}</textarea>
+                  </div>
+                  <div class="flex gap-2">
+                    <button type="button" onclick="saveMemoryEdits('${item.id}')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-xs transition">💾 שמור שינויים</button>
+                    <button type="button" onclick="toggleEditBox('${item.id}')" class="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg text-xs transition">ביטול</button>
+                  </div>
+                </div>
               </div>
             `;
           }).join('');
@@ -1344,6 +1474,45 @@
 
       } catch (err) {
         pendingList.innerHTML = `<p class="text-xs text-red-600">שגיאה בטעינת נתוני ניהול: ${err.message}</p>`;
+      }
+    }
+
+    function toggleEditBox(id) {
+      const box = document.getElementById(`editBox_${id}`);
+      if (box) box.classList.toggle('hidden');
+    }
+
+    async function saveMemoryEdits(id) {
+      const item = allMemoriesAdmin.find(m => String(m.id) === String(id));
+      if (!item) return;
+
+      const updatedName = document.getElementById(`editName_${id}`).value.trim();
+      const updatedDate = document.getElementById(`editDate_${id}`).value;
+      const updatedText = document.getElementById(`editStory_${id}`).value.trim();
+
+      const updatePayload = {
+        hiker_name: updatedName || item.hiker_name,
+        hike_date: updatedDate || item.hike_date
+      };
+
+      if (item.status === 'completed') {
+        updatePayload.story = updatedText;
+      } else {
+        const { phone } = parseContactInfo(item.contact_info);
+        updatePayload.contact_info = packContactInfo(phone, updatedText);
+      }
+
+      try {
+        const { error } = await sb
+          .from('memories')
+          .update(updatePayload)
+          .eq('id', id);
+        if (error) throw error;
+        alert('השינויים נשמרו בהצלחה!');
+        await loadAdminData();
+        await loadData();
+      } catch (err) {
+        alert('שגיאה בשמירת העריכה: ' + err.message);
       }
     }
 
