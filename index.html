@@ -6,6 +6,11 @@
   <title>צועדים בשביל זוהר | לזכרו של זוהר תמיר ז"ל</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- Leaflet.js למפה אמיתית -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;800&display=swap" rel="stylesheet">
@@ -30,6 +35,15 @@
     .trail-stripe {
       background: linear-gradient(180deg, #ffffff 0%, #ffffff 33.3%, #1d4ed8 33.3%, #1d4ed8 66.6%, #ea580c 66.6%, #ea580c 100%);
     }
+    /* התאמת פופאפ וסיכות במפת Leaflet */
+    .leaflet-container {
+      font-family: 'Heebo', sans-serif !important;
+      z-index: 10;
+    }
+    .custom-pin-icon {
+      background: transparent;
+      border: none;
+    }
   </style>
 </head>
 <body class="antialiased selection:bg-orange-200 selection:text-orange-900">
@@ -45,10 +59,14 @@
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <button onclick="toggleContrast()" class="px-3 py-1.5 text-xs font-medium rounded-lg border border-slate-300 hover:bg-slate-100 transition" aria-label="ניגודיות גבוהה">
-          👁️ ניגודיות
+        <button onclick="openAdminModal()" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-800 text-white hover:bg-slate-700 transition flex items-center gap-1" title="ממשק ניהול ואישור תמונות">
+          <span>⚙️ ניהול</span>
+          <span id="pendingBadge" class="hidden bg-red-500 text-white text-[10px] px-1.5 py-0.2 rounded-full">0</span>
         </button>
-        <button onclick="increaseFont()" class="px-3 py-1.5 text-xs font-medium rounded-lg border border-slate-300 hover:bg-slate-100 transition" aria-label="הגדלת טקסט">
+        <button onclick="toggleContrast()" class="px-2.5 py-1.5 text-xs font-medium rounded-lg border border-slate-300 hover:bg-slate-100 transition" aria-label="ניגודיות גבוהה">
+          👁️
+        </button>
+        <button onclick="increaseFont()" class="px-2.5 py-1.5 text-xs font-medium rounded-lg border border-slate-300 hover:bg-slate-100 transition" aria-label="הגדלת טקסט">
           א+
         </button>
       </div>
@@ -98,7 +116,7 @@
             <div class="flex gap-4 mt-2.5 text-xs text-slate-500">
               <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> הושלם</span>
               <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> מתוכנן / משוריין</span>
-              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-slate-300 inline-block"></span> פנוי</span>
+              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-slate-400 inline-block"></span> פנוי</span>
             </div>
           </div>
         </div>
@@ -106,42 +124,39 @@
     </div>
   </header>
 
-  <!-- תוכן ראשי: מפה + רשימת מקטעים -->
+  <!-- תוכן ראשי: מפה אמיתית + רשימת מקטעים -->
   <main class="max-w-6xl mx-auto px-4 py-8 space-y-12">
 
-    <!-- אזור מפה אינטראקטיבית -->
+    <!-- אזור מפה אמיתית (Leaflet + Israel Hiking / OSM) -->
     <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5">
         <div>
-          <h2 class="text-2xl font-bold text-slate-900">מפת השביל החיה</h2>
-          <p class="text-sm text-slate-500">לחצו על כל נקודה במפה כדי לראות מי צעד או מתכנן לצעוד במקטע, ולצפות בתמונות מהשטח</p>
+          <h2 class="text-2xl font-bold text-slate-900">מפת שביל ישראל האמיתית</h2>
+          <p class="text-sm text-slate-500">עשו זום פנימה לכל הר ונחל, ולחצו על הסיכות לאורך השביל כדי לראות מי צעד או מתכנן לצעוד</p>
         </div>
-        <button onclick="loadData()" class="self-start md:self-auto px-3 py-1.5 text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition">
-          🔄 רענן נתונים
-        </button>
+        <div class="flex items-center gap-2">
+          <select id="mapLayerSelect" onchange="changeMapLayer()" class="px-3 py-1.5 text-xs font-bold bg-slate-100 border border-slate-300 rounded-lg text-slate-700">
+            <option value="hiking">🥾 מפת שבילים (Israel Hiking)</option>
+            <option value="osm">🗺️ מפת רחובות ויישובים</option>
+          </select>
+          <button onclick="loadData()" class="px-3 py-1.5 text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition">
+            🔄 רענן
+          </button>
+        </div>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        <!-- מפת SVG של ישראל -->
-        <div class="lg:col-span-5 relative bg-sky-50/70 rounded-2xl border border-sky-100 p-4 flex justify-center overflow-hidden">
-          <div id="mapContainer" class="relative w-full max-w-[320px] aspect-[1/2.1]">
-            <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm" preserveAspectRatio="none">
-              <!-- קווי מתאר סכמטיים של ישראל -->
-              <path d="M62,4 L70,7 L68,18 L63,28 L64,45 L62,58 L54,75 L38,97 L34,95 L42,68 L41,45 L44,26 L56,12 Z" fill="#fef3c7" stroke="#d97706" stroke-width="0.6" />
-              <!-- תוואי שביל ישראל -->
-              <path id="trailPath" d="M66,8 Q63,15 45,25 T47,51 T43,74 T36,95" fill="none" stroke="#ea580c" stroke-width="0.9" stroke-dasharray="1.8,1.2" />
-            </svg>
-            <!-- סיכות דינמיות יוזרקו לכאן -->
-            <div id="mapPins" class="absolute inset-0"></div>
-          </div>
+        <!-- מפת Leaflet אינטראקטיבית -->
+        <div class="lg:col-span-7 relative rounded-2xl border border-slate-300 overflow-hidden shadow-inner">
+          <div id="realIsraelMap" class="w-full h-[460px] md:h-[520px]"></div>
         </div>
 
         <!-- פאנל תצוגה מקדימה של המקטע הנבחר במפה -->
-        <div class="lg:col-span-7 bg-slate-50 rounded-2xl border border-slate-200 p-5 min-h-[340px] flex flex-col justify-between" id="mapPreviewPanel">
+        <div class="lg:col-span-5 bg-slate-50 rounded-2xl border border-slate-200 p-5 min-h-[340px] lg:h-[520px] flex flex-col justify-between overflow-y-auto" id="mapPreviewPanel">
           <div class="text-center my-auto py-10 text-slate-500">
-            <span class="text-4xl block mb-2">🗺️</span>
-            <p class="font-medium text-slate-700">בחרו נקודה על המפה או כרטיסייה מהרשימה למטה</p>
-            <p class="text-xs mt-1">כאן יוצגו הסיפורים, השריונים העתידיים והתמונות מהשביל</p>
+            <span class="text-4xl block mb-2">🧭</span>
+            <p class="font-bold text-slate-700">בחרו נקודה על מפת ישראל או כרטיסייה למטה</p>
+            <p class="text-xs mt-1">תוכלו לראות את תוואי השביל האמיתי, את התמונות מהשטח ולשריין מקטע</p>
           </div>
         </div>
       </div>
@@ -237,16 +252,16 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">שם המטייל / הקבוצה *</label>
-                <input type="text" id="planName" required placeholder="למשל: עומר והחבר'ה מטירת צבי" class="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-xl" />
+                <input type="text" id="planName" required placeholder="למשל: עומר והחבר'ה מטירת צבי" class="w-full px-3 py-2 text-base bg-white border border-slate-300 rounded-xl" />
               </div>
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">תאריך מתוכנן *</label>
-                <input type="date" id="planDate" required class="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-xl" />
+                <input type="date" id="planDate" required class="w-full px-3 py-2 text-base bg-white border border-slate-300 rounded-xl" />
               </div>
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-700 mb-1">הערה או דרך ליצירת קשר להצטרפות (אופציונלי)</label>
-              <input type="text" id="planContact" placeholder="למשל: נשמח שעוד יצטרפו! אינסטגרם @omer_t" class="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-xl" />
+              <input type="text" id="planContact" placeholder="למשל: נשמח שעוד יצטרפו! אינסטגרם @omer_t" class="w-full px-3 py-2 text-base bg-white border border-slate-300 rounded-xl" />
             </div>
             <button type="submit" id="planSubmitBtn" class="w-full py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl text-sm transition shadow-xs">
               שריינו לנו את התאריך
@@ -257,7 +272,7 @@
           <form id="completeForm" onsubmit="submitCompletion(event)" class="space-y-3 bg-emerald-50/50 p-4 rounded-2xl border border-emerald-200 hidden">
             <div id="existingPlanSelectWrapper" class="hidden">
               <label class="block text-xs font-bold text-emerald-900 mb-1">האם שריינתם מראש את המקטע? (בחרו לעדכון אוטומטי)</label>
-              <select id="existingPlanSelect" onchange="fillFromExistingPlan()" class="w-full px-3 py-2 text-sm bg-white border border-emerald-300 rounded-xl">
+              <select id="existingPlanSelect" onchange="fillFromExistingPlan()" class="w-full px-3 py-2 text-base bg-white border border-emerald-300 rounded-xl">
                 <option value="">-- לא שריינו מראש / רישום חדש --</option>
               </select>
             </div>
@@ -265,17 +280,17 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">שם המטייל / הקבוצה *</label>
-                <input type="text" id="compName" required placeholder="השמות שלכם" class="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-xl" />
+                <input type="text" id="compName" required placeholder="השמות שלכם" class="w-full px-3 py-2 text-base bg-white border border-slate-300 rounded-xl" />
               </div>
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">תאריך הביצוע *</label>
-                <input type="date" id="compDate" required class="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-xl" />
+                <input type="date" id="compDate" required class="w-full px-3 py-2 text-base bg-white border border-slate-300 rounded-xl" />
               </div>
             </div>
 
             <div>
               <label class="block text-xs font-bold text-slate-700 mb-1">סיפור מהדרך / הקדשה לזוהר *</label>
-              <textarea id="compStory" rows="3" required placeholder="ספרו איך היה המסלול, מה הזכיר לכם את זוהר..." class="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-xl"></textarea>
+              <textarea id="compStory" rows="3" required placeholder="ספרו איך היה המסלול, מה הזכיר לכם את זוהר..." class="w-full px-3 py-2 text-base bg-white border border-slate-300 rounded-xl"></textarea>
             </div>
 
             <div>
@@ -288,6 +303,50 @@
             </button>
             <p class="text-[11px] text-slate-500 text-center">התמונה והסיפור יופיעו באתר ובמפה מיד לאחר אישור קצר של צוות האתר.</p>
           </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- מודאל ממשק ניהול (Admin Panel) -->
+  <div id="adminModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-3xl w-full shadow-2xl border border-slate-200 overflow-hidden my-8">
+      <div class="p-5 bg-slate-900 text-white flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-extrabold">⚙️ ממשק ניהול האתר – אישור תמונות וניהול שריונים</h3>
+          <p class="text-xs text-slate-400">מיועד לצוות המנהלים (החברים והמשפחה)</p>
+        </div>
+        <button onclick="closeAdminModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center font-bold">✕</button>
+      </div>
+
+      <!-- מסך התחברות למנהל -->
+      <div id="adminLoginView" class="p-8 text-center space-y-4">
+        <span class="text-4xl block">🔐</span>
+        <h4 class="text-lg font-bold text-slate-900">הזינו קוד גישה למנהלים</h4>
+        <p class="text-xs text-slate-500 max-w-sm mx-auto">קוד ברירת המחדל לטסט הוא: <strong>zohar2026</strong> (ניתן לשנות אותו בקלות בקוד)</p>
+        <div class="max-w-xs mx-auto flex gap-2">
+          <input type="password" id="adminPassInput" placeholder="קוד מנהל..." class="flex-1 px-3 py-2 text-base border border-slate-300 rounded-xl text-center" onkeydown="if(event.key==='Enter') verifyAdmin()" />
+          <button onclick="verifyAdmin()" class="px-4 py-2 bg-slate-900 text-white font-bold rounded-xl text-sm hover:bg-slate-800">כניסה</button>
+        </div>
+      </div>
+
+      <!-- לוח בקרה למנהל (לאחר התחברות) -->
+      <div id="adminDashboardView" class="p-6 space-y-6 max-h-[75vh] overflow-y-auto hidden">
+        
+        <!-- תמונות ממתינות לאישור -->
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="font-extrabold text-slate-900 text-base">⏳ ממתינים לאישור פרסום (<span id="adminPendingCount">0</span>)</h4>
+            <button onclick="loadAdminData()" class="text-xs text-blue-600 font-bold hover:underline">רענן רשימה</button>
+          </div>
+          <div id="adminPendingList" class="space-y-3"></div>
+        </div>
+
+        <!-- רשימת כל הפריטים המאושרים והשריונים (למקרה שצריך למחוק/לערוך) -->
+        <div class="border-t border-slate-200 pt-5">
+          <h4 class="font-extrabold text-slate-900 text-base mb-3">📋 כל הרשומות הפעילות באתר (מאושרים ושריונים)</h4>
+          <div id="adminAllList" class="space-y-2"></div>
         </div>
 
       </div>
@@ -308,10 +367,48 @@
     const SUPABASE_KEY = 'sb_publishable_iW_NlGwjhs63H1QZEpAq1Q_AFzR-TkP';
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    // סיסמת ניהול פשוטה לצוות החברים
+    const ADMIN_PASSCODE = 'zohar2026';
+    let isAdminLoggedIn = false;
+
     let segmentsData = [];
     let memoriesData = [];
+    let allMemoriesAdmin = [];
     let currentSegment = null;
     let fontScale = 100;
+
+    // משתני מפת Leaflet
+    let map = null;
+    let currentTileLayer = null;
+    let markersLayer = null;
+    let trailPolyline = null;
+
+    const tileLayers = {
+      hiking: L.tileLayer('https://israelhiking.osm.org.il/Tiles/{z}/{x}/{y}.png', {
+        attribution: '© Israel Hiking Map | OpenStreetMap',
+        maxZoom: 16
+      }),
+      osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 18
+      })
+    };
+
+    function initRealMap() {
+      if (map) return;
+      // מרכז ישראל (מדן עד אילת)
+      map = L.map('realIsraelMap').setView([31.45, 35.05], 7);
+      currentTileLayer = tileLayers.hiking;
+      currentTileLayer.addTo(map);
+      markersLayer = L.layerGroup().addTo(map);
+    }
+
+    function changeMapLayer() {
+      const val = document.getElementById('mapLayerSelect').value;
+      if (currentTileLayer) map.removeLayer(currentTileLayer);
+      currentTileLayer = tileLayers[val];
+      currentTileLayer.addTo(map);
+    }
 
     // נגישות
     function toggleContrast() {
@@ -322,7 +419,7 @@
       document.documentElement.style.fontSize = fontScale + '%';
     }
 
-    // תצוגה מקדימה לתמונת זוהר ב-Hero (מקומי)
+    // תצוגה מקדימה לתמונת זוהר ב-Hero
     function previewHeroImage(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -348,9 +445,11 @@
         segmentsData = segRes.data || [];
         memoriesData = memRes.data || [];
 
+        initRealMap();
         updateStats();
-        renderMapPins();
+        renderRealMapPins();
         renderSegments();
+        checkPendingCount();
       } catch (err) {
         console.error('Error loading data:', err);
         document.getElementById('loadingState').innerHTML = `<span class="text-red-600 font-bold">שגיאה בטעינת הנתונים: ${err.message}</span>`;
@@ -359,6 +458,23 @@
           document.getElementById('loadingState').classList.add('hidden');
         }
       }
+    }
+
+    // בדיקת כמות ממתינים לאישור (להצגת תגית אדומה בכפתור הניהול)
+    async function checkPendingCount() {
+      try {
+        const { count } = await sb
+          .from('memories')
+          .select('*', { count: 'exact', head: true })
+          .eq('is_approved', false);
+        const badge = document.getElementById('pendingBadge');
+        if (count && count > 0) {
+          badge.textContent = count;
+          badge.classList.remove('hidden');
+        } else {
+          badge.classList.add('hidden');
+        }
+      } catch (e) {}
     }
 
     function getSegmentMemories(segmentId) {
@@ -388,36 +504,65 @@
       document.getElementById('progressBar').style.width = pct + '%';
     }
 
-    // רינדור סיכות על המפה
-    function renderMapPins() {
-      const container = document.getElementById('mapPins');
-      container.innerHTML = '';
+    // רינדור סיכות וקווי שביל על המפה האמיתית (Leaflet)
+    function renderRealMapPins() {
+      if (!markersLayer) return;
+      markersLayer.clearLayers();
+      if (trailPolyline) map.removeLayer(trailPolyline);
+
+      const latLngs = [];
 
       segmentsData.forEach(seg => {
+        // שימוש בקואורדינטות GPS אמיתיות (lat, lng) אם קיימות, או גיבוי זמני
+        const lat = seg.lat || (33.24 - (seg.map_y / 100) * 3.7);
+        const lng = seg.lng || (34.9 + (seg.map_x / 100) * 0.7);
+        latLngs.push([lat, lng]);
+
         const { completed, planned } = getSegmentMemories(seg.id);
-        const pin = document.createElement('button');
-        pin.style.left = seg.map_x + '%';
-        pin.style.top = seg.map_y + '%';
-        pin.className = 'absolute -translate-x-1/2 -translate-y-1/2 group focus:outline-none z-10 hover:z-30 transition-transform hover:scale-125';
-        pin.title = `מקטע ${seg.id}: ${seg.title}`;
-        pin.onclick = () => selectMapSegment(seg);
+
+        let iconHtml = '';
+        let iconSize = [24, 24];
 
         if (completed.length > 0 && completed[0].photo_url) {
-          pin.innerHTML = `
-            <div class="w-9 h-9 rounded-full border-2 border-emerald-500 shadow-md overflow-hidden bg-white">
+          iconSize = [42, 42];
+          iconHtml = `
+            <div class="w-10 h-10 rounded-full border-3 border-emerald-500 shadow-lg overflow-hidden bg-white hover:scale-125 transition-transform">
               <img src="${completed[0].photo_url}" class="w-full h-full object-cover" alt="${seg.title}" />
             </div>
           `;
         } else if (completed.length > 0) {
-          pin.innerHTML = `<div class="w-5 h-5 rounded-full bg-emerald-500 border-2 border-white shadow"></div>`;
+          iconHtml = `<div class="w-6 h-6 rounded-full bg-emerald-500 border-2 border-white shadow-md"></div>`;
         } else if (planned.length > 0) {
-          pin.innerHTML = `<div class="w-5 h-5 rounded-full bg-amber-500 border-2 border-white shadow animate-pulse"></div>`;
+          iconHtml = `<div class="w-6 h-6 rounded-full bg-amber-500 border-2 border-white shadow-md animate-pulse"></div>`;
         } else {
-          pin.innerHTML = `<div class="w-3.5 h-3.5 rounded-full bg-slate-400 border-2 border-white shadow hover:bg-orange-500"></div>`;
+          iconHtml = `<div class="w-4 h-4 rounded-full bg-slate-600 border-2 border-white shadow hover:bg-orange-600 transition"></div>`;
         }
 
-        container.appendChild(pin);
+        const customIcon = L.divIcon({
+          className: 'custom-pin-icon',
+          html: iconHtml,
+          iconSize: iconSize,
+          iconAnchor: [iconSize[0] / 2, iconSize[1] / 2]
+        });
+
+        const marker = L.marker([lat, lng], { icon: customIcon });
+        marker.bindTooltip(`מקטע ${seg.id}: ${seg.title}`, { direction: 'top' });
+        marker.on('click', () => {
+          selectMapSegment(seg);
+          map.flyTo([lat, lng], Math.max(map.getZoom(), 10), { duration: 0.8 });
+        });
+        marker.addTo(markersLayer);
       });
+
+      // חיבור הנקודות בקו מקווקו כתום המדמה את רצף המקטעים
+      if (latLngs.length > 1) {
+        trailPolyline = L.polyline(latLngs, {
+          color: '#ea580c',
+          weight: 3,
+          opacity: 0.7,
+          dashArray: '6, 8'
+        }).addTo(map);
+      }
     }
 
     function selectMapSegment(seg) {
@@ -432,13 +577,11 @@
       if (completed.length > 0) {
         const latest = completed[0];
         contentHtml = `
-          <div class="mt-4 bg-white rounded-xl border border-slate-200 overflow-hidden flex flex-col sm:flex-row">
-            ${latest.photo_url ? `<img src="${latest.photo_url}" class="w-full sm:w-44 h-40 object-cover shrink-0" />` : ''}
-            <div class="p-4 flex flex-col justify-between">
-              <div>
-                <div class="text-xs font-bold text-emerald-700">${latest.hiker_name} • ${latest.hike_date}</div>
-                <p class="text-sm text-slate-700 mt-1 line-clamp-3">"${latest.story}"</p>
-              </div>
+          <div class="mt-4 bg-white rounded-xl border border-slate-200 overflow-hidden">
+            ${latest.photo_url ? `<img src="${latest.photo_url}" class="w-full h-44 object-cover" />` : ''}
+            <div class="p-4">
+              <div class="text-xs font-bold text-emerald-700">${latest.hiker_name} • ${latest.hike_date}</div>
+              <p class="text-sm text-slate-700 mt-1 line-clamp-3">"${latest.story}"</p>
             </div>
           </div>
         `;
@@ -472,7 +615,7 @@
             פתיחת מקטע / שריון / העלאה
           </button>
           <a href="${seg.official_url}" target="_blank" rel="noopener" class="px-4 py-2.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold rounded-xl text-sm transition">
-            מפת מסלול ↗
+            סיפור דרך ↗
           </a>
         </div>
       `;
@@ -546,7 +689,6 @@
 
       const { completed, planned } = getSegmentMemories(segmentId);
 
-      // רשימת משוריינים
       const plannedSec = document.getElementById('modalPlannedSection');
       const plannedList = document.getElementById('modalPlannedList');
       const existingSelectWrapper = document.getElementById('existingPlanSelectWrapper');
@@ -571,7 +713,6 @@
         existingSelectWrapper.classList.add('hidden');
       }
 
-      // רשימת הושלמו
       const compList = document.getElementById('modalCompletedList');
       if (completed.length > 0) {
         compList.innerHTML = completed.map(c => `
@@ -628,7 +769,7 @@
       }
     }
 
-    // שליחת שריון עתידי ל-Supabase
+    // שליחת שריון עתידי
     async function submitPlan(e) {
       e.preventDefault();
       if (!currentSegment) return;
@@ -661,7 +802,7 @@
       }
     }
 
-    // דחיסת תמונה בדפדפן לפני העלאה (חוסך נפח אחסון ב-Supabase)
+    // דחיסת תמונה בדפדפן
     function compressImage(file, maxWidth = 1200, quality = 0.8) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -681,9 +822,7 @@
             canvas.height = height;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, width, height);
-            canvas.toBlob(blob => {
-              resolve(blob);
-            }, 'image/jpeg', quality);
+            canvas.toBlob(blob => resolve(blob), 'image/jpeg', quality);
           };
           img.onerror = reject;
         };
@@ -691,13 +830,12 @@
       });
     }
 
-    // שליחת ביצוע והעלאת תמונה ל-Supabase
+    // שליחת ביצוע והעלאת תמונה
     async function submitCompletion(e) {
       e.preventDefault();
       if (!currentSegment) return;
       const btn = document.getElementById('compSubmitBtn');
-      const fileInput = document.getElementById('compPhoto');
-      const file = fileInput.files[0];
+      const file = document.getElementById('compPhoto').files[0];
       if (!file) return;
 
       btn.disabled = true;
@@ -707,14 +845,12 @@
         const compressedBlob = await compressImage(file);
         const fileName = `seg_${currentSegment.id}_${Date.now()}.jpg`;
 
-        // 1. העלאת התמונה ל-Storage
         const { error: uploadError } = await sb.storage
           .from('trail-photos')
           .upload(fileName, compressedBlob, { contentType: 'image/jpeg' });
 
         if (uploadError) throw uploadError;
 
-        // 2. קבלת קישור ציבורי לתמונה
         const { data: publicUrlData } = sb.storage
           .from('trail-photos')
           .getPublicUrl(fileName);
@@ -729,18 +865,16 @@
           story: document.getElementById('compStory').value.trim(),
           photo_url: photoUrl,
           status: 'completed',
-          is_approved: false // ממתין לאישור מנהל
+          is_approved: false
         };
 
         if (existingPlanId) {
-          // עדכון רשומת שריון קיימת לסטטוס הושלם
           const { error: updateError } = await sb
             .from('memories')
             .update(payload)
             .eq('id', existingPlanId);
           if (updateError) throw updateError;
         } else {
-          // יצירת רשומה חדשה
           const { error: insertError } = await sb
             .from('memories')
             .insert([payload]);
@@ -759,7 +893,141 @@
       }
     }
 
-    // אתחול בטעינת הדף
+    // ================= ממשק ניהול (Admin) =================
+    function openAdminModal() {
+      document.getElementById('adminModal').classList.remove('hidden');
+      document.getElementById('adminModal').classList.add('flex');
+      if (isAdminLoggedIn) {
+        document.getElementById('adminLoginView').classList.add('hidden');
+        document.getElementById('adminDashboardView').classList.remove('hidden');
+        loadAdminData();
+      }
+    }
+
+    function closeAdminModal() {
+      document.getElementById('adminModal').classList.add('hidden');
+      document.getElementById('adminModal').classList.remove('flex');
+    }
+
+    function verifyAdmin() {
+      const val = document.getElementById('adminPassInput').value.trim();
+      if (val === ADMIN_PASSCODE) {
+        isAdminLoggedIn = true;
+        document.getElementById('adminLoginView').classList.add('hidden');
+        document.getElementById('adminDashboardView').classList.remove('hidden');
+        loadAdminData();
+      } else {
+        alert('קוד שגוי. נסו שוב.');
+      }
+    }
+
+    async function loadAdminData() {
+      const pendingList = document.getElementById('adminPendingList');
+      const allList = document.getElementById('adminAllList');
+      pendingList.innerHTML = '<p class="text-xs text-slate-500">טוען נתונים...</p>';
+
+      try {
+        const { data, error } = await sb
+          .from('memories')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        allMemoriesAdmin = data || [];
+
+        const pending = allMemoriesAdmin.filter(m => !m.is_approved);
+        const approved = allMemoriesAdmin.filter(m => m.is_approved);
+
+        document.getElementById('adminPendingCount').textContent = pending.length;
+
+        if (pending.length === 0) {
+          pendingList.innerHTML = '<div class="bg-slate-50 p-4 rounded-xl text-center text-xs text-slate-500">אין כרגע תמונות שממתינות לאישור 🎉</div>';
+        } else {
+          pendingList.innerHTML = pending.map(item => {
+            const seg = segmentsData.find(s => s.id === item.segment_id);
+            const segName = seg ? `מקטע #${seg.id}: ${seg.title}` : `מקטע ${item.segment_id}`;
+            return `
+              <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex flex-col sm:flex-row gap-4 items-start">
+                ${item.photo_url ? `<img src="${item.photo_url}" class="w-full sm:w-32 h-28 object-cover rounded-xl shrink-0 border border-slate-200" />` : ''}
+                <div class="flex-1">
+                  <div class="text-xs font-bold text-blue-800">${segName}</div>
+                  <div class="font-bold text-slate-900 text-sm">${item.hiker_name} <span class="text-xs font-normal text-slate-500">(${item.hike_date})</span></div>
+                  <p class="text-xs text-slate-700 mt-1 bg-white p-2 rounded-lg border border-amber-100">${item.story || ''}</p>
+                  <div class="flex gap-2 mt-3">
+                    <button onclick="approveMemory('${item.id}')" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs transition">
+                      ✅ אישור ופרסום באתר
+                    </button>
+                    <button onclick="deleteMemory('${item.id}')" class="px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 font-bold rounded-lg text-xs transition">
+                      🗑️ מחיקה
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+
+        if (approved.length === 0) {
+          allList.innerHTML = '<p class="text-xs text-slate-500">אין רשומות פעילות.</p>';
+        } else {
+          allList.innerHTML = approved.map(item => {
+            const seg = segmentsData.find(s => s.id === item.segment_id);
+            const segName = seg ? `#${seg.id} ${seg.title}` : `#${item.segment_id}`;
+            const typeBadge = item.status === 'completed'
+              ? '<span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded text-[10px] font-bold">הושלם</span>'
+              : '<span class="px-2 py-0.5 bg-amber-100 text-amber-800 rounded text-[10px] font-bold">משוריין</span>';
+            return `
+              <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                  ${item.photo_url ? `<img src="${item.photo_url}" class="w-10 h-10 rounded-lg object-cover" />` : ''}
+                  <div>
+                    <div class="text-xs font-bold text-slate-900">${typeBadge} ${segName} — ${item.hiker_name}</div>
+                    <div class="text-[11px] text-slate-500">${item.hike_date} ${item.story ? '• ' + item.story.substring(0, 40) + '...' : ''}</div>
+                  </div>
+                </div>
+                <button onclick="deleteMemory('${item.id}')" class="px-2.5 py-1 bg-white border border-red-200 hover:bg-red-50 text-red-600 rounded-lg text-xs font-bold shrink-0">
+                  מחיקה
+                </button>
+              </div>
+            `;
+          }).join('');
+        }
+
+      } catch (err) {
+        pendingList.innerHTML = `<p class="text-xs text-red-600">שגיאה בטעינת נתוני ניהול: ${err.message}. ודאו שהרצתם את פקודת ה-SQL של ההרשאות.</p>`;
+      }
+    }
+
+    async function approveMemory(id) {
+      try {
+        const { error } = await sb
+          .from('memories')
+          .update({ is_approved: true })
+          .eq('id', id);
+        if (error) throw error;
+        await loadAdminData();
+        await loadData();
+      } catch (err) {
+        alert('שגיאה באישור: ' + err.message);
+      }
+    }
+
+    async function deleteMemory(id) {
+      if (!confirm('האם למחוק רשומה זו לצמיתות?')) return;
+      try {
+        const { error } = await sb
+          .from('memories')
+          .delete()
+          .eq('id', id);
+        if (error) throw error;
+        await loadAdminData();
+        await loadData();
+      } catch (err) {
+        alert('שגיאה במחיקה: ' + err.message);
+      }
+    }
+
+    // אתחול
     loadData();
   </script>
 </body>
