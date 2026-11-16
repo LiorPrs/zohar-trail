@@ -578,25 +578,37 @@
       <div class="p-5 bg-slate-900 text-white flex flex-wrap items-center justify-between gap-2">
         <div>
           <h3 class="text-lg font-extrabold">⚙️ ממשק ניהול האתר – אישורים, הודעות וגיבוי</h3>
-          <p class="text-xs text-slate-400">מיועד לצוות המנהלים (החברים והמשפחה)</p>
+          <p id="adminUserSubtitle" class="text-xs text-slate-400">מיועד לצוות המנהלים (החברים והמשפחה)</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <button id="exportCsvBtn" onclick="exportMemoriesToCSV()" class="hidden px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition flex items-center gap-1">
             <span>📥 ייצוא לאקסל (CSV)</span>
           </button>
+          <button id="adminLogoutBtn" onclick="logoutAdmin()" class="hidden px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold rounded-xl text-xs transition">
+            🚪 התנתקות
+          </button>
           <button onclick="closeAdminModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center font-bold">✕</button>
         </div>
       </div>
 
-      <!-- מסך התחברות למנהל -->
+      <!-- מסך התחברות למנהל (Supabase Auth) -->
       <div id="adminLoginView" class="p-8 text-center space-y-4">
         <span class="text-4xl block">🔐</span>
-        <h4 class="text-lg font-bold text-slate-900">הזינו קוד גישה למנהלים</h4>
-        <p class="text-xs text-slate-500 max-w-sm mx-auto">קוד ברירת המחדל לטסט הוא: <strong>zohar2026</strong></p>
-        <div class="max-w-xs mx-auto flex gap-2">
-          <input type="password" id="adminPassInput" placeholder="קוד מנהל..." class="flex-1 px-3 py-2 text-base border border-slate-300 rounded-xl text-center" onkeydown="if(event.key==='Enter') verifyAdmin()" />
-          <button onclick="verifyAdmin()" class="px-4 py-2 bg-slate-900 text-white font-bold rounded-xl text-sm hover:bg-slate-800">כניסה</button>
-        </div>
+        <h4 class="text-lg font-bold text-slate-900">התחברות מנהלים (Supabase Auth)</h4>
+        <p class="text-xs text-slate-500 max-w-sm mx-auto">הזינו את כתובת האימייל והסיסמה שהוגדרו עבורכם במערכת</p>
+        <form onsubmit="verifyAdmin(event)" class="max-w-xs mx-auto space-y-2.5 text-right">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">אימייל מנהל</label>
+            <input type="email" id="adminEmailInput" required placeholder="admin@example.com" dir="ltr" class="w-full px-3 py-2 text-base border border-slate-300 rounded-xl text-left" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">סיסמה</label>
+            <input type="password" id="adminPassInput" required placeholder="••••••••" dir="ltr" class="w-full px-3 py-2 text-base border border-slate-300 rounded-xl text-left" />
+          </div>
+          <button type="submit" id="adminLoginSubmitBtn" class="w-full py-2.5 bg-slate-900 text-white font-bold rounded-xl text-sm hover:bg-slate-800 transition">
+            התחברות לממשק הניהול
+          </button>
+        </form>
       </div>
 
       <!-- לוח בקרה למנהל -->
@@ -652,8 +664,8 @@
     const SUPABASE_KEY = 'sb_publishable_iW_NlGwjhs63H1QZEpAq1Q_AFzR-TkP';
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const ADMIN_PASSCODE = 'zohar2026';
     let isAdminLoggedIn = false;
+    let adminUserEmail = '';
 
     let segmentsData = [];
     let memoriesData = [];
@@ -786,7 +798,7 @@
       try {
         const [segRes, memRes] = await Promise.all([
           sb.from('segments').select('*').order('id', { ascending: true }),
-          sb.from('memories').select('*').order('created_at', { ascending: false })
+          sb.from('public_memories').select('*').order('created_at', { ascending: false })
         ]);
 
         if (segRes.error) throw segRes.error;
@@ -813,6 +825,15 @@
 
     async function checkPendingCount() {
       try {
+        const { data: sessionData } = await sb.auth.getSession();
+        if (!sessionData || !sessionData.session) {
+          isAdminLoggedIn = false;
+          document.getElementById('pendingBadge').classList.add('hidden');
+          return;
+        }
+        isAdminLoggedIn = true;
+        adminUserEmail = sessionData.session.user.email || '';
+
         const { count } = await sb
           .from('memories')
           .select('*', { count: 'exact', head: true })
@@ -1216,7 +1237,7 @@
         `;
       } else if (planned.length > 0) {
         const itemsHtml = planned.map(p => {
-          const { publicNote } = parseContactInfo(p.contact_info);
+          const { publicNote } = parseContactInfo(p.public_note !== undefined ? p.public_note : p.contact_info);
           const overdueTag = isPlanOverdue(p.hike_date) ? '<span class="text-red-700 font-bold">(עבר התאריך)</span>' : '';
           return `<div class="py-1 border-b border-amber-200/60 last:border-0">
             <strong>${p.hiker_name}</strong> • ${p.hike_date} ${overdueTag}
@@ -1420,7 +1441,7 @@
       if (planned.length > 0) {
         plannedSec.classList.remove('hidden');
         plannedList.innerHTML = planned.map(p => {
-          const { publicNote } = parseContactInfo(p.contact_info);
+          const { publicNote } = parseContactInfo(p.public_note !== undefined ? p.public_note : p.contact_info);
           const overdueBadge = isPlanOverdue(p.hike_date)
             ? '<span class="px-2 py-0.5 rounded bg-red-100 text-red-800 text-[11px] font-bold mr-1">עבר הזמן</span>'
             : '<span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-[11px] font-bold mr-1">מתוכנן</span>';
@@ -1440,7 +1461,7 @@
         existingSelectWrapper.classList.remove('hidden');
         existingSelect.innerHTML = `<option value="">-- לא שריינו מראש / רישום חדש --</option>` +
           planned.map(p => {
-            const { phone } = parseContactInfo(p.contact_info);
+            const { phone } = parseContactInfo(p.public_note !== undefined ? p.public_note : p.contact_info);
             return `<option value="${p.id}" data-name="${p.hiker_name}" data-date="${p.hike_date}" data-phone="${phone}">${p.hiker_name} (${p.hike_date})</option>`;
           }).join('');
       } else {
@@ -1642,16 +1663,39 @@
       }
     }
 
-    // ================= ממשק ניהול (Admin) =================
-    function openAdminModal() {
+    // ================= ממשק ניהול (Admin - Supabase Auth) =================
+    async function openAdminModal() {
       document.getElementById('adminModal').classList.remove('hidden');
       document.getElementById('adminModal').classList.add('flex');
-      if (isAdminLoggedIn) {
-        document.getElementById('adminLoginView').classList.add('hidden');
-        document.getElementById('adminDashboardView').classList.remove('hidden');
-        document.getElementById('exportCsvBtn').classList.remove('hidden');
+
+      const { data: sessionData } = await sb.auth.getSession();
+      if (sessionData && sessionData.session) {
+        isAdminLoggedIn = true;
+        adminUserEmail = sessionData.session.user.email || '';
+        showAdminDashboardUI();
         loadAdminData();
+      } else {
+        isAdminLoggedIn = false;
+        showAdminLoginUI();
       }
+    }
+
+    function showAdminDashboardUI() {
+      document.getElementById('adminLoginView').classList.add('hidden');
+      document.getElementById('adminDashboardView').classList.remove('hidden');
+      document.getElementById('exportCsvBtn').classList.remove('hidden');
+      document.getElementById('adminLogoutBtn').classList.remove('hidden');
+      if (adminUserEmail) {
+        document.getElementById('adminUserSubtitle').textContent = `מחובר כמנהל: ${adminUserEmail}`;
+      }
+    }
+
+    function showAdminLoginUI() {
+      document.getElementById('adminLoginView').classList.remove('hidden');
+      document.getElementById('adminDashboardView').classList.add('hidden');
+      document.getElementById('exportCsvBtn').classList.add('hidden');
+      document.getElementById('adminLogoutBtn').classList.add('hidden');
+      document.getElementById('adminUserSubtitle').textContent = 'מיועד לצוות המנהלים (החברים והמשפחה)';
     }
 
     function closeAdminModal() {
@@ -1659,17 +1703,38 @@
       document.getElementById('adminModal').classList.remove('flex');
     }
 
-    function verifyAdmin() {
-      const val = document.getElementById('adminPassInput').value.trim();
-      if (val === ADMIN_PASSCODE) {
+    async function verifyAdmin(e) {
+      if (e) e.preventDefault();
+      const email = document.getElementById('adminEmailInput').value.trim();
+      const password = document.getElementById('adminPassInput').value;
+      const btn = document.getElementById('adminLoginSubmitBtn');
+      btn.disabled = true;
+      btn.textContent = 'מתחבר...';
+
+      try {
+        const { data, error } = await sb.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+
         isAdminLoggedIn = true;
-        document.getElementById('adminLoginView').classList.add('hidden');
-        document.getElementById('adminDashboardView').classList.remove('hidden');
-        document.getElementById('exportCsvBtn').classList.remove('hidden');
-        loadAdminData();
-      } else {
-        alert('קוד שגוי. נסו שוב.');
+        adminUserEmail = data.user.email || email;
+        document.getElementById('adminPassInput').value = '';
+        showAdminDashboardUI();
+        await loadAdminData();
+        await checkPendingCount();
+      } catch (err) {
+        alert('שגיאת התחברות: אימייל או סיסמה שגויים (' + err.message + ')');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'התחברות לממשק הניהול';
       }
+    }
+
+    async function logoutAdmin() {
+      await sb.auth.signOut();
+      isAdminLoggedIn = false;
+      adminUserEmail = '';
+      showAdminLoginUI();
+      document.getElementById('pendingBadge').classList.add('hidden');
     }
 
     async function loadAdminData() {
