@@ -1130,19 +1130,20 @@
         let iconSize = [24, 24];
 
         if (completed.length > 0) {
-          iconSize = [22, 22];
-          iconHtml = `<div class="w-5 h-5 rounded-full bg-emerald-500 border-2 border-white shadow-md hover:scale-110 transition-transform"></div>`;
+          iconSize = [24, 24];
+          iconHtml = `<div class="w-6 h-6 rounded-full bg-emerald-500 text-white text-[10px] font-extrabold flex items-center justify-center border-2 border-white shadow-md hover:scale-110 transition-transform select-none">${seg.id}</div>`;
         } else if (planned.length > 0) {
           const anyActive = planned.some(p => !isPlanOverdue(p.hike_date));
           iconSize = [24, 24];
           if (anyActive) {
-            iconHtml = `<div class="w-5 h-5 rounded-full bg-amber-500 border-2 border-white shadow-md hover:scale-110 transition-transform"></div>`;
+            iconHtml = `<div class="w-6 h-6 rounded-full bg-amber-500 text-white text-[10px] font-extrabold flex items-center justify-center border-2 border-white shadow-md hover:scale-110 transition-transform select-none">${seg.id}</div>`;
           } else {
-            iconHtml = `<div class="w-6 h-6 rounded-full bg-red-600 border-2 border-white shadow-md animate-pulse"></div>`;
+            iconSize = [26, 26];
+            iconHtml = `<div class="w-6 h-6 rounded-full bg-red-600 text-white text-[10px] font-extrabold flex items-center justify-center border-2 border-white shadow-md animate-pulse select-none">${seg.id}</div>`;
           }
         } else {
-          iconSize = [18, 18];
-          iconHtml = `<div class="w-4 h-4 rounded-full bg-slate-950 border-2 border-white shadow hover:bg-orange-600 transition"></div>`;
+          iconSize = [22, 22];
+          iconHtml = `<div class="w-5 h-5 rounded-full bg-slate-900 text-white text-[9px] font-bold flex items-center justify-center border-[1.5px] border-white shadow hover:bg-orange-600 hover:scale-110 transition select-none">${seg.id}</div>`;
         }
 
         const customIcon = L.divIcon({
