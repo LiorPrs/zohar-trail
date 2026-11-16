@@ -106,13 +106,8 @@
       <div class="flex flex-col md:flex-row items-center gap-6 md:gap-12">
         <!-- מסגרת תמונת פורטרט (חופפת באלגנטיות את תחתית הבאנר במובייל) -->
         <div class="relative shrink-0 -mt-20 md:mt-0">
-          <div class="w-36 h-36 sm:w-44 sm:h-44 md:w-56 md:h-56 rounded-3xl overflow-hidden border-4 border-white shadow-xl bg-slate-200 flex items-center justify-center relative group">
+          <div class="w-36 h-36 sm:w-44 sm:h-44 md:w-56 md:h-56 rounded-3xl overflow-hidden border-4 border-white shadow-xl bg-slate-200 flex items-center justify-center relative">
             <img id="zoharHeroImg" src="zohar.jpg" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=600&q=80';" alt="זוהר תמיר ז״ל" class="w-full h-full object-cover" />
-            <label for="heroImgInput" class="absolute inset-0 bg-black/50 text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center cursor-pointer p-2 text-center">
-              <span>📷 לחץ לתצוגת תמונה של זוהר</span>
-              <span class="text-[10px] text-slate-200 mt-1">(או העלה zohar.jpg לגיט)</span>
-            </label>
-            <input type="file" id="heroImgInput" accept="image/*" class="hidden" onchange="previewHeroImage(event)" />
           </div>
           <div class="absolute -bottom-3 right-1/2 translate-x-1/2 bg-orange-600 text-white text-xs font-bold px-3.5 py-1 rounded-full shadow whitespace-nowrap">
             זוהר תמיר ז"ל
@@ -741,16 +736,6 @@
       document.getElementById('postcardModal').classList.remove('flex');
     }
 
-    function previewHeroImage(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        document.getElementById('zoharHeroImg').src = ev.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-
     function formatStoryHtml(storyText) {
       if (!storyText) return '';
       return storyText
@@ -1208,8 +1193,10 @@
         `;
       } else {
         contentHtml = `
-          <div class="mt-4 bg-white border border-dashed border-slate-300 rounded-xl p-5 text-center text-sm text-slate-600">
-            המקטע הזה עדיין מחכה לצועדים הראשונים לזכרו של זוהר.
+          <div onclick="openModal(${seg.id}); switchActionTab('complete');" class="mt-4 cursor-pointer group bg-amber-50/40 hover:bg-amber-50 border-2 border-dashed border-amber-300/80 hover:border-orange-400 rounded-xl p-5 text-center transition">
+            <span class="text-3xl block mb-1.5 group-hover:scale-110 transition-transform">📷</span>
+            <p class="font-extrabold text-slate-800 text-sm">מחכים לתמונה שלכם מהשביל</p>
+            <p class="text-xs text-slate-500 mt-1">סיימתם את המקטע? לחצו כאן להעלאת תמונה וזיכרון</p>
           </div>
         `;
       }
@@ -1310,6 +1297,13 @@
         let badge = `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600">פנוי</span>`;
         let borderClass = 'border-slate-200';
         let previewImg = '';
+
+        previewImg = `
+          <div onclick="openModal(${seg.id}); switchActionTab('complete');" class="cursor-pointer group w-full h-32 rounded-xl mb-3 bg-gradient-to-br from-slate-50 to-amber-50/50 border-2 border-dashed border-slate-200 hover:border-orange-300 flex flex-col items-center justify-center text-center p-3 transition">
+            <span class="text-2xl mb-1 opacity-75 group-hover:scale-110 transition-transform">📷</span>
+            <span class="text-xs font-bold text-slate-600 group-hover:text-orange-700 transition">מחכים לתמונה שלכם</span>
+          </div>
+        `;
 
         if (completed.length > 0) {
           badge = `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">✅ הושלם</span>`;
@@ -1432,7 +1426,13 @@
           </div>
         `).join('');
       } else {
-        compList.innerHTML = `<p class="text-xs text-slate-500 bg-slate-50 p-4 rounded-xl text-center">עדיין לא הועלו תמונות למקטע זה. היו הראשונים!</p>`;
+        compList.innerHTML = `
+          <div onclick="switchActionTab('complete')" class="cursor-pointer group bg-amber-50/40 hover:bg-amber-50 border-2 border-dashed border-amber-300/80 hover:border-orange-400 rounded-2xl p-6 text-center transition">
+            <span class="text-3xl block mb-1.5 group-hover:scale-110 transition-transform">📷</span>
+            <p class="text-sm font-extrabold text-slate-800">מחכים לתמונה שלכם מהשביל</p>
+            <p class="text-xs text-slate-500 mt-1">לחצו כאן כדי להעלות תמונה וגלויה מהמקטע</p>
+          </div>
+        `;
       }
 
       switchActionTab('plan');
