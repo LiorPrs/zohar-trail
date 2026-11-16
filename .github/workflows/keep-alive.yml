@@ -1,0 +1,24 @@
+name: Keep Supabase Alive
+
+on:
+  schedule:
+    # רץ כל יומיים בשעה 08:00 בבוקר (UTC) למניעת השהיית הפרויקט בתוכנית החינמית
+    - cron: '0 8 */2 * *'
+  # מאפשר להריץ ידנית בלחיצת כפתור מתוך לשונית Actions ב-GitHub
+  workflow_dispatch:
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase segments table
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://boslnyksnzcenyexrtyk.supabase.co/rest/v1/segments?select=id&limit=1" \
+            -H "apikey: sb_publishable_iW_NlGwjhs63H1QZEpAq1Q_AFzR-TkP" \
+            -H "Authorization: Bearer sb_publishable_iW_NlGwjhs63H1QZEpAq1Q_AFzR-TkP")
+          echo "Supabase HTTP response: $STATUS"
+          if [ "$STATUS" -ne 200 ]; then
+            echo "Failed to ping Supabase!"
+            exit 1
+          fi
