@@ -625,6 +625,15 @@
     </div>
   </div>
 
+  <!-- מודאל הגדלת תמונה (Lightbox) -->
+  <div id="photoLightboxModal" onclick="if(event.target===this) closeLightbox()" class="fixed inset-0 z-[60] bg-black/90 backdrop-blur-xs hidden items-center justify-center p-3 sm:p-6">
+    <button onclick="closeLightbox()" class="fixed top-4 left-4 z-[70] w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 text-white border border-white/30 flex items-center justify-center text-lg font-bold transition" aria-label="סגור תמונה">✕</button>
+    <div class="max-w-5xl w-full flex flex-col items-center justify-center gap-3">
+      <img id="lightboxImg" src="" alt="" class="max-h-[82vh] max-w-full w-auto object-contain rounded-2xl shadow-2xl border border-white/15" />
+      <div id="lightboxCaption" class="text-center text-white/95 text-xs sm:text-sm font-bold bg-black/60 px-4 py-2 rounded-full border border-white/15 hidden"></div>
+    </div>
+  </div>
+
   <!-- פוטר -->
   <footer class="bg-slate-900 text-slate-400 py-8 mt-16 text-center text-sm">
     <div class="max-w-6xl mx-auto px-4 space-y-2">
@@ -726,6 +735,34 @@
       fontScale = fontScale >= 120 ? 100 : fontScale + 10;
       document.documentElement.style.fontSize = fontScale + '%';
     }
+
+    function openLightbox(url, caption = '') {
+      if (!url) return;
+      const modal = document.getElementById('photoLightboxModal');
+      const img = document.getElementById('lightboxImg');
+      const cap = document.getElementById('lightboxCaption');
+      img.src = url;
+      if (caption) {
+        cap.textContent = caption;
+        cap.classList.remove('hidden');
+      } else {
+        cap.textContent = '';
+        cap.classList.add('hidden');
+      }
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeLightbox() {
+      const modal = document.getElementById('photoLightboxModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.getElementById('lightboxImg').src = '';
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLightbox();
+    });
 
     function openPostcardModal() {
       document.getElementById('postcardModal').classList.remove('hidden');
@@ -878,10 +915,11 @@
                 </div>
               </div>
 
-              <!-- תמונת פולארויד מהשטח -->
+              <!-- תמונת פולארויד מהשטח (לחיצה פותחת תצוגה מוגדלת) -->
               ${item.photo_url ? `
-                <div class="bg-white p-2 pb-3 rounded-xl border border-slate-200 shadow-xs mb-4">
-                  <img src="${item.photo_url}" alt="${segLabel}" class="w-full h-56 sm:h-60 object-cover rounded-lg" />
+                <div onclick="openLightbox('${item.photo_url}', '${segLabel.replace(/'/g, "\'")} • ${item.hiker_name.replace(/'/g, "\'")} (${item.hike_date})')" class="cursor-zoom-in group relative bg-white p-2 pb-3 rounded-xl border border-slate-200 shadow-xs mb-4">
+                  <img src="${item.photo_url}" alt="${segLabel}" class="w-full h-56 sm:h-60 object-cover rounded-lg group-hover:brightness-95 transition" />
+                  <span class="absolute bottom-5 left-4 px-2.5 py-1 rounded-full bg-black/65 text-white text-[11px] font-bold opacity-90 sm:opacity-0 group-hover:opacity-100 transition flex items-center gap-1">🔍 להגדלה</span>
                 </div>
               ` : ''}
 
@@ -1169,7 +1207,7 @@
         const latest = completed[0];
         contentHtml = `
           <div class="mt-4 bg-white rounded-xl border border-slate-200 overflow-hidden">
-            ${latest.photo_url ? `<img src="${latest.photo_url}" class="w-full h-40 object-cover" />` : ''}
+            ${latest.photo_url ? `<div onclick="openLightbox('${latest.photo_url}', 'מקטע #${seg.id}: ${seg.title.replace(/'/g, "\'")} • ${latest.hiker_name.replace(/'/g, "\'")}')" class="relative cursor-zoom-in group"><img src="${latest.photo_url}" class="w-full h-40 object-cover group-hover:brightness-95 transition" /><span class="absolute bottom-2 left-2 px-2 py-0.5 rounded-full bg-black/65 text-white text-[10px] font-bold">🔍 הגדל</span></div>` : ''}
             <div class="p-4">
               <div class="text-xs font-bold text-emerald-700">${latest.hiker_name} • ${latest.hike_date}</div>
               <div class="text-xs text-slate-700 mt-1 leading-relaxed">${formatStoryHtml(latest.story)}</div>
@@ -1309,7 +1347,7 @@
           badge = `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">✅ הושלם</span>`;
           borderClass = 'border-emerald-300';
           if (completed[0].photo_url) {
-            previewImg = `<img src="${completed[0].photo_url}" class="w-full h-36 object-cover rounded-xl mb-3" alt="${seg.title}" />`;
+            previewImg = `<div onclick="openLightbox('${completed[0].photo_url}', 'מקטע #${seg.id}: ${seg.title.replace(/'/g, "\'")} • ${completed[0].hiker_name.replace(/'/g, "\'")}')" class="relative cursor-zoom-in group mb-3"><img src="${completed[0].photo_url}" class="w-full h-36 object-cover rounded-xl group-hover:brightness-95 transition" alt="${seg.title}" /><span class="absolute bottom-2 left-2 px-2 py-0.5 rounded-full bg-black/65 text-white text-[10px] font-bold opacity-85 sm:opacity-0 group-hover:opacity-100 transition">🔍 הגדל</span></div>`;
           }
         } else if (planned.length > 0) {
           const anyActive = planned.some(p => !isPlanOverdue(p.hike_date));
@@ -1415,7 +1453,7 @@
       if (completed.length > 0) {
         compList.innerHTML = completed.map(c => `
           <div class="bg-amber-50/40 border border-amber-200/80 rounded-2xl overflow-hidden shadow-2xs">
-            ${c.photo_url ? `<img src="${c.photo_url}" class="w-full max-h-72 object-cover" />` : ''}
+            ${c.photo_url ? `<div onclick="openLightbox('${c.photo_url}', 'מקטע #${currentSegment.id}: ${currentSegment.title.replace(/'/g, "\'")} • ${c.hiker_name.replace(/'/g, "\'")} (${c.hike_date})')" class="relative cursor-zoom-in group"><img src="${c.photo_url}" class="w-full max-h-72 object-cover group-hover:brightness-95 transition" /><span class="absolute bottom-3 left-3 px-2.5 py-1 rounded-full bg-black/65 text-white text-xs font-bold opacity-90 sm:opacity-0 group-hover:opacity-100 transition">🔍 לחץ להגדלת התמונה</span></div>` : ''}
             <div class="p-4">
               <div class="flex justify-between text-xs text-slate-500 mb-2 border-b border-amber-100 pb-2">
                 <span class="font-bold text-slate-900">🥾 ${c.hiker_name}</span>
