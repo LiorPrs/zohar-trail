@@ -17,7 +17,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="icon" type="image/jpeg" href="favicon.jpg" />
+  <link id="dynamicFavicon" rel="icon" type="image/jpeg" href="favicon.jpg" />
 
   <style>
     :root {
@@ -41,7 +41,6 @@
     html.high-contrast .text-stone-500,
     html.high-contrast .text-stone-700 { color: #e2e8f0 !important; }
 
-    /* Hide scrollbars on horizontal filter chips */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -89,14 +88,12 @@
     }
     .pin-overdue { animation: pulseRed 1.8s infinite; }
 
-    /* Bottom Sheet Slide Animation */
     @keyframes slideUp {
       from { transform: translateY(100%); opacity: 0.4; }
       to { transform: translateY(0); opacity: 1; }
     }
     .bottom-sheet-enter { animation: slideUp 0.24s cubic-bezier(0.16, 1, 0.3, 1); }
 
-    /* Prevent iOS auto-zoom on form inputs */
     input, select, textarea { font-size: 16px !important; }
   </style>
 </head>
@@ -107,11 +104,11 @@
     <div class="max-w-7xl mx-auto w-full flex items-center justify-between">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 md:w-11 md:h-11 rounded-xl overflow-hidden border border-emerald-200 shadow-xs bg-emerald-700 flex items-center justify-center shrink-0">
-          <img src="favicon.jpg" onerror="this.parentElement.innerHTML='<span class=\'text-white font-black text-base\'>ש״י</span>'" alt="לוגו צועדים בשביל זוהר" class="w-full h-full object-cover" />
+          <img id="siteLogoImg" src="favicon.jpg" onerror="this.parentElement.innerHTML='<span class=\'text-white font-black text-base\'>ש״י</span>'" alt="לוגו צועדים בשביל זוהר" class="w-full h-full object-cover" />
         </div>
         <div>
-          <h1 class="text-base md:text-xl font-extrabold text-stone-900 leading-tight">צועדים בשביל זוהר</h1>
-          <p class="text-[11px] md:text-xs text-stone-500 hidden sm:block">לזכרו של זוהר תמיר ז״ל • 56 מקטעי שביל ישראל מחרמון עד אילת</p>
+          <h1 id="siteHeaderTitle" class="text-base md:text-xl font-extrabold text-stone-900 leading-tight">צועדים בשביל זוהר</h1>
+          <p id="siteHeaderSubtitle" class="text-[11px] md:text-xs text-stone-500 hidden sm:block">לזכרו של זוהר תמיר ז״ל • 56 מקטעי שביל ישראל מחרמון עד אילת</p>
         </div>
       </div>
 
@@ -148,8 +145,8 @@
     <div class="bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden">
       <!-- Illustrated Trail Banner -->
       <div class="relative h-40 sm:h-48 lg:h-56 w-full bg-gradient-to-l from-emerald-900 via-teal-800 to-amber-700 overflow-hidden">
-        <img src="banner-desktop.jpg" onerror="this.src='https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1600&q=85'" alt="באנר צועדים בשביל זוהר" class="hidden md:block absolute inset-0 w-full h-full object-cover object-right opacity-95" />
-        <img src="banner-mobile.jpg" onerror="this.src='https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=900&q=85'" alt="באנר צועדים בשביל זוהר" class="md:hidden absolute inset-0 w-full h-full object-cover object-center opacity-95" />
+        <img id="heroDesktopBannerImg" src="banner-desktop.jpg" onerror="this.src='https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1600&q=85'" alt="באנר צועדים בשביל זוהר" class="hidden md:block absolute inset-0 w-full h-full object-cover object-right opacity-95" />
+        <img id="heroMobileBannerImg" src="banner-mobile.jpg" onerror="this.src='https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=900&q=85'" alt="באנר צועדים בשביל זוהר" class="md:hidden absolute inset-0 w-full h-full object-cover object-center opacity-95" />
         <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/15 to-transparent"></div>
         <div class="absolute top-3 left-3 bg-white/95 backdrop-blur px-3.5 py-1 rounded-full text-xs font-extrabold text-emerald-950 shadow-xs">
           🇮🇱 מחרמון ועד אילת • 1,040 ק״מ
@@ -166,13 +163,13 @@
               <div class="flex items-end gap-4">
                 <!-- Large Portrait of Zohar -->
                 <div class="w-36 h-36 sm:w-40 sm:h-40 lg:w-44 lg:h-44 rounded-3xl border-4 border-white shadow-xl overflow-hidden bg-amber-100 shrink-0">
-                  <img src="zohar.jpg" onerror="this.src='https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=450&q=85'" alt="זוהר תמיר ז״ל" class="w-full h-full object-cover" />
+                  <img id="heroZoharImg" src="zohar.jpg" onerror="this.src='https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=450&q=85'" alt="זוהר תמיר ז״ל" class="w-full h-full object-cover" />
                 </div>
                 <div class="pb-1">
-                  <span class="inline-block px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-xs font-extrabold mb-1">
+                  <span id="heroBadgeText" class="inline-block px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-xs font-extrabold mb-1">
                     לזכרו של זוהר תמיר ז״ל
                   </span>
-                  <h2 class="text-xl sm:text-2xl lg:text-3xl font-black text-stone-900 leading-tight">
+                  <h2 id="heroMainHeading" class="text-xl sm:text-2xl lg:text-3xl font-black text-stone-900 leading-tight">
                     ממשיכים את הצעדים של זוהר
                   </h2>
                 </div>
@@ -184,16 +181,16 @@
               </button>
             </div>
 
-            <p class="text-xs sm:text-sm text-stone-700 leading-relaxed">
+            <p id="heroIntroParagraph" class="text-xs sm:text-sm text-stone-700 leading-relaxed">
               זוהר חלם לכבוש את שביל ישראל מצפון לדרום. אנחנו, החברים והמשפחה, משלימים יחד את 56 המקטעים לזכרו — בוחרים מקטע, יוצאים לטבע, עוצרים לרגע של זיכרון ומשתפים תמונה וגלויה מהדרך.
             </p>
 
             <!-- Collapsible on Mobile, Always Open on Desktop -->
             <div id="moreStoryBlock" class="hidden lg:block mt-2 pt-2 border-t border-stone-100 text-xs sm:text-sm text-stone-600 space-y-1.5 leading-relaxed">
-              <p>
+              <p id="heroExtendedParagraph1">
                 כל קבוצה או מטייל יכולים לשריין תאריך למקטע, להזמין חברים להצטרף, ובסיום המסלול להעלות תמונה וגלויה קצרה עם 3 שאלות בהשראת זוהר: מה ראינו בטבע, צידה לדרך, ומילה אישית לזוהר.
               </p>
-              <p class="font-bold text-emerald-800">
+              <p id="heroExtendedParagraph2" class="font-bold text-emerald-800">
                 ניתן לשריין גם מקטעים שכבר נתפסו או בוצעו — כל צעד בשביל מוסיף עוד אור וזיכרון.
               </p>
             </div>
@@ -204,7 +201,7 @@
             </button>
           </div>
 
-          <!-- Left Column (5 Cols on Desktop): Dedicated Progress & 56-Blocks Card -->
+          <!-- Left Column (5 Cols on Desktop): Dedicated Progress Card -->
           <div class="lg:col-span-5 lg:mt-4 bg-stone-50/90 rounded-2xl border border-stone-200/80 p-3.5 md:p-4">
             <div class="flex items-center justify-between gap-2 text-xs md:text-sm mb-2">
               <div class="flex flex-wrap items-center gap-3 font-bold">
@@ -336,7 +333,7 @@
           <div id="segmentsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-3.5"></div>
         </section>
 
-        <!-- POSTCARDS GALLERY SECTION (Visible below segments on Desktop, dedicated tab on Mobile) -->
+        <!-- POSTCARDS GALLERY SECTION -->
         <section id="view-postcards" class="hidden lg:block pt-2">
           <div id="postcards-section" class="bg-gradient-to-l from-emerald-900 via-teal-800 to-emerald-800 text-white rounded-3xl p-4 md:p-5 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
             <div>
@@ -373,7 +370,6 @@
 
         <!-- Map Container + Selected Segment Floating Card -->
         <div class="relative bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden">
-          <!-- Top Floating Map Controls -->
           <div class="absolute top-3 left-3 z-20 flex flex-col gap-2">
             <button onclick="toggleMapLayer()" id="mapLayerBtn" class="touch-btn px-3 rounded-xl bg-white/95 backdrop-blur shadow-md border border-stone-200 text-xs font-extrabold text-stone-800">
               🗺️ מפת רחובות
@@ -383,10 +379,8 @@
             </button>
           </div>
 
-          <!-- Map Canvas (Balanced height for sticky desktop column & mobile viewport) -->
           <div id="trailMap" class="w-full h-[56vh] lg:h-[520px] bg-stone-100"></div>
 
-          <!-- Selected Segment Preview Card -->
           <div id="mapFloatingCard" class="p-3.5 bg-gradient-to-l from-white to-stone-50 border-t border-stone-200 flex flex-col gap-3">
             <div class="flex items-center gap-3 min-w-0">
               <div id="mfcThumbBox" onclick="openSegmentModal(selectedSegmentId)" class="w-16 h-16 rounded-2xl overflow-hidden shrink-0 cursor-pointer border border-emerald-200 bg-gradient-to-br from-emerald-50 to-amber-50 flex flex-col items-center justify-center text-center p-1">
@@ -433,10 +427,9 @@
     </div>
   </nav>
 
-  <!-- ==================== SEGMENT DETAILS / BOOKING / UPLOAD MODAL (2-COL ON DESKTOP, BOTTOM SHEET ON MOBILE) ==================== -->
+  <!-- ==================== SEGMENT DETAILS / BOOKING / UPLOAD MODAL ==================== -->
   <div id="segmentModal" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs flex items-end md:items-center justify-center md:p-4">
     <div class="bottom-sheet-enter bg-white w-full md:max-w-3xl max-h-[92vh] rounded-t-3xl md:rounded-3xl flex flex-col overflow-hidden shadow-2xl">
-      <!-- Modal Header -->
       <div class="px-4 md:px-6 py-3.5 border-b border-stone-200 flex items-center justify-between bg-gradient-to-l from-emerald-50 to-amber-50 shrink-0">
         <div class="flex items-center gap-2.5 min-w-0">
           <span id="modalSegNum" class="px-2.5 py-1 rounded-xl bg-emerald-900 text-white text-xs font-black shrink-0">#1</span>
@@ -447,11 +440,9 @@
         </button>
       </div>
 
-      <!-- Modal Scrollable Content: 2-Column Split on Desktop -->
       <div class="p-4 md:p-6 overflow-y-auto flex-1">
         <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
 
-          <!-- Right Side (5 Cols on Desktop): Specs & Existing Records -->
           <div class="md:col-span-5 space-y-3">
             <div class="flex flex-wrap items-center gap-1.5 text-xs font-bold">
               <span id="modalSegRegion" class="px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-900 border border-emerald-200">אזור</span>
@@ -466,7 +457,6 @@
             <div id="modalExistingRecords" class="space-y-2.5"></div>
           </div>
 
-          <!-- Left Side (7 Cols on Desktop): Booking / Memory Form -->
           <div class="md:col-span-7 space-y-3.5 md:border-r md:border-stone-200 md:pr-5">
             <div class="grid grid-cols-2 gap-2 p-1 bg-stone-100 rounded-2xl">
               <button type="button" onclick="setModalFormMode('planned')" id="modePlanBtn" class="touch-btn rounded-xl text-xs sm:text-sm font-extrabold bg-white text-amber-800 shadow-xs">
@@ -496,13 +486,11 @@
                 </div>
               </div>
 
-              <!-- Fields for Planned Mode -->
               <div id="plannedFields">
                 <label class="block text-xs font-extrabold text-stone-700 mb-1">הערה פומבית (אופציונלי — למשל הזמנה להצטרפות)</label>
                 <input type="text" id="publicNote" placeholder="יוצאים ב-07:00 מחניון הלילה, מוזמנים להצטרף!" class="w-full h-11 px-3.5 rounded-xl border border-stone-300 focus:border-emerald-600 focus:outline-none" />
               </div>
 
-              <!-- Fields for Completed Mode -->
               <div id="completedFields" class="hidden space-y-2.5">
                 <div>
                   <label class="block text-xs font-extrabold text-stone-700 mb-1">תמונה מהשטח (מומלץ לרוחב) *</label>
@@ -537,15 +525,15 @@
     </div>
   </div>
 
-  <!-- ==================== MENU, ACCESSIBILITY & ADMIN DRAWER ==================== -->
-  <div id="menuDrawer" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs flex items-end md:items-center justify-center">
-    <div class="bottom-sheet-enter bg-white w-full md:max-w-lg max-h-[90vh] rounded-t-3xl md:rounded-3xl flex flex-col overflow-hidden shadow-2xl">
-      <div class="px-4 py-3.5 border-b border-stone-200 flex items-center justify-between bg-stone-50">
+  <!-- ==================== MENU, ACCESSIBILITY & ADMIN CMS DRAWER ==================== -->
+  <div id="menuDrawer" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs flex items-end md:items-center justify-center md:p-4">
+    <div class="bottom-sheet-enter bg-white w-full md:max-w-2xl max-h-[92vh] rounded-t-3xl md:rounded-3xl flex flex-col overflow-hidden shadow-2xl">
+      <div class="px-4 py-3.5 border-b border-stone-200 flex items-center justify-between bg-stone-50 shrink-0">
         <h3 class="text-base font-black text-stone-900">תפריט, נגישות וניהול</h3>
         <button onclick="closeModal('menuDrawer')" class="touch-btn w-11 h-11 rounded-full bg-stone-200 text-stone-800 font-black">✕</button>
       </div>
 
-      <div class="p-4 overflow-y-auto space-y-4">
+      <div class="p-4 overflow-y-auto space-y-4 flex-1">
         <!-- Accessibility Large Buttons -->
         <div>
           <p class="text-xs font-extrabold text-stone-500 mb-2">התאמות תצוגה ונגישות</p>
@@ -565,6 +553,7 @@
         <div class="pt-3 border-t border-stone-200">
           <p class="text-xs font-extrabold text-stone-500 mb-2">ממשק ניהול מערכת</p>
 
+          <!-- Login Form (when logged out) -->
           <form id="adminLoginForm" onsubmit="handleAdminLogin(event)" class="space-y-2.5">
             <input type="email" id="adminEmail" required placeholder="אימייל מנהל" class="w-full h-12 px-3.5 rounded-xl border border-stone-300" />
             <input type="password" id="adminPassword" required placeholder="סיסמה" class="w-full h-12 px-3.5 rounded-xl border border-stone-300" />
@@ -573,8 +562,9 @@
             </button>
           </form>
 
+          <!-- Admin Panel (when logged in) -->
           <div id="adminDashboard" class="hidden space-y-3">
-            <div class="flex items-center justify-between bg-emerald-50 border border-emerald-200 p-3 rounded-xl">
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-emerald-50 border border-emerald-200 p-3 rounded-xl">
               <span class="text-xs font-extrabold text-emerald-900">מחובר כמנהל מערכת ✓</span>
               <div class="flex items-center gap-2">
                 <button onclick="exportCSV()" class="touch-btn px-3 h-10 rounded-lg bg-white border border-emerald-300 text-emerald-900 text-xs font-bold">
@@ -586,7 +576,98 @@
               </div>
             </div>
 
-            <div id="adminRecordsList" class="space-y-2.5 max-h-80 overflow-y-auto"></div>
+            <!-- Admin Sub-Tabs: Records Approval vs. Site Graphics & Texts CMS -->
+            <div class="grid grid-cols-2 gap-2 p-1 bg-stone-100 rounded-2xl">
+              <button type="button" onclick="switchAdminSubTab('records')" id="adminSubTabRecords" class="touch-btn rounded-xl text-xs font-extrabold bg-white text-stone-900 shadow-xs">
+                📋 ניהול גלויות ושריונים
+              </button>
+              <button type="button" onclick="switchAdminSubTab('cms')" id="adminSubTabCms" class="touch-btn rounded-xl text-xs font-bold text-stone-600">
+                🎨 עיצוב ותוכן האתר
+              </button>
+            </div>
+
+            <!-- Sub-Tab 1: Records List -->
+            <div id="adminRecordsSection" class="space-y-2.5 max-h-96 overflow-y-auto">
+              <div id="adminRecordsList" class="space-y-2.5"></div>
+            </div>
+
+            <!-- Sub-Tab 2: Site Graphics & Texts CMS -->
+            <div id="adminCmsSection" class="hidden space-y-4">
+              <!-- Graphics Spec Warning Box -->
+              <div class="bg-amber-50 border border-amber-300 rounded-2xl p-3 text-xs text-amber-950 space-y-1">
+                <p class="font-black">📐 הנחיות מפרט טכני לגרפיקה (חובה לשמור על יחס הגובה-רוחב):</p>
+                <ul class="list-disc list-inside space-y-0.5 text-[11px]">
+                  <li><strong>באנר מחשב:</strong> <code>1600×400 px</code> (יחס 4:1) — המוקד בצד שמאל/מרכז (צד ימין מאחורי הפורטרט).</li>
+                  <li><strong>באנר מובייל:</strong> <code>900×450 px</code> (יחס 2:1) — ללא טקסט קטן בשוליים.</li>
+                  <li><strong>תמונת פורטרט (זוהר):</strong> <code>600×600 px</code> (ריבוע 1:1) — פנים במרכז התמונה.</li>
+                  <li><strong>כרטיסיית 5 דקות:</strong> <code>1080×1350 px</code> (יחס 4:5 אנכי) — קריא בנייד ללא אינטרנט.</li>
+                </ul>
+              </div>
+
+              <!-- Image Uploaders -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div class="p-3 rounded-2xl border border-stone-200 bg-stone-50 space-y-2">
+                  <p class="text-xs font-black text-stone-800">🖼️ באנר מחשב (1600×400)</p>
+                  <label class="touch-btn w-full h-11 px-3 rounded-xl bg-white border border-stone-300 hover:bg-stone-100 text-xs font-bold cursor-pointer">
+                    העלאת באנר מחשב חדש
+                    <input type="file" accept="image/*" class="hidden" onchange="uploadSiteAsset(this, 'banner_desktop_url', 1600)" />
+                  </label>
+                </div>
+
+                <div class="p-3 rounded-2xl border border-stone-200 bg-stone-50 space-y-2">
+                  <p class="text-xs font-black text-stone-800">📱 באנר מובייל (900×450)</p>
+                  <label class="touch-btn w-full h-11 px-3 rounded-xl bg-white border border-stone-300 hover:bg-stone-100 text-xs font-bold cursor-pointer">
+                    העלאת באנר מובייל חדש
+                    <input type="file" accept="image/*" class="hidden" onchange="uploadSiteAsset(this, 'banner_mobile_url', 1000)" />
+                  </label>
+                </div>
+
+                <div class="p-3 rounded-2xl border border-stone-200 bg-stone-50 space-y-2">
+                  <p class="text-xs font-black text-stone-800">🧑 פורטרט זוהר (600×600)</p>
+                  <label class="touch-btn w-full h-11 px-3 rounded-xl bg-white border border-stone-300 hover:bg-stone-100 text-xs font-bold cursor-pointer">
+                    החלפת תמונת פורטרט
+                    <input type="file" accept="image/*" class="hidden" onchange="uploadSiteAsset(this, 'zohar_portrait_url', 800)" />
+                  </label>
+                </div>
+
+                <div class="p-3 rounded-2xl border border-stone-200 bg-stone-50 space-y-2">
+                  <p class="text-xs font-black text-stone-800">📜 כרטיסיית 5 דקות (1080×1350)</p>
+                  <label class="touch-btn w-full h-11 px-3 rounded-xl bg-white border border-stone-300 hover:bg-stone-100 text-xs font-bold cursor-pointer">
+                    העלאת כרטיסייה חדשה
+                    <input type="file" accept="image/*" class="hidden" onchange="uploadSiteAsset(this, 'postcard_5min_url', 1200)" />
+                  </label>
+                </div>
+              </div>
+
+              <!-- Dynamic Texts Form -->
+              <form onsubmit="saveSiteTexts(event)" class="space-y-3 pt-2 border-t border-stone-200">
+                <p class="text-xs font-black text-stone-800">✍️ עריכת כותרות וטקסטים באתר</p>
+                <div>
+                  <label class="block text-[11px] font-bold text-stone-600 mb-1">כותרת ראשית ב-Hero</label>
+                  <input type="text" id="cmsHeroHeading" class="w-full h-11 px-3 rounded-xl border border-stone-300" />
+                </div>
+                <div>
+                  <label class="block text-[11px] font-bold text-stone-600 mb-1">תגית מעל הכותרת</label>
+                  <input type="text" id="cmsHeroBadge" class="w-full h-11 px-3 rounded-xl border border-stone-300" />
+                </div>
+                <div>
+                  <label class="block text-[11px] font-bold text-stone-600 mb-1">פסקת פתיח ראשית</label>
+                  <textarea id="cmsHeroIntro" rows="3" class="w-full p-3 rounded-xl border border-stone-300"></textarea>
+                </div>
+                <div>
+                  <label class="block text-[11px] font-bold text-stone-600 mb-1">פסקת המשך (סיפור היוזמה)</label>
+                  <textarea id="cmsHeroExt1" rows="3" class="w-full p-3 rounded-xl border border-stone-300"></textarea>
+                </div>
+                <div>
+                  <label class="block text-[11px] font-bold text-stone-600 mb-1">שורת הדגשה ירוקה</label>
+                  <input type="text" id="cmsHeroExt2" class="w-full h-11 px-3 rounded-xl border border-stone-300" />
+                </div>
+                <button type="submit" id="saveCmsTextsBtn" class="touch-btn w-full h-12 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-sm shadow-sm">
+                  💾 שמירת טקסטים ועדכון האתר
+                </button>
+              </form>
+            </div>
+
           </div>
         </div>
       </div>
@@ -633,7 +714,7 @@
       </div>
       <div class="p-4 space-y-3">
         <div class="rounded-2xl overflow-hidden border border-amber-200 bg-gradient-to-b from-amber-50 to-orange-50/50 p-4 text-center space-y-2.5">
-          <img src="postcard-5min.jpg" onerror="this.style.display='none'" alt="כרטיסיית עצירה של 5 דקות" class="w-full rounded-xl shadow-xs" />
+          <img id="fiveMinCardImg" src="postcard-5min.jpg" onerror="this.style.display='none'" alt="כרטיסיית עצירה של 5 דקות" class="w-full rounded-xl shadow-xs" />
           <p class="text-sm font-black text-emerald-950">עוצרים רגע באמצע השביל לזכרו של זוהר:</p>
           <ul class="text-xs text-stone-700 text-right space-y-1.5 bg-white p-3 rounded-xl border border-amber-200">
             <li><strong>1. מה ראינו בטבע?</strong> מתבוננים רגע בנוף, בצמחייה או בשקט שמסביב.</li>
@@ -641,7 +722,7 @@
             <li><strong>3. מילה לזוהר:</strong> מצטלמים יחד ומקדישים כמה מילים לזכרו.</li>
           </ul>
         </div>
-        <a href="postcard-5min.jpg" download="zohar-5min-task.jpg" class="touch-btn w-full h-12 rounded-xl bg-emerald-700 text-white font-extrabold text-sm">
+        <a id="fiveMinDownloadLink" href="postcard-5min.jpg" download="zohar-5min-task.jpg" class="touch-btn w-full h-12 rounded-xl bg-emerald-700 text-white font-extrabold text-sm">
           📥 שמירת כרטיסייה לנייד (Offline)
         </a>
       </div>
@@ -668,6 +749,7 @@
     // 2. Global State
     let segments = [];
     let memories = [];
+    let siteSettings = {};
     let currentUser = null;
     let activeTab = 'map';
     let quickMapFilter = 'all';
@@ -682,7 +764,6 @@
     let streetLayer = null;
     let isStreetMap = false;
 
-    // Region visual themes
     const REGION_STYLES = {
       'צפון': {
         strip: 'bg-gradient-to-l from-emerald-600 to-teal-500',
@@ -706,7 +787,6 @@
       }
     };
 
-    // Fallback 56 Segments
     const FALLBACK_SEGMENTS = Array.from({ length: 56 }, (_, i) => {
       const id = i + 1;
       const region = id <= 19 ? 'צפון' : id <= 31 ? 'מרכז' : id <= 37 ? 'ירושלים' : 'דרום';
@@ -728,6 +808,7 @@
     document.addEventListener('DOMContentLoaded', async () => {
       initMap();
       await checkAdminSession();
+      await loadSiteSettings();
       await loadData();
       populateSegmentSelect();
     });
@@ -744,6 +825,150 @@
       updateAdminUI();
     }
 
+    // 4. Dynamic Site Settings (Mini-CMS)
+    async function loadSiteSettings() {
+      try {
+        const { data, error } = await sb.from('site_settings').select('key, value');
+        if (error || !data) return;
+
+        siteSettings = {};
+        data.forEach(row => { siteSettings[row.key] = row.value; });
+        applySiteSettingsToDOM();
+      } catch (err) {
+        console.warn('Site settings not initialized yet:', err);
+      }
+    }
+
+    function applySiteSettingsToDOM() {
+      if (siteSettings.banner_desktop_url) {
+        document.getElementById('heroDesktopBannerImg').src = siteSettings.banner_desktop_url;
+      }
+      if (siteSettings.banner_mobile_url) {
+        document.getElementById('heroMobileBannerImg').src = siteSettings.banner_mobile_url;
+      }
+      if (siteSettings.zohar_portrait_url) {
+        document.getElementById('heroZoharImg').src = siteSettings.zohar_portrait_url;
+      }
+      if (siteSettings.postcard_5min_url) {
+        const imgEl = document.getElementById('fiveMinCardImg');
+        imgEl.style.display = 'block';
+        imgEl.src = siteSettings.postcard_5min_url;
+        document.getElementById('fiveMinDownloadLink').href = siteSettings.postcard_5min_url;
+      }
+      if (siteSettings.hero_heading) {
+        document.getElementById('heroMainHeading').textContent = siteSettings.hero_heading;
+      }
+      if (siteSettings.hero_badge) {
+        document.getElementById('heroBadgeText').textContent = siteSettings.hero_badge;
+      }
+      if (siteSettings.hero_intro) {
+        document.getElementById('heroIntroParagraph').textContent = siteSettings.hero_intro;
+      }
+      if (siteSettings.hero_ext1) {
+        document.getElementById('heroExtendedParagraph1').textContent = siteSettings.hero_ext1;
+      }
+      if (siteSettings.hero_ext2) {
+        document.getElementById('heroExtendedParagraph2').textContent = siteSettings.hero_ext2;
+      }
+
+      // Sync CMS inputs if admin is logged in
+      const hInput = document.getElementById('cmsHeroHeading');
+      if (hInput) {
+        hInput.value = siteSettings.hero_heading || document.getElementById('heroMainHeading').textContent.trim();
+        document.getElementById('cmsHeroBadge').value = siteSettings.hero_badge || document.getElementById('heroBadgeText').textContent.trim();
+        document.getElementById('cmsHeroIntro').value = siteSettings.hero_intro || document.getElementById('heroIntroParagraph').textContent.trim();
+        document.getElementById('cmsHeroExt1').value = siteSettings.hero_ext1 || document.getElementById('heroExtendedParagraph1').textContent.trim();
+        document.getElementById('cmsHeroExt2').value = siteSettings.hero_ext2 || document.getElementById('heroExtendedParagraph2').textContent.trim();
+      }
+    }
+
+    async function uploadSiteAsset(input, settingKey, maxWidth) {
+      const file = input.files?.[0];
+      if (!file) return;
+
+      showToast('מעלה ומייעל גרפיקה חדשה...');
+      try {
+        const compressedBlob = await compressImage(file, maxWidth, 0.88);
+        const filePath = `${settingKey}_${Date.now()}.jpg`;
+        const { error: upErr } = await sb.storage
+          .from('site-assets')
+          .upload(filePath, compressedBlob, { contentType: 'image/jpeg', upsert: true });
+
+        if (upErr) throw upErr;
+
+        const { data: pubData } = sb.storage.from('site-assets').getPublicUrl(filePath);
+        const publicUrl = pubData.publicUrl;
+
+        const { error: dbErr } = await sb.from('site_settings').upsert({
+          key: settingKey,
+          value: publicUrl,
+          updated_at: new Date().toISOString()
+        });
+
+        if (dbErr) throw dbErr;
+
+        siteSettings[settingKey] = publicUrl;
+        applySiteSettingsToDOM();
+        showToast('הגרפיקה עודכנה באתר בהצלחה! ✨');
+      } catch (err) {
+        console.error(err);
+        showToast('שגיאה בהעלאת הגרפיקה. ודאו שהרצתם את ה-SQL של site-assets.');
+      } finally {
+        input.value = '';
+      }
+    }
+
+    async function saveSiteTexts(e) {
+      e.preventDefault();
+      const btn = document.getElementById('saveCmsTextsBtn');
+      btn.disabled = true;
+      btn.textContent = 'שומר טקסטים...';
+
+      const updates = [
+        { key: 'hero_heading', value: document.getElementById('cmsHeroHeading').value.trim() },
+        { key: 'hero_badge', value: document.getElementById('cmsHeroBadge').value.trim() },
+        { key: 'hero_intro', value: document.getElementById('cmsHeroIntro').value.trim() },
+        { key: 'hero_ext1', value: document.getElementById('cmsHeroExt1').value.trim() },
+        { key: 'hero_ext2', value: document.getElementById('cmsHeroExt2').value.trim() }
+      ].map(item => ({ ...item, updated_at: new Date().toISOString() }));
+
+      try {
+        const { error } = await sb.from('site_settings').upsert(updates);
+        if (error) throw error;
+
+        updates.forEach(u => { siteSettings[u.key] = u.value; });
+        applySiteSettingsToDOM();
+        showToast('הטקסטים נשמרו ועודכנו באתר ✓');
+      } catch (err) {
+        console.error(err);
+        showToast('שגיאה בשמירת הטקסטים');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '💾 שמירת טקסטים ועדכון האתר';
+      }
+    }
+
+    function switchAdminSubTab(tab) {
+      const recSec = document.getElementById('adminRecordsSection');
+      const cmsSec = document.getElementById('adminCmsSection');
+      const recBtn = document.getElementById('adminSubTabRecords');
+      const cmsBtn = document.getElementById('adminSubTabCms');
+
+      if (tab === 'records') {
+        recSec.classList.remove('hidden');
+        cmsSec.classList.add('hidden');
+        recBtn.className = 'touch-btn rounded-xl text-xs font-extrabold bg-white text-stone-900 shadow-xs';
+        cmsBtn.className = 'touch-btn rounded-xl text-xs font-bold text-stone-600';
+      } else {
+        cmsSec.classList.remove('hidden');
+        recSec.classList.add('hidden');
+        cmsBtn.className = 'touch-btn rounded-xl text-xs font-extrabold bg-white text-emerald-900 shadow-xs';
+        recBtn.className = 'touch-btn rounded-xl text-xs font-bold text-stone-600';
+        applySiteSettingsToDOM();
+      }
+    }
+
+    // 5. Load Trail Segments & Memories
     async function loadData() {
       try {
         const { data: segData, error: segErr } = await sb
@@ -774,7 +999,6 @@
       if (currentUser) renderAdminList();
     }
 
-    // 4. Segment Status Helper
     function getSegmentStatusInfo(segId) {
       const today = new Date().toISOString().split('T')[0];
       const segMems = memories.filter(m => m.segment_id === segId && m.status !== 'message');
@@ -799,7 +1023,6 @@
       return { state: 'available', label: 'פנוי לשריון', color: '#1c1917', badgeClass: 'bg-stone-100 text-stone-700 border border-stone-200', overdue: false, completed: [], planned: [] };
     }
 
-    // 5. Stats & Progress Bar
     function updateStatsAndProgress() {
       let compCount = 0;
       let planCount = 0;
@@ -1228,20 +1451,19 @@
         : 'בחרו תמונה מהגלריה או צלמו';
     }
 
-    async function compressImage(file) {
+    async function compressImage(file, maxW = 1200, quality = 0.8) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (e) => {
           const img = new Image();
           img.onload = () => {
-            const maxW = 1200;
             const scale = img.width > maxW ? maxW / img.width : 1;
             const canvas = document.createElement('canvas');
             canvas.width = Math.round(img.width * scale);
             canvas.height = Math.round(img.height * scale);
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Compression failed')), 'image/jpeg', 0.8);
+            canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Compression failed')), 'image/jpeg', quality);
           };
           img.src = e.target.result;
         };
@@ -1404,6 +1626,7 @@
       if (currentUser) {
         loginForm.classList.add('hidden');
         dash.classList.remove('hidden');
+        applySiteSettingsToDOM();
       } else {
         loginForm.classList.remove('hidden');
         dash.classList.add('hidden');
