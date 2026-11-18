@@ -28,17 +28,17 @@
     }
     body {
       font-family: 'Heebo', sans-serif;
-      background-color: #f8fafc;
-      color: #0f172a;
+      background-color: #faf8f5;
+      color: #1c1917;
       overflow-x: hidden;
     }
     html.font-large { font-size: 114%; }
     html.high-contrast body { background-color: #000000; color: #ffffff; }
     html.high-contrast .bg-white,
-    html.high-contrast .bg-slate-50 { background-color: #111827 !important; color: #ffffff !important; border-color: #facc15 !important; }
-    html.high-contrast .text-slate-600,
-    html.high-contrast .text-slate-500,
-    html.high-contrast .text-slate-700 { color: #e2e8f0 !important; }
+    html.high-contrast .bg-stone-50 { background-color: #111827 !important; color: #ffffff !important; border-color: #facc15 !important; }
+    html.high-contrast .text-stone-600,
+    html.high-contrast .text-stone-500,
+    html.high-contrast .text-stone-700 { color: #e2e8f0 !important; }
 
     /* Hide scrollbars on horizontal filter chips */
     .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -63,7 +63,7 @@
       line-height: 44px !important;
       font-size: 20px !important;
       font-weight: 700 !important;
-      color: #0f172a !important;
+      color: #1c1917 !important;
     }
     .custom-pin {
       display: flex;
@@ -74,11 +74,11 @@
       font-weight: 800;
       font-size: 11px;
       border: 2.5px solid #ffffff;
-      box-shadow: 0 3px 10px rgba(15, 23, 42, 0.35);
+      box-shadow: 0 3px 10px rgba(28, 25, 23, 0.38);
       transition: transform 0.15s ease;
     }
     .custom-pin.selected {
-      transform: scale(1.28);
+      transform: scale(1.3);
       border-color: #facc15;
       z-index: 999 !important;
     }
@@ -102,130 +102,137 @@
 <body class="pb-20 md:pb-8">
 
   <!-- ==================== STICKY TOP HEADER ==================== -->
-  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200 h-14 px-3 md:px-6 flex items-center justify-between shadow-xs">
+  <header class="sticky top-0 z-40 bg-[#faf8f5]/95 backdrop-blur border-b border-stone-200 h-14 px-3 md:px-6 flex items-center justify-between shadow-xs">
     <div class="flex items-center gap-2.5">
-      <div class="w-9 h-9 rounded-xl bg-emerald-700 text-white flex items-center justify-center font-black text-base shadow-xs">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-700 to-teal-700 text-white flex items-center justify-center font-black text-base shadow-xs">
         ש״י
       </div>
       <div>
-        <h1 class="text-base md:text-lg font-extrabold text-slate-900 leading-tight">צועדים בשביל זוהר</h1>
-        <p class="text-[11px] text-slate-500 hidden sm:block">לזכרו של זוהר תמיר ז״ל • 56 מקטעי שביל ישראל</p>
+        <h1 class="text-base md:text-lg font-extrabold text-stone-900 leading-tight">צועדים בשביל זוהר</h1>
+        <p class="text-[11px] text-stone-500 hidden sm:block">לזכרו של זוהר תמיר ז״ל • 56 מקטעי שביל ישראל</p>
       </div>
     </div>
 
     <!-- Desktop Navigation Links -->
     <nav class="hidden md:flex items-center gap-2">
-      <button onclick="switchMobileTab('map')" id="desk-tab-map" class="touch-btn px-4 rounded-xl text-sm font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+      <button onclick="switchMobileTab('map')" id="desk-tab-map" class="touch-btn px-4 rounded-xl text-sm font-bold bg-emerald-100/80 text-emerald-900 border border-emerald-300">
         🗺️ מפת השביל
       </button>
-      <button onclick="switchMobileTab('segments')" id="desk-tab-segments" class="touch-btn px-4 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100">
+      <button onclick="switchMobileTab('segments')" id="desk-tab-segments" class="touch-btn px-4 rounded-xl text-sm font-semibold text-stone-600 hover:bg-stone-200/60">
         🥾 כל המקטעים (56)
       </button>
-      <button onclick="switchMobileTab('postcards')" id="desk-tab-postcards" class="touch-btn px-4 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100">
+      <button onclick="switchMobileTab('postcards')" id="desk-tab-postcards" class="touch-btn px-4 rounded-xl text-sm font-semibold text-stone-600 hover:bg-stone-200/60">
         ✉️ גלויות מהדרך
       </button>
     </nav>
 
     <!-- Top Action Buttons (>=44px touch targets) -->
     <div class="flex items-center gap-1.5">
-      <button onclick="openContactAdminModal()" class="touch-btn px-3 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs sm:text-sm font-bold gap-1.5" aria-label="הודעה למנהלים">
+      <button onclick="openContactAdminModal()" class="touch-btn px-3 rounded-xl bg-amber-100/80 hover:bg-amber-200/80 text-amber-950 border border-amber-300 text-xs sm:text-sm font-bold gap-1.5" aria-label="הודעה למנהלים">
         <span>✉️</span>
         <span class="hidden sm:inline">הודעה למנהלים</span>
       </button>
-      <button onclick="openMenuDrawer()" id="headerMenuBtn" class="touch-btn px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-sm relative" aria-label="תפריט וניהול">
+      <button onclick="openMenuDrawer()" id="headerMenuBtn" class="touch-btn px-3 rounded-xl bg-stone-200/70 hover:bg-stone-300/70 text-stone-800 font-bold text-sm relative" aria-label="תפריט וניהול">
         <span>☰</span>
         <span id="adminBadgeDot" class="hidden absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-600 text-white text-[11px] font-black flex items-center justify-center">0</span>
       </button>
     </div>
   </header>
 
-  <!-- ==================== COMPACT COLLAPSIBLE HERO & PROGRESS ==================== -->
+  <!-- ==================== WARM VISUAL HERO WITH BANNER & LARGE ZOHAR PORTRAIT ==================== -->
   <section class="max-w-6xl mx-auto px-3 md:px-6 pt-3 md:pt-5">
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-      <!-- Desktop Banner -->
-      <div class="hidden md:block relative h-44 bg-gradient-to-l from-emerald-900 via-emerald-800 to-teal-700 overflow-hidden">
-        <img src="banner-desktop.jpg" onerror="this.style.display='none'" alt="באנר צועדים בשביל זוהר" class="w-full h-full object-cover opacity-55" />
-        <div class="absolute inset-0 bg-gradient-to-l from-slate-900/80 via-slate-900/40 to-transparent"></div>
+    <div class="bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden">
+      <!-- Illustrated Trail Banner (Mobile + Desktop) -->
+      <div class="relative h-36 sm:h-44 md:h-52 bg-gradient-to-l from-emerald-900 via-teal-800 to-amber-700 overflow-hidden">
+        <picture>
+          <source media="(min-width: 768px)" srcset="banner-desktop.jpg" />
+          <img src="banner-mobile.jpg" onerror="this.src='https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80'" alt="באנר צועדים בשביל זוהר" class="w-full h-full object-cover opacity-85" />
+        </picture>
+        <div class="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent"></div>
+        <div class="absolute top-3 left-3 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[11px] font-extrabold text-emerald-950 shadow-xs">
+          🇮🇱 מחרמון ועד אילת • 1,040 ק״מ
+        </div>
       </div>
 
-      <div class="p-3.5 md:p-6 md:-mt-16 relative z-10">
-        <div class="flex items-start gap-3.5 md:gap-5">
-          <!-- Locked Zohar Portrait -->
-          <div class="shrink-0">
-            <div class="w-16 h-16 md:w-28 md:h-28 rounded-2xl border-2 md:border-4 border-white shadow-md overflow-hidden bg-slate-200">
-              <img src="zohar.jpg" onerror="this.src='https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=300&q=80'" alt="זוהר תמיר ז״ל" class="w-full h-full object-cover" />
+      <!-- Overlapping Large Portrait + Warm Story -->
+      <div class="px-4 pb-4 md:px-6 md:pb-6 relative z-10">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 -mt-12 md:-mt-16 mb-3">
+          <div class="flex items-end gap-3.5 md:gap-5">
+            <!-- Large Locked Portrait of Zohar -->
+            <div class="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-3xl border-4 border-white shadow-lg overflow-hidden bg-amber-100 shrink-0">
+              <img src="zohar.jpg" onerror="this.src='https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=400&q=85'" alt="זוהר תמיר ז״ל" class="w-full h-full object-cover" />
             </div>
-          </div>
-
-          <!-- Story Intro & Collapsible Details -->
-          <div class="flex-1 min-w-0">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <h2 class="text-base md:text-2xl font-black text-slate-900 md:text-white md:drop-shadow">
-                ממשיכים את הצעדים של זוהר תמיר ז״ל
+            <div class="pb-1">
+              <span class="inline-block px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[11px] font-extrabold mb-1">
+                לזכרו של זוהר תמיר ז״ל
+              </span>
+              <h2 class="text-lg sm:text-xl md:text-2xl font-black text-stone-900 leading-tight">
+                ממשיכים את הצעדים של זוהר
               </h2>
-              <button onclick="openFiveMinCard()" class="touch-btn px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold gap-1">
-                <span>📜</span>
-                <span>עצירה של 5 דקות</span>
-              </button>
             </div>
-
-            <p class="text-xs md:text-sm text-slate-600 md:text-slate-700 md:mt-4 leading-relaxed">
-              זוהר חלם לכבוש את שביל ישראל מצפון לדרום. אנחנו, החברים והמשפחה, משלימים יחד את 56 המקטעים לזכרו — בוחרים מקטע, יוצאים לטבע ועוצרים לרגע של זיכרון.
-            </p>
-
-            <!-- Collapsible Full Story (Mobile Friendly) -->
-            <div id="moreStoryBlock" class="hidden mt-2.5 pt-2.5 border-t border-slate-100 text-xs md:text-sm text-slate-600 space-y-2 leading-relaxed">
-              <p>
-                כל קבוצה או מטייל יכולים לשריין תאריך למקטע, להזמין חברים להצטרף, ובסיום המסלול להעלות תמונה וגלויה קצרה עם 3 שאלות בהשראת זוהר: מה ראינו בטבע, צידה לדרך, ומילה אישית לזוהר.
-              </p>
-              <p class="font-semibold text-emerald-800">
-                ניתן לשריין גם מקטעים שכבר נתפסו או בוצעו — כל צעד בשביל מוסיף עוד אור וזיכרון.
-              </p>
-            </div>
-
-            <button onclick="toggleStory()" id="toggleStoryBtn" class="mt-1.5 inline-flex items-center gap-1 text-xs font-bold text-emerald-700 hover:text-emerald-900 py-1">
-              <span id="toggleStoryLabel">קרא עוד על היוזמה</span>
-              <span id="toggleStoryIcon">▾</span>
-            </button>
           </div>
+
+          <button onclick="openFiveMinCard()" class="touch-btn self-start sm:self-end px-3.5 py-2 rounded-2xl bg-gradient-to-l from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs sm:text-sm font-extrabold gap-1.5 shadow-xs">
+            <span>📜</span>
+            <span>המשימה מזוהר (עצירה של 5 דקות)</span>
+          </button>
         </div>
 
-        <!-- Unified Compact Progress Bar (Click to expand 56 blocks) -->
-        <div class="mt-3.5 pt-3 border-t border-slate-100">
+        <p class="text-xs sm:text-sm text-stone-700 leading-relaxed">
+          זוהר חלם לכבוש את שביל ישראל מצפון לדרום. אנחנו, החברים והמשפחה, משלימים יחד את 56 המקטעים לזכרו — בוחרים מקטע, יוצאים לטבע, עוצרים לרגע של זיכרון ומשתפים תמונה וגלויה מהדרך.
+        </p>
+
+        <!-- Collapsible Full Story -->
+        <div id="moreStoryBlock" class="hidden mt-2.5 pt-2.5 border-t border-stone-100 text-xs sm:text-sm text-stone-600 space-y-2 leading-relaxed">
+          <p>
+            כל קבוצה או מטייל יכולים לשריין תאריך למקטע, להזמין חברים להצטרף, ובסיום המסלול להעלות תמונה וגלויה קצרה עם 3 שאלות בהשראת זוהר: מה ראינו בטבע, צידה לדרך, ומילה אישית לזוהר.
+          </p>
+          <p class="font-bold text-emerald-800">
+            ניתן לשריין גם מקטעים שכבר נתפסו או בוצעו — כל צעד בשביל מוסיף עוד אור וזיכרון.
+          </p>
+        </div>
+
+        <button onclick="toggleStory()" id="toggleStoryBtn" class="mt-1.5 inline-flex items-center gap-1 text-xs font-extrabold text-emerald-700 hover:text-emerald-900 py-1">
+          <span id="toggleStoryLabel">קרא עוד על היוזמה</span>
+          <span id="toggleStoryIcon">▾</span>
+        </button>
+
+        <!-- Unified Colorful Progress Bar -->
+        <div class="mt-3.5 pt-3.5 border-t border-stone-100 bg-stone-50/80 -mx-4 px-4 py-3 md:mx-0 md:rounded-2xl md:border md:border-stone-200/70">
           <div class="flex flex-wrap items-center justify-between gap-2 text-xs md:text-sm mb-2">
             <div class="flex items-center gap-3 font-bold">
-              <span class="inline-flex items-center gap-1 text-emerald-700">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
+              <span class="inline-flex items-center gap-1.5 text-emerald-800">
+                <span class="w-3 h-3 rounded-full bg-emerald-600 shadow-2xs"></span>
                 בוצעו: <strong id="statCompleted">0</strong>
               </span>
-              <span class="inline-flex items-center gap-1 text-amber-600">
-                <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+              <span class="inline-flex items-center gap-1.5 text-amber-700">
+                <span class="w-3 h-3 rounded-full bg-amber-500 shadow-2xs"></span>
                 שוריינו: <strong id="statPlanned">0</strong>
               </span>
-              <span class="inline-flex items-center gap-1 text-slate-600">
-                <span class="w-2.5 h-2.5 rounded-full bg-slate-800"></span>
+              <span class="inline-flex items-center gap-1.5 text-stone-700">
+                <span class="w-3 h-3 rounded-full bg-stone-800 shadow-2xs"></span>
                 פנויים: <strong id="statAvailable">56</strong>
               </span>
             </div>
             <div class="flex items-center gap-2">
-              <span class="text-xs font-extrabold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg">
+              <span class="text-xs font-extrabold text-emerald-950 bg-emerald-100/80 border border-emerald-200 px-2.5 py-1 rounded-xl">
                 🥾 <span id="statKm">0</span> / 1,040 ק״מ
               </span>
-              <button onclick="toggleProgressMatrix()" class="text-xs font-bold text-slate-500 hover:text-slate-800 underline py-1">
+              <button onclick="toggleProgressMatrix()" class="text-xs font-extrabold text-stone-600 hover:text-stone-900 underline py-1">
                 <span id="matrixToggleText">56 קוביות ▾</span>
               </button>
             </div>
           </div>
 
           <!-- Dual-layer Progress Bar -->
-          <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden flex">
-            <div id="barCompleted" class="bg-emerald-600 h-full transition-all duration-500" style="width: 0%"></div>
-            <div id="barPlanned" class="bg-amber-400 h-full transition-all duration-500" style="width: 0%"></div>
+          <div class="w-full h-3.5 bg-stone-200/80 rounded-full overflow-hidden flex p-0.5">
+            <div id="barCompleted" class="bg-gradient-to-l from-emerald-500 to-emerald-700 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+            <div id="barPlanned" class="bg-gradient-to-l from-amber-400 to-orange-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
           </div>
 
           <!-- Expandable 56-Segment Mini Matrix -->
-          <div id="progressMatrixDrawer" class="hidden mt-3 pt-3 border-t border-slate-100">
-            <div class="flex items-center justify-between text-[11px] text-slate-500 mb-2">
+          <div id="progressMatrixDrawer" class="hidden mt-3 pt-3 border-t border-stone-200/70">
+            <div class="flex items-center justify-between text-[11px] text-stone-500 mb-2 font-semibold">
               <span>צפון (1 - חרמון)</span>
               <span>לחצו על מספר מקטע לפתיחה</span>
               <span>דרום (56 - אילת)</span>
@@ -241,10 +248,10 @@
   <main id="view-map" class="max-w-6xl mx-auto px-3 md:px-6 pt-3">
     <!-- Horizontal Quick Status Filter Pills over Map -->
     <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2.5">
-      <button onclick="setQuickFilter('all')" data-qfilter="all" class="qfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-extrabold bg-slate-900 text-white shadow-xs">
+      <button onclick="setQuickFilter('all')" data-qfilter="all" class="qfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-extrabold bg-emerald-800 text-white shadow-xs">
         הכל (56)
       </button>
-      <button onclick="setQuickFilter('available')" data-qfilter="available" class="qfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-slate-700 border border-slate-200">
+      <button onclick="setQuickFilter('available')" data-qfilter="available" class="qfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-stone-700 border border-stone-200">
         ⚫ פנויים (<span id="pillAvailCount">56</span>)
       </button>
       <button onclick="setQuickFilter('planned')" data-qfilter="planned" class="qfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-amber-800 border border-amber-200">
@@ -255,34 +262,42 @@
       </button>
     </div>
 
-    <!-- Map Container + Floating Bottom Preview Card -->
-    <div class="relative bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <!-- Map Container + Floating Bottom Preview Card with Photo Frame -->
+    <div class="relative bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden">
       <!-- Top Floating Map Controls -->
       <div class="absolute top-3 left-3 z-20 flex flex-col gap-2">
-        <button onclick="toggleMapLayer()" id="mapLayerBtn" class="touch-btn px-3 rounded-xl bg-white/95 backdrop-blur shadow-md border border-slate-200 text-xs font-extrabold text-slate-800">
+        <button onclick="toggleMapLayer()" id="mapLayerBtn" class="touch-btn px-3 rounded-xl bg-white/95 backdrop-blur shadow-md border border-stone-200 text-xs font-extrabold text-stone-800">
           🗺️ מפת רחובות
         </button>
-        <button onclick="resetMapBounds()" class="touch-btn px-3 rounded-xl bg-white/95 backdrop-blur shadow-md border border-slate-200 text-xs font-extrabold text-slate-800">
+        <button onclick="resetMapBounds()" class="touch-btn px-3 rounded-xl bg-white/95 backdrop-blur shadow-md border border-stone-200 text-xs font-extrabold text-stone-800">
           🇮🇱 כל הארץ
         </button>
       </div>
 
       <!-- Map Canvas -->
-      <div id="trailMap" class="w-full h-[62vh] md:h-[560px] bg-slate-100"></div>
+      <div id="trailMap" class="w-full h-[58vh] md:h-[540px] bg-stone-100"></div>
 
-      <!-- Floating Bottom Preview Card for Selected Segment -->
-      <div id="mapFloatingCard" class="p-3.5 md:p-4 bg-white border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div class="min-w-0">
-          <div class="flex items-center gap-2 mb-1">
-            <span id="mfcNumber" class="px-2 py-0.5 rounded-lg bg-slate-900 text-white text-xs font-black">#1</span>
-            <span id="mfcStatusBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700">פנוי לשריון</span>
-            <span id="mfcRegion" class="text-xs text-slate-500 font-medium">צפון</span>
+      <!-- Floating Bottom Preview Card with Thumbnail / Photo Invite -->
+      <div id="mapFloatingCard" class="p-3.5 md:p-4 bg-gradient-to-l from-white to-stone-50 border-t border-stone-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <!-- Thumbnail or "Waiting for your photo" frame -->
+          <div id="mfcThumbBox" onclick="openSegmentModal(selectedSegmentId)" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden shrink-0 cursor-pointer border border-emerald-200 bg-gradient-to-br from-emerald-50 to-amber-50 flex flex-col items-center justify-center text-center p-1">
+            <span class="text-lg">📷</span>
+            <span class="text-[10px] font-extrabold text-emerald-900 leading-tight">מחכים לתמונה</span>
           </div>
-          <h3 id="mfcTitle" class="text-base md:text-lg font-black text-slate-900 truncate">קופות החרמון – בניאס</h3>
-          <p id="mfcMeta" class="text-xs text-slate-600 mt-0.5">📏 16.5 ק״מ • ⛰️ בינוני • 🌤️ אביב, סתיו</p>
+
+          <div class="min-w-0">
+            <div class="flex items-center gap-2 mb-1">
+              <span id="mfcNumber" class="px-2 py-0.5 rounded-lg bg-stone-900 text-white text-xs font-black">#1</span>
+              <span id="mfcStatusBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-stone-100 text-stone-700">פנוי לשריון</span>
+              <span id="mfcRegion" class="text-xs text-emerald-800 font-bold">צפון</span>
+            </div>
+            <h3 id="mfcTitle" class="text-base md:text-lg font-black text-stone-900 truncate">קופות החרמון – בניאס</h3>
+            <p id="mfcMeta" class="text-xs text-stone-600 mt-0.5">📏 16.5 ק״מ • ⛰️ בינוני</p>
+          </div>
         </div>
 
-        <button id="mfcActionBtn" onclick="openSegmentModal(selectedSegmentId)" class="touch-btn w-full sm:w-auto px-5 h-12 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-sm shadow-sm shrink-0">
+        <button id="mfcActionBtn" onclick="openSegmentModal(selectedSegmentId)" class="touch-btn w-full sm:w-auto px-5 h-12 rounded-2xl bg-gradient-to-l from-emerald-700 to-teal-700 hover:from-emerald-800 hover:to-teal-800 text-white font-extrabold text-sm shadow-sm shrink-0">
           לשריון / תיעוד מקטע ←
         </button>
       </div>
@@ -291,42 +306,42 @@
 
   <!-- ==================== VIEW 2: ALL SEGMENTS LIST ==================== -->
   <section id="view-segments" class="hidden max-w-6xl mx-auto px-3 md:px-6 pt-3">
-    <!-- Region Horizontal Chips + Advanced Filter Toggle -->
+    <!-- Region Horizontal Chips with Nature Colors -->
     <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2">
-      <button onclick="setRegionFilter('all')" data-rfilter="all" class="rfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-extrabold bg-emerald-700 text-white">
-        כל הארץ
+      <button onclick="setRegionFilter('all')" data-rfilter="all" class="rfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-extrabold bg-emerald-800 text-white">
+        🇮🇱 כל הארץ
       </button>
-      <button onclick="setRegionFilter('צפון')" data-rfilter="צפון" class="rfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-slate-700 border border-slate-200">
-        צפון
+      <button onclick="setRegionFilter('צפון')" data-rfilter="צפון" class="rfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-emerald-900 border border-emerald-200">
+        🌲 צפון
       </button>
-      <button onclick="setRegionFilter('מרכז')" data-rfilter="מרכז" class="rfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-slate-700 border border-slate-200">
-        מרכז
+      <button onclick="setRegionFilter('מרכז')" data-rfilter="מרכז" class="rfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-sky-900 border border-sky-200">
+        🌊 מרכז
       </button>
-      <button onclick="setRegionFilter('ירושלים')" data-rfilter="ירושלים" class="rfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-slate-700 border border-slate-200">
-        ירושלים
+      <button onclick="setRegionFilter('ירושלים')" data-rfilter="ירושלים" class="rfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-amber-900 border border-amber-200">
+        🏛️ ירושלים
       </button>
-      <button onclick="setRegionFilter('דרום')" data-rfilter="דרום" class="rfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-slate-700 border border-slate-200">
-        דרום
+      <button onclick="setRegionFilter('דרום')" data-rfilter="דרום" class="rfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-orange-900 border border-orange-200">
+        🏜️ דרום
       </button>
     </div>
 
     <!-- Search Input + Advanced Filters Button -->
     <div class="flex items-center gap-2 mb-3">
       <div class="relative flex-1">
-        <input type="text" id="searchInput" oninput="renderSegmentsList()" placeholder="חיפוש לפי מספר מקטע, שם או יישוב..." class="w-full h-11 pr-9 pl-3 rounded-xl bg-white border border-slate-200 text-slate-900 focus:outline-none focus:border-emerald-600" />
-        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
+        <input type="text" id="searchInput" oninput="renderSegmentsList()" placeholder="חיפוש לפי מספר מקטע, שם או יישוב..." class="w-full h-11 pr-9 pl-3 rounded-2xl bg-white border border-stone-200 text-stone-900 focus:outline-none focus:border-emerald-600" />
+        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400">🔍</span>
       </div>
-      <button onclick="toggleAdvancedFilters()" id="advFilterBtn" class="touch-btn px-3.5 h-11 rounded-xl bg-white border border-slate-200 text-slate-800 text-xs font-extrabold gap-1.5 shrink-0">
+      <button onclick="toggleAdvancedFilters()" id="advFilterBtn" class="touch-btn px-3.5 h-11 rounded-2xl bg-white border border-stone-200 text-stone-800 text-xs font-extrabold gap-1.5 shrink-0">
         <span>⚙️</span>
         <span>סינון</span>
       </button>
     </div>
 
     <!-- Collapsible Advanced Filters Drawer -->
-    <div id="advancedFiltersBox" class="hidden bg-white p-3.5 rounded-2xl border border-slate-200 mb-3 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+    <div id="advancedFiltersBox" class="hidden bg-white p-3.5 rounded-2xl border border-stone-200 mb-3 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
       <div>
-        <label class="block text-xs font-bold text-slate-600 mb-1">סטטוס מקטע</label>
-        <select id="statusFilter" onchange="renderSegmentsList()" class="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 font-medium">
+        <label class="block text-xs font-bold text-stone-600 mb-1">סטטוס מקטע</label>
+        <select id="statusFilter" onchange="renderSegmentsList()" class="w-full h-11 px-3 rounded-xl border border-stone-200 bg-stone-50 font-medium">
           <option value="all">כל הסטטוסים</option>
           <option value="available">⚫ פנויים בלבד</option>
           <option value="planned">🟠 משוריינים בלבד</option>
@@ -334,8 +349,8 @@
         </select>
       </div>
       <div>
-        <label class="block text-xs font-bold text-slate-600 mb-1">רמת קושי</label>
-        <select id="difficultyFilter" onchange="renderSegmentsList()" class="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 font-medium">
+        <label class="block text-xs font-bold text-stone-600 mb-1">רמת קושי</label>
+        <select id="difficultyFilter" onchange="renderSegmentsList()" class="w-full h-11 px-3 rounded-xl border border-stone-200 bg-stone-50 font-medium">
           <option value="all">כל הרמות</option>
           <option value="קל">קל / קל-בינוני</option>
           <option value="בינוני">בינוני</option>
@@ -343,8 +358,8 @@
         </select>
       </div>
       <div>
-        <label class="block text-xs font-bold text-slate-600 mb-1">אורך מסלול</label>
-        <select id="lengthFilter" onchange="renderSegmentsList()" class="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 font-medium">
+        <label class="block text-xs font-bold text-stone-600 mb-1">אורך מסלול</label>
+        <select id="lengthFilter" onchange="renderSegmentsList()" class="w-full h-11 px-3 rounded-xl border border-stone-200 bg-stone-50 font-medium">
           <option value="all">כל האורכים</option>
           <option value="short">קצר (עד 14 ק״מ)</option>
           <option value="medium">בינוני (14–20 ק״מ)</option>
@@ -354,23 +369,23 @@
     </div>
 
     <!-- Results Counter -->
-    <div class="flex items-center justify-between text-xs text-slate-500 font-semibold mb-2.5 px-1">
-      <span>מציג <strong id="filteredCount" class="text-slate-900">56</strong> מקטעים</span>
+    <div class="flex items-center justify-between text-xs text-stone-500 font-semibold mb-2.5 px-1">
+      <span>מציג <strong id="filteredCount" class="text-stone-900">56</strong> מקטעים</span>
       <button onclick="resetAllFilters()" class="text-emerald-700 font-bold hover:underline">איפוס סינון</button>
     </div>
 
     <!-- Segments Grid -->
-    <div id="segmentsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+    <div id="segmentsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5"></div>
   </section>
 
   <!-- ==================== VIEW 3: POSTCARDS GALLERY ==================== -->
   <section id="view-postcards" class="hidden max-w-6xl mx-auto px-3 md:px-6 pt-3">
-    <div class="bg-emerald-900 text-white rounded-2xl p-4 md:p-6 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div class="bg-gradient-to-l from-emerald-900 via-teal-800 to-emerald-800 text-white rounded-3xl p-4 md:p-6 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
       <div>
         <h2 class="text-lg md:text-2xl font-black">✉️ גלויות מהדרך</h2>
-        <p class="text-xs md:text-sm text-emerald-100 mt-1">תמונות וזיכרונות מהשטח של החברים והמטיילים לאורך השביל.</p>
+        <p class="text-xs md:text-sm text-emerald-100 mt-1">תמונות וזיכרונות מהשטח של החברים והמטיילים לאורך השביל לזכרו של זוהר.</p>
       </div>
-      <button onclick="switchMobileTab('segments')" class="touch-btn px-4 h-11 rounded-xl bg-white text-emerald-900 font-extrabold text-xs sm:text-sm shrink-0">
+      <button onclick="switchMobileTab('segments')" class="touch-btn px-4 h-11 rounded-2xl bg-amber-400 hover:bg-amber-300 text-stone-950 font-black text-xs sm:text-sm shrink-0 shadow-xs">
         + הוספת גלויה ממקטע
       </button>
     </div>
@@ -379,17 +394,17 @@
   </section>
 
   <!-- ==================== MOBILE STICKY BOTTOM TAB BAR (THUMB-FRIENDLY) ==================== -->
-  <nav class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur border-t border-slate-200 shadow-[0_-4px_16px_rgba(15,23,42,0.06)]" style="padding-bottom: var(--safe-bottom);">
+  <nav class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur border-t border-stone-200 shadow-[0_-4px_16px_rgba(28,25,23,0.07)]" style="padding-bottom: var(--safe-bottom);">
     <div class="grid grid-cols-3 h-16">
-      <button onclick="switchMobileTab('map')" id="mob-tab-map" class="flex flex-col items-center justify-center gap-0.5 text-emerald-700 font-black border-t-2 border-emerald-700">
+      <button onclick="switchMobileTab('map')" id="mob-tab-map" class="flex flex-col items-center justify-center gap-0.5 text-emerald-800 font-black border-t-2 border-emerald-700">
         <span class="text-xl leading-none">🗺️</span>
         <span class="text-xs">מפה</span>
       </button>
-      <button onclick="switchMobileTab('segments')" id="mob-tab-segments" class="flex flex-col items-center justify-center gap-0.5 text-slate-500 font-semibold border-t-2 border-transparent">
+      <button onclick="switchMobileTab('segments')" id="mob-tab-segments" class="flex flex-col items-center justify-center gap-0.5 text-stone-500 font-semibold border-t-2 border-transparent">
         <span class="text-xl leading-none">🥾</span>
         <span class="text-xs">מקטעים (56)</span>
       </button>
-      <button onclick="switchMobileTab('postcards')" id="mob-tab-postcards" class="flex flex-col items-center justify-center gap-0.5 text-slate-500 font-semibold border-t-2 border-transparent">
+      <button onclick="switchMobileTab('postcards')" id="mob-tab-postcards" class="flex flex-col items-center justify-center gap-0.5 text-stone-500 font-semibold border-t-2 border-transparent">
         <span class="text-xl leading-none">✉️</span>
         <span class="text-xs">גלויות (<span id="mobPostcardCount">0</span>)</span>
       </button>
@@ -397,15 +412,15 @@
   </nav>
 
   <!-- ==================== SEGMENT DETAILS / BOOKING / UPLOAD BOTTOM SHEET ==================== -->
-  <div id="segmentModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-end md:items-center justify-center">
+  <div id="segmentModal" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs flex items-end md:items-center justify-center">
     <div class="bottom-sheet-enter bg-white w-full md:max-w-2xl max-h-[92vh] rounded-t-3xl md:rounded-3xl flex flex-col overflow-hidden shadow-2xl">
       <!-- Modal Header -->
-      <div class="px-4 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
+      <div class="px-4 py-3.5 border-b border-stone-200 flex items-center justify-between bg-gradient-to-l from-emerald-50 to-amber-50 shrink-0">
         <div class="flex items-center gap-2 min-w-0">
-          <span id="modalSegNum" class="px-2.5 py-1 rounded-xl bg-slate-900 text-white text-xs font-black shrink-0">#1</span>
-          <h3 id="modalSegTitle" class="text-base md:text-lg font-black text-slate-900 truncate">שם המקטע</h3>
+          <span id="modalSegNum" class="px-2.5 py-1 rounded-xl bg-emerald-900 text-white text-xs font-black shrink-0">#1</span>
+          <h3 id="modalSegTitle" class="text-base md:text-lg font-black text-stone-900 truncate">שם המקטע</h3>
         </div>
-        <button onclick="closeModal('segmentModal')" class="touch-btn w-11 h-11 rounded-full bg-slate-200/80 hover:bg-slate-300 text-slate-800 font-black text-lg shrink-0" aria-label="סגור">
+        <button onclick="closeModal('segmentModal')" class="touch-btn w-11 h-11 rounded-full bg-white/80 hover:bg-white text-stone-800 font-black text-lg shrink-0 shadow-2xs" aria-label="סגור">
           ✕
         </button>
       </div>
@@ -414,10 +429,10 @@
       <div class="p-4 md:p-6 overflow-y-auto space-y-5 flex-1">
         <!-- Segment Specs -->
         <div class="flex flex-wrap items-center gap-2 text-xs font-bold">
-          <span id="modalSegRegion" class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700">אזור</span>
-          <span id="modalSegDist" class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700">מרחק</span>
-          <span id="modalSegDiff" class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700">קושי</span>
-          <a id="modalOfficialLink" href="#" target="_blank" rel="noopener" class="px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100">
+          <span id="modalSegRegion" class="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-900 border border-emerald-200">אזור</span>
+          <span id="modalSegDist" class="px-3 py-1.5 rounded-xl bg-stone-100 text-stone-700">מרחק</span>
+          <span id="modalSegDiff" class="px-3 py-1.5 rounded-xl bg-stone-100 text-stone-700">קושי</span>
+          <a id="modalOfficialLink" href="#" target="_blank" rel="noopener" class="px-3 py-1.5 rounded-xl bg-sky-50 text-sky-800 border border-sky-200 hover:bg-sky-100">
             סיפור דרך רשמי ↗
           </a>
         </div>
@@ -426,11 +441,11 @@
         <div id="modalExistingRecords" class="space-y-2.5"></div>
 
         <!-- Mode Switcher Tabs inside Modal (>=44px height) -->
-        <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-2xl">
+        <div class="grid grid-cols-2 gap-2 p-1 bg-stone-100 rounded-2xl">
           <button type="button" onclick="setModalFormMode('planned')" id="modePlanBtn" class="touch-btn rounded-xl text-xs sm:text-sm font-extrabold bg-white text-amber-800 shadow-xs">
             📅 שריון תאריך
           </button>
-          <button type="button" onclick="setModalFormMode('completed')" id="modeCompBtn" class="touch-btn rounded-xl text-xs sm:text-sm font-bold text-slate-600">
+          <button type="button" onclick="setModalFormMode('completed')" id="modeCompBtn" class="touch-btn rounded-xl text-xs sm:text-sm font-bold text-stone-600">
             📸 העלאת תמונה וזיכרון
           </button>
         </div>
@@ -440,50 +455,50 @@
           <input type="hidden" id="formMode" value="planned" />
 
           <div>
-            <label class="block text-xs font-extrabold text-slate-700 mb-1">שם המטייל / הקבוצה *</label>
-            <input type="text" id="hikerName" required placeholder="לדוגמה: משפחת כהן / חברים מהצבא" class="w-full h-12 px-3.5 rounded-xl border border-slate-300 focus:border-emerald-600 focus:outline-none" />
+            <label class="block text-xs font-extrabold text-stone-700 mb-1">שם המטייל / הקבוצה *</label>
+            <input type="text" id="hikerName" required placeholder="לדוגמה: משפחת כהן / חברים מהצבא" class="w-full h-12 px-3.5 rounded-xl border border-stone-300 focus:border-emerald-600 focus:outline-none" />
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label id="dateInputLabel" class="block text-xs font-extrabold text-slate-700 mb-1">תאריך מתוכנן *</label>
-              <input type="date" id="hikeDate" required class="w-full h-12 px-3.5 rounded-xl border border-slate-300 focus:border-emerald-600 focus:outline-none bg-white" />
+              <label id="dateInputLabel" class="block text-xs font-extrabold text-stone-700 mb-1">תאריך מתוכנן *</label>
+              <input type="date" id="hikeDate" required class="w-full h-12 px-3.5 rounded-xl border border-stone-300 focus:border-emerald-600 focus:outline-none bg-white" />
             </div>
             <div>
-              <label class="block text-xs font-extrabold text-slate-700 mb-1">טלפון ליצירת קשר (חסוי למנהלים בלבד) *</label>
-              <input type="tel" id="hikerPhone" required placeholder="050-0000000" class="w-full h-12 px-3.5 rounded-xl border border-slate-300 focus:border-emerald-600 focus:outline-none" />
+              <label class="block text-xs font-extrabold text-stone-700 mb-1">טלפון ליצירת קשר (חסוי למנהלים בלבד) *</label>
+              <input type="tel" id="hikerPhone" required placeholder="050-0000000" class="w-full h-12 px-3.5 rounded-xl border border-stone-300 focus:border-emerald-600 focus:outline-none" />
             </div>
           </div>
 
           <!-- Fields for Planned Mode -->
           <div id="plannedFields">
-            <label class="block text-xs font-extrabold text-slate-700 mb-1">הערה פומבית (אופציונלי — למשל הזמנה להצטרפות)</label>
-            <input type="text" id="publicNote" placeholder="יוצאים ב-07:00 מחניון הלילה, מוזמנים להצטרף!" class="w-full h-12 px-3.5 rounded-xl border border-slate-300 focus:border-emerald-600 focus:outline-none" />
+            <label class="block text-xs font-extrabold text-stone-700 mb-1">הערה פומבית (אופציונלי — למשל הזמנה להצטרפות)</label>
+            <input type="text" id="publicNote" placeholder="יוצאים ב-07:00 מחניון הלילה, מוזמנים להצטרף!" class="w-full h-12 px-3.5 rounded-xl border border-stone-300 focus:border-emerald-600 focus:outline-none" />
           </div>
 
           <!-- Fields for Completed Mode (Photo + 3 Stop Questions) -->
           <div id="completedFields" class="hidden space-y-3">
             <div>
-              <label class="block text-xs font-extrabold text-slate-700 mb-1">תמונה מהשטח (מומלץ לרוחב) *</label>
-              <label class="touch-btn w-full h-14 px-4 rounded-xl border-2 border-dashed border-emerald-400 bg-emerald-50/60 hover:bg-emerald-50 text-emerald-900 font-bold text-sm cursor-pointer gap-2">
+              <label class="block text-xs font-extrabold text-stone-700 mb-1">תמונה מהשטח (מומלץ לרוחב) *</label>
+              <label class="touch-btn w-full h-14 px-4 rounded-xl border-2 border-dashed border-emerald-400 bg-gradient-to-l from-emerald-50 to-teal-50 hover:from-emerald-100 text-emerald-950 font-bold text-sm cursor-pointer gap-2">
                 <span>📷</span>
                 <span id="photoFileName">בחרו תמונה מהגלריה או צלמו</span>
                 <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoSelected(this)" class="hidden" />
               </label>
             </div>
 
-            <div class="bg-amber-50/70 border border-amber-200 rounded-2xl p-3.5 space-y-2.5">
-              <p class="text-xs font-black text-amber-900">📜 גלויית עצירה של 5 דקות לזכר זוהר:</p>
+            <div class="bg-amber-50/80 border border-amber-200 rounded-2xl p-3.5 space-y-2.5">
+              <p class="text-xs font-black text-amber-950">📜 גלויית עצירה של 5 דקות לזכר זוהר:</p>
               <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">1. מה ראינו בטבע בדרך?</label>
+                <label class="block text-xs font-bold text-stone-700 mb-1">1. מה ראינו בטבע בדרך?</label>
                 <input type="text" id="qNature" placeholder="פריחה, תצפית, בעל חיים..." class="w-full h-11 px-3 rounded-xl border border-amber-200 bg-white" />
               </div>
               <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">2. צידה לדרך (טיפ למטיילים הבאים)</label>
+                <label class="block text-xs font-bold text-stone-700 mb-1">2. צידה לדרך (טיפ למטיילים הבאים)</label>
                 <input type="text" id="qTip" placeholder="נקודת צל, מים, שיר טוב..." class="w-full h-11 px-3 rounded-xl border border-amber-200 bg-white" />
               </div>
               <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">3. מילה אישית לזוהר</label>
+                <label class="block text-xs font-bold text-stone-700 mb-1">3. מילה אישית לזוהר</label>
                 <textarea id="qZohar" rows="2" placeholder="מחשבה או זיכרון שעלה במהלך ההליכה..." class="w-full p-3 rounded-xl border border-amber-200 bg-white"></textarea>
               </div>
             </div>
@@ -504,23 +519,23 @@
   </div>
 
   <!-- ==================== MENU, ACCESSIBILITY & ADMIN DRAWER ==================== -->
-  <div id="menuDrawer" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-end md:items-center justify-center">
+  <div id="menuDrawer" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs flex items-end md:items-center justify-center">
     <div class="bottom-sheet-enter bg-white w-full md:max-w-lg max-h-[90vh] rounded-t-3xl md:rounded-3xl flex flex-col overflow-hidden shadow-2xl">
-      <div class="px-4 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-        <h3 class="text-base font-black text-slate-900">תפריט, נגישות וניהול</h3>
-        <button onclick="closeModal('menuDrawer')" class="touch-btn w-11 h-11 rounded-full bg-slate-200 text-slate-800 font-black">✕</button>
+      <div class="px-4 py-3.5 border-b border-stone-200 flex items-center justify-between bg-stone-50">
+        <h3 class="text-base font-black text-stone-900">תפריט, נגישות וניהול</h3>
+        <button onclick="closeModal('menuDrawer')" class="touch-btn w-11 h-11 rounded-full bg-stone-200 text-stone-800 font-black">✕</button>
       </div>
 
       <div class="p-4 overflow-y-auto space-y-4">
         <!-- Accessibility Large Buttons -->
         <div>
-          <p class="text-xs font-extrabold text-slate-500 mb-2">התאמות תצוגה ונגישות</p>
+          <p class="text-xs font-extrabold text-stone-500 mb-2">התאמות תצוגה ונגישות</p>
           <div class="grid grid-cols-2 gap-2.5">
-            <button onclick="toggleFontSize()" class="touch-btn h-12 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold text-sm gap-2">
+            <button onclick="toggleFontSize()" class="touch-btn h-12 px-3 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-900 font-bold text-sm gap-2">
               <span>🔍</span>
               <span>הגדלת טקסט</span>
             </button>
-            <button onclick="toggleHighContrast()" class="touch-btn h-12 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold text-sm gap-2">
+            <button onclick="toggleHighContrast()" class="touch-btn h-12 px-3 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-900 font-bold text-sm gap-2">
               <span>🌓</span>
               <span>ניגודיות גבוהה</span>
             </button>
@@ -528,14 +543,14 @@
         </div>
 
         <!-- Admin Authentication / Dashboard -->
-        <div class="pt-3 border-t border-slate-200">
-          <p class="text-xs font-extrabold text-slate-500 mb-2">ממשק ניהול מערכת</p>
+        <div class="pt-3 border-t border-stone-200">
+          <p class="text-xs font-extrabold text-stone-500 mb-2">ממשק ניהול מערכת</p>
 
           <!-- Login Form (when logged out) -->
           <form id="adminLoginForm" onsubmit="handleAdminLogin(event)" class="space-y-2.5">
-            <input type="email" id="adminEmail" required placeholder="אימייל מנהל" class="w-full h-12 px-3.5 rounded-xl border border-slate-300" />
-            <input type="password" id="adminPassword" required placeholder="סיסמה" class="w-full h-12 px-3.5 rounded-xl border border-slate-300" />
-            <button type="submit" class="touch-btn w-full h-12 rounded-xl bg-slate-900 text-white font-extrabold text-sm">
+            <input type="email" id="adminEmail" required placeholder="אימייל מנהל" class="w-full h-12 px-3.5 rounded-xl border border-stone-300" />
+            <input type="password" id="adminPassword" required placeholder="סיסמה" class="w-full h-12 px-3.5 rounded-xl border border-stone-300" />
+            <button type="submit" class="touch-btn w-full h-12 rounded-xl bg-stone-900 text-white font-extrabold text-sm">
               🔐 התחברות מנהלים
             </button>
           </form>
@@ -562,28 +577,28 @@
   </div>
 
   <!-- ==================== CONTACT ADMIN MODAL ==================== -->
-  <div id="contactAdminModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-end md:items-center justify-center">
+  <div id="contactAdminModal" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs flex items-end md:items-center justify-center">
     <div class="bottom-sheet-enter bg-white w-full md:max-w-md rounded-t-3xl md:rounded-3xl overflow-hidden shadow-2xl">
-      <div class="px-4 py-3.5 border-b border-slate-200 flex items-center justify-between bg-amber-50">
+      <div class="px-4 py-3.5 border-b border-stone-200 flex items-center justify-between bg-amber-50">
         <h3 class="text-base font-black text-amber-950">✉️ הודעה לצוות המנהלים</h3>
         <button onclick="closeModal('contactAdminModal')" class="touch-btn w-11 h-11 rounded-full bg-amber-200/60 text-amber-950 font-black">✕</button>
       </div>
       <form onsubmit="submitAdminMessage(event)" class="p-4 space-y-3">
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">שם מלא *</label>
-          <input type="text" id="msgSenderName" required class="w-full h-12 px-3.5 rounded-xl border border-slate-300" />
+          <label class="block text-xs font-bold text-stone-700 mb-1">שם מלא *</label>
+          <input type="text" id="msgSenderName" required class="w-full h-12 px-3.5 rounded-xl border border-stone-300" />
         </div>
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">טלפון לחזרה *</label>
-          <input type="tel" id="msgSenderPhone" required placeholder="050-0000000" class="w-full h-12 px-3.5 rounded-xl border border-slate-300" />
+          <label class="block text-xs font-bold text-stone-700 mb-1">טלפון לחזרה *</label>
+          <input type="tel" id="msgSenderPhone" required placeholder="050-0000000" class="w-full h-12 px-3.5 rounded-xl border border-stone-300" />
         </div>
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">מקטע קשור (אופציונלי)</label>
-          <select id="msgSegmentId" class="w-full h-12 px-3.5 rounded-xl border border-slate-300 bg-white"></select>
+          <label class="block text-xs font-bold text-stone-700 mb-1">מקטע קשור (אופציונלי)</label>
+          <select id="msgSegmentId" class="w-full h-12 px-3.5 rounded-xl border border-stone-300 bg-white"></select>
         </div>
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">תוכן ההודעה *</label>
-          <textarea id="msgBody" rows="3" required placeholder="שאלה, עדכון על שינוי תאריך או בקשה לעזרה..." class="w-full p-3.5 rounded-xl border border-slate-300"></textarea>
+          <label class="block text-xs font-bold text-stone-700 mb-1">תוכן ההודעה *</label>
+          <textarea id="msgBody" rows="3" required placeholder="שאלה, עדכון על שינוי תאריך או בקשה לעזרה..." class="w-full p-3.5 rounded-xl border border-stone-300"></textarea>
         </div>
         <button type="submit" class="touch-btn w-full h-12 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-black text-base">
           שליחת הודעה למנהלים ←
@@ -593,17 +608,17 @@
   </div>
 
   <!-- ==================== 5-MINUTE STOP CARD MODAL ==================== -->
-  <div id="fiveMinModal" class="hidden fixed inset-0 z-50 bg-slate-900/75 backdrop-blur-xs flex items-center justify-center p-4">
+  <div id="fiveMinModal" class="hidden fixed inset-0 z-50 bg-stone-900/75 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-md rounded-3xl overflow-hidden shadow-2xl">
-      <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between">
-        <h3 class="text-base font-black text-slate-900">📜 המשימה מזוהר – עצירה של 5 דקות</h3>
-        <button onclick="closeModal('fiveMinModal')" class="touch-btn w-11 h-11 rounded-full bg-slate-100 font-black">✕</button>
+      <div class="px-4 py-3 border-b border-stone-200 flex items-center justify-between bg-amber-50">
+        <h3 class="text-base font-black text-stone-900">📜 המשימה מזוהר – עצירה של 5 דקות</h3>
+        <button onclick="closeModal('fiveMinModal')" class="touch-btn w-11 h-11 rounded-full bg-white font-black">✕</button>
       </div>
       <div class="p-4 space-y-3">
-        <div class="rounded-2xl overflow-hidden border border-slate-200 bg-amber-50 p-4 text-center space-y-2.5">
+        <div class="rounded-2xl overflow-hidden border border-amber-200 bg-gradient-to-b from-amber-50 to-orange-50/50 p-4 text-center space-y-2.5">
           <img src="postcard-5min.jpg" onerror="this.style.display='none'" alt="כרטיסיית עצירה של 5 דקות" class="w-full rounded-xl shadow-xs" />
-          <p class="text-sm font-black text-emerald-900">עוצרים רגע באמצע השביל לזכרו של זוהר:</p>
-          <ul class="text-xs text-slate-700 text-right space-y-1.5 bg-white p-3 rounded-xl border border-amber-200">
+          <p class="text-sm font-black text-emerald-950">עוצרים רגע באמצע השביל לזכרו של זוהר:</p>
+          <ul class="text-xs text-stone-700 text-right space-y-1.5 bg-white p-3 rounded-xl border border-amber-200">
             <li><strong>1. מה ראינו בטבע?</strong> מתבוננים רגע בנוף, בצמחייה או בשקט שמסביב.</li>
             <li><strong>2. צידה לדרך:</strong> משתפים טיפ, מחשבה או המלצה לצועדים הבאים.</li>
             <li><strong>3. מילה לזוהר:</strong> מצטלמים יחד ומקדישים כמה מילים לזכרו.</li>
@@ -624,7 +639,7 @@
   </div>
 
   <!-- ==================== TOAST NOTIFICATION ==================== -->
-  <div id="toastBox" class="hidden fixed top-16 inset-x-4 md:inset-x-auto md:left-6 md:w-96 z-50 bg-slate-900 text-white px-4 py-3.5 rounded-2xl shadow-xl text-sm font-bold text-center"></div>
+  <div id="toastBox" class="hidden fixed top-16 inset-x-4 md:inset-x-auto md:left-6 md:w-96 z-50 bg-stone-900 text-white px-4 py-3.5 rounded-2xl shadow-xl text-sm font-bold text-center"></div>
 
   <!-- ==================== APPLICATION LOGIC ==================== -->
   <script>
@@ -650,7 +665,31 @@
     let streetLayer = null;
     let isStreetMap = false;
 
-    // Fallback 56 Segments (used immediately while Supabase loads or if offline)
+    // Region visual themes (Warm nature tones)
+    const REGION_STYLES = {
+      'צפון': {
+        strip: 'bg-gradient-to-l from-emerald-600 to-teal-500',
+        placeholder: 'from-emerald-50 via-teal-50 to-green-100/70 border-emerald-200 text-emerald-900',
+        icon: '🌲'
+      },
+      'מרכז': {
+        strip: 'bg-gradient-to-l from-sky-600 to-cyan-500',
+        placeholder: 'from-sky-50 via-cyan-50 to-blue-100/70 border-sky-200 text-sky-900',
+        icon: '🌊'
+      },
+      'ירושלים': {
+        strip: 'bg-gradient-to-l from-amber-500 to-yellow-500',
+        placeholder: 'from-amber-50 via-yellow-50 to-amber-100/70 border-amber-200 text-amber-950',
+        icon: '🏛️'
+      },
+      'דרום': {
+        strip: 'bg-gradient-to-l from-orange-600 to-amber-500',
+        placeholder: 'from-orange-50 via-amber-50 to-orange-100/70 border-orange-200 text-orange-950',
+        icon: '🏜️'
+      }
+    };
+
+    // Fallback 56 Segments
     const FALLBACK_SEGMENTS = Array.from({ length: 56 }, (_, i) => {
       const id = i + 1;
       const region = id <= 19 ? 'צפון' : id <= 31 ? 'מרכז' : id <= 37 ? 'ירושלים' : 'דרום';
@@ -697,7 +736,6 @@
 
         segments = (!segErr && segData && segData.length > 0) ? segData : FALLBACK_SEGMENTS;
 
-        // Authenticated admins read full memories table; public reads safe public_memories view
         const tableSource = currentUser ? 'memories' : 'public_memories';
         const { data: memData, error: memErr } = await sb
           .from(tableSource)
@@ -727,7 +765,7 @@
       const planned = segMems.filter(m => m.status === 'planned');
 
       if (completed.length > 0) {
-        return { state: 'completed', label: `בוצע (${completed.length})`, color: '#15803d', badgeClass: 'bg-emerald-100 text-emerald-800', overdue: false, completed, planned };
+        return { state: 'completed', label: `בוצע (${completed.length})`, color: '#15803d', badgeClass: 'bg-emerald-100 text-emerald-900 border border-emerald-200', overdue: false, completed, planned };
       }
       if (planned.length > 0) {
         const hasOverdue = planned.some(p => p.hike_date && p.hike_date < today);
@@ -735,13 +773,13 @@
           state: 'planned',
           label: hasOverdue ? 'שוריין (עבר תאריך)' : `שוריין (${planned.length})`,
           color: hasOverdue ? '#dc2626' : '#d97706',
-          badgeClass: hasOverdue ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800',
+          badgeClass: hasOverdue ? 'bg-red-100 text-red-800 border border-red-200' : 'bg-amber-100 text-amber-900 border border-amber-200',
           overdue: hasOverdue,
           completed,
           planned
         };
       }
-      return { state: 'available', label: 'פנוי לשריון', color: '#0f172a', badgeClass: 'bg-slate-100 text-slate-700', overdue: false, completed: [], planned: [] };
+      return { state: 'available', label: 'פנוי לשריון', color: '#1c1917', badgeClass: 'bg-stone-100 text-stone-700 border border-stone-200', overdue: false, completed: [], planned: [] };
     }
 
     // 5. Stats & Progress Bar
@@ -749,7 +787,6 @@
       let compCount = 0;
       let planCount = 0;
       let availCount = 0;
-      let totalKm = 0;
       let doneKm = 0;
 
       const miniGrid = document.getElementById('miniBlocksGrid');
@@ -757,10 +794,9 @@
 
       segments.forEach(seg => {
         const dist = Number(seg.distance) || 0;
-        totalKm += dist;
         const info = getSegmentStatusInfo(seg.id);
 
-        let blockBg = 'bg-slate-800 text-white';
+        let blockBg = 'bg-stone-800 text-white';
         if (info.state === 'completed') {
           compCount++;
           doneKm += dist;
@@ -843,8 +879,8 @@
       document.querySelectorAll('.qfilter-btn').forEach(btn => {
         const active = btn.dataset.qfilter === status;
         btn.className = active
-          ? 'qfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-extrabold bg-slate-900 text-white shadow-xs'
-          : 'qfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-slate-700 border border-slate-200';
+          ? 'qfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-extrabold bg-emerald-800 text-white shadow-xs'
+          : 'qfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-stone-700 border border-stone-200';
       });
       renderMapPins();
     }
@@ -875,7 +911,7 @@
       });
 
       if (coords.length > 1) {
-        L.polyline(coords, { color: '#0f766e', weight: 2.5, opacity: 0.45, dashArray: '5, 7' }).addTo(markersLayer);
+        L.polyline(coords, { color: '#0f766e', weight: 2.5, opacity: 0.5, dashArray: '5, 7' }).addTo(markersLayer);
       }
     }
 
@@ -885,12 +921,24 @@
       if (!seg) return;
 
       const info = getSegmentStatusInfo(seg.id);
+      const rStyle = REGION_STYLES[seg.region] || REGION_STYLES['צפון'];
+      const latestPhoto = info.completed.find(c => c.photo_url)?.photo_url;
+
       document.getElementById('mfcNumber').textContent = `#${seg.id}`;
       document.getElementById('mfcStatusBadge').textContent = info.label;
       document.getElementById('mfcStatusBadge').className = `px-2.5 py-0.5 rounded-full text-xs font-bold ${info.badgeClass}`;
-      document.getElementById('mfcRegion').textContent = seg.region;
+      document.getElementById('mfcRegion').textContent = `${rStyle.icon} ${seg.region}`;
       document.getElementById('mfcTitle').textContent = seg.title;
       document.getElementById('mfcMeta').textContent = `📏 ${seg.distance} ק״מ • ⛰️ ${seg.difficulty}`;
+
+      const thumbBox = document.getElementById('mfcThumbBox');
+      if (latestPhoto) {
+        thumbBox.className = 'w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden shrink-0 cursor-pointer border-2 border-emerald-400 shadow-xs';
+        thumbBox.innerHTML = `<img src="${latestPhoto}" alt="${seg.title}" class="w-full h-full object-cover" />`;
+      } else {
+        thumbBox.className = `w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden shrink-0 cursor-pointer border bg-gradient-to-br ${rStyle.placeholder} flex flex-col items-center justify-center text-center p-1`;
+        thumbBox.innerHTML = `<span class="text-lg">📷</span><span class="text-[10px] font-extrabold leading-tight">מחכים לתמונה</span>`;
+      }
 
       if (panToMarker && seg.lat && seg.lng && map) {
         map.panTo([seg.lat, seg.lng]);
@@ -908,12 +956,12 @@
 
         if (t === tab) {
           viewEl.classList.remove('hidden');
-          if (mobBtn) mobBtn.className = 'flex flex-col items-center justify-center gap-0.5 text-emerald-700 font-black border-t-2 border-emerald-700';
-          if (deskBtn) deskBtn.className = 'touch-btn px-4 rounded-xl text-sm font-bold bg-emerald-50 text-emerald-800 border border-emerald-200';
+          if (mobBtn) mobBtn.className = 'flex flex-col items-center justify-center gap-0.5 text-emerald-800 font-black border-t-2 border-emerald-700';
+          if (deskBtn) deskBtn.className = 'touch-btn px-4 rounded-xl text-sm font-bold bg-emerald-100/80 text-emerald-900 border border-emerald-300';
         } else {
           viewEl.classList.add('hidden');
-          if (mobBtn) mobBtn.className = 'flex flex-col items-center justify-center gap-0.5 text-slate-500 font-semibold border-t-2 border-transparent';
-          if (deskBtn) deskBtn.className = 'touch-btn px-4 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100';
+          if (mobBtn) mobBtn.className = 'flex flex-col items-center justify-center gap-0.5 text-stone-500 font-semibold border-t-2 border-transparent';
+          if (deskBtn) deskBtn.className = 'touch-btn px-4 rounded-xl text-sm font-semibold text-stone-600 hover:bg-stone-200/60';
         }
       });
 
@@ -922,14 +970,14 @@
       }
     }
 
-    // 8. Segments List & Filtering
+    // 8. Segments List & Filtering (With Colorful Region Strips & Photo Frames)
     function setRegionFilter(region) {
       regionFilter = region;
       document.querySelectorAll('.rfilter-btn').forEach(btn => {
         const active = btn.dataset.rfilter === region;
         btn.className = active
-          ? 'rfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-extrabold bg-emerald-700 text-white'
-          : 'rfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-slate-700 border border-slate-200';
+          ? 'rfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-extrabold bg-emerald-800 text-white shadow-xs'
+          : 'rfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-stone-700 border border-stone-200';
       });
       renderSegmentsList();
     }
@@ -973,39 +1021,57 @@
 
       filtered.forEach(seg => {
         const info = getSegmentStatusInfo(seg.id);
+        const rStyle = REGION_STYLES[seg.region] || REGION_STYLES['צפון'];
         const latestPhoto = info.completed.find(c => c.photo_url)?.photo_url;
 
         const card = document.createElement('article');
-        card.className = 'bg-white rounded-2xl border border-slate-200 p-4 flex flex-col justify-between gap-3 shadow-2xs hover:border-emerald-300 transition';
+        card.className = 'bg-white rounded-3xl border border-stone-200 overflow-hidden flex flex-col justify-between shadow-xs hover:shadow-md hover:border-emerald-300 transition';
         card.innerHTML = `
           <div>
-            <div class="flex items-center justify-between gap-2 mb-2">
-              <div class="flex items-center gap-2">
-                <span class="px-2.5 py-0.5 rounded-lg bg-slate-900 text-white text-xs font-black">#${seg.id}</span>
-                <span class="text-xs font-bold text-slate-500">${seg.region}</span>
-              </div>
-              <span class="px-2.5 py-1 rounded-full text-xs font-bold ${info.badgeClass}">${info.label}</span>
-            </div>
+            <!-- Colorful Region Top Accent Strip -->
+            <div class="h-1.5 w-full ${rStyle.strip}"></div>
 
-            <h3 class="text-base font-black text-slate-900 leading-snug">${seg.title}</h3>
-            <p class="text-xs text-slate-600 mt-1">📏 ${seg.distance} ק״מ • ⛰️ ${seg.difficulty}</p>
-
+            <!-- Photo or Warm "Waiting for your photo" Frame -->
             ${latestPhoto ? `
-              <div class="mt-3 h-36 rounded-xl overflow-hidden border border-slate-200 cursor-pointer" onclick="openLightbox('${latestPhoto}', '#${seg.id} ${seg.title}')">
+              <div class="h-40 bg-stone-100 overflow-hidden cursor-pointer relative" onclick="openLightbox('${latestPhoto}', '#${seg.id} ${seg.title}')">
                 <img src="${latestPhoto}" alt="${seg.title}" class="w-full h-full object-cover" loading="lazy" />
+                <span class="absolute bottom-2 right-2 px-2.5 py-0.5 rounded-full bg-black/65 text-white text-[11px] font-bold">🔍 לחצו להגדלה</span>
               </div>
-            ` : ''}
+            ` : `
+              <div onclick="openSegmentModal(${seg.id})" class="h-24 bg-gradient-to-l ${rStyle.placeholder} border-b flex items-center justify-center gap-2.5 px-4 cursor-pointer hover:opacity-90 transition">
+                <span class="text-2xl">📷</span>
+                <div class="text-right">
+                  <p class="text-xs font-black">מחכים לתמונה שלכם מהשטח</p>
+                  <p class="text-[11px] opacity-80">לחצו לשריון או להעלאת תיעוד מהמקטע</p>
+                </div>
+              </div>
+            `}
 
-            ${info.planned.length > 0 ? `
-              <div class="mt-2.5 text-xs bg-amber-50 text-amber-900 px-3 py-2 rounded-xl border border-amber-200">
-                📅 <strong>${info.planned[0].hiker_name}</strong> (${formatDate(info.planned[0].hike_date)})
+            <div class="p-4">
+              <div class="flex items-center justify-between gap-2 mb-2">
+                <div class="flex items-center gap-2">
+                  <span class="px-2.5 py-0.5 rounded-lg bg-stone-900 text-white text-xs font-black">#${seg.id}</span>
+                  <span class="text-xs font-extrabold text-stone-600">${rStyle.icon} ${seg.region}</span>
+                </div>
+                <span class="px-2.5 py-1 rounded-full text-xs font-bold ${info.badgeClass}">${info.label}</span>
               </div>
-            ` : ''}
+
+              <h3 class="text-base font-black text-stone-900 leading-snug">${seg.title}</h3>
+              <p class="text-xs text-stone-600 mt-1">📏 ${seg.distance} ק״מ • ⛰️ ${seg.difficulty}</p>
+
+              ${info.planned.length > 0 ? `
+                <div class="mt-2.5 text-xs bg-amber-50 text-amber-950 px-3 py-2 rounded-xl border border-amber-200">
+                  📅 <strong>${info.planned[0].hiker_name}</strong> (${formatDate(info.planned[0].hike_date)})
+                </div>
+              ` : ''}
+            </div>
           </div>
 
-          <button onclick="openSegmentModal(${seg.id})" class="touch-btn w-full h-12 rounded-xl ${info.state === 'available' ? 'bg-emerald-700 hover:bg-emerald-800 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-900'} font-extrabold text-sm">
-            ${info.state === 'available' ? 'לשריון מקטע / פרטים ←' : 'פרטים / הצטרפות / תיעוד ←'}
-          </button>
+          <div class="px-4 pb-4">
+            <button onclick="openSegmentModal(${seg.id})" class="touch-btn w-full h-12 rounded-2xl ${info.state === 'available' ? 'bg-gradient-to-l from-emerald-700 to-teal-700 hover:from-emerald-800 hover:to-teal-800 text-white' : 'bg-stone-100 hover:bg-stone-200 text-stone-900'} font-extrabold text-sm shadow-2xs">
+              ${info.state === 'available' ? 'לשריון מקטע / פרטים ←' : 'פרטים / הצטרפות / תיעוד ←'}
+            </button>
+          </div>
         `;
         grid.appendChild(card);
       });
@@ -1019,10 +1085,10 @@
 
       if (approved.length === 0) {
         grid.innerHTML = `
-          <div class="col-span-full bg-white rounded-2xl border border-slate-200 p-8 text-center space-y-2">
-            <p class="text-3xl">📷</p>
-            <h3 class="text-base font-black text-slate-900">עדיין אין גלויות מאושרות</h3>
-            <p class="text-xs text-slate-500">היו הראשונים לצעוד במקטע ולהעלות גלויה לזכרו של זוהר!</p>
+          <div class="col-span-full bg-white rounded-3xl border border-stone-200 p-8 text-center space-y-2">
+            <p class="text-4xl">📷</p>
+            <h3 class="text-base font-black text-stone-900">עדיין אין גלויות מאושרות</h3>
+            <p class="text-xs text-stone-500">היו הראשונים לצעוד במקטע ולהעלות גלויה לזכרו של זוהר!</p>
           </div>
         `;
         return;
@@ -1034,19 +1100,19 @@
         const photo = item.photo_url || 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80';
 
         const card = document.createElement('article');
-        card.className = 'bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs flex flex-col';
+        card.className = 'bg-white rounded-3xl border border-stone-200 overflow-hidden shadow-xs flex flex-col';
         card.innerHTML = `
-          <div class="h-52 bg-slate-100 overflow-hidden cursor-pointer relative" onclick="openLightbox('${photo}', '${segLabel} • ${item.hiker_name}')">
+          <div class="h-52 bg-stone-100 overflow-hidden cursor-pointer relative" onclick="openLightbox('${photo}', '${segLabel} • ${item.hiker_name}')">
             <img src="${photo}" alt="${segLabel}" class="w-full h-full object-cover" loading="lazy" />
-            <span class="absolute top-3 right-3 px-2.5 py-1 rounded-xl bg-slate-900/85 text-white text-xs font-extrabold">${segLabel}</span>
+            <span class="absolute top-3 right-3 px-3 py-1 rounded-xl bg-emerald-950/85 text-white text-xs font-extrabold shadow-xs">${segLabel}</span>
           </div>
           <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
             <div>
-              <div class="flex items-center justify-between text-xs text-slate-500 font-bold mb-1.5">
+              <div class="flex items-center justify-between text-xs text-stone-500 font-bold mb-1.5">
                 <span>🥾 ${item.hiker_name}</span>
                 <span>${formatDate(item.hike_date)}</span>
               </div>
-              <p class="text-xs sm:text-sm text-slate-700 whitespace-pre-line leading-relaxed">${item.story || ''}</p>
+              <p class="text-xs sm:text-sm text-stone-700 whitespace-pre-line leading-relaxed">${item.story || ''}</p>
             </div>
           </div>
         `;
@@ -1060,14 +1126,15 @@
       const seg = segments.find(s => s.id === segId);
       if (!seg) return;
 
+      const rStyle = REGION_STYLES[seg.region] || REGION_STYLES['צפון'];
+
       document.getElementById('modalSegNum').textContent = `#${seg.id}`;
       document.getElementById('modalSegTitle').textContent = seg.title;
-      document.getElementById('modalSegRegion').textContent = `📍 ${seg.region}`;
+      document.getElementById('modalSegRegion').textContent = `${rStyle.icon} ${seg.region}`;
       document.getElementById('modalSegDist').textContent = `📏 ${seg.distance} ק״מ`;
       document.getElementById('modalSegDiff').textContent = `⛰️ ${seg.difficulty}`;
       document.getElementById('modalOfficialLink').href = seg.official_url || 'https://www.teva.org.il/israel-national-trail';
 
-      // Render existing bookings & memories
       const container = document.getElementById('modalExistingRecords');
       const segMems = memories.filter(m => m.segment_id === seg.id && m.status !== 'message' && (m.status === 'planned' || m.is_approved));
       container.innerHTML = '';
@@ -1077,25 +1144,25 @@
           const isComp = m.status === 'completed';
           const note = m.public_note || '';
           const div = document.createElement('div');
-          div.className = `p-3 rounded-2xl border text-xs ${isComp ? 'bg-emerald-50/70 border-emerald-200' : 'bg-amber-50/70 border-amber-200'}`;
+          div.className = `p-3 rounded-2xl border text-xs ${isComp ? 'bg-emerald-50/80 border-emerald-200' : 'bg-amber-50/80 border-amber-200'}`;
           div.innerHTML = `
             <div class="flex items-center justify-between font-extrabold mb-1">
               <span>${isComp ? '🟢 בוצע ע״י' : '🟠 שוריין ע״י'}: ${m.hiker_name}</span>
               <span>${formatDate(m.hike_date)}</span>
             </div>
-            ${note ? `<p class="text-slate-700 mt-1">💬 ${note}</p>` : ''}
-            ${m.story ? `<p class="text-slate-700 mt-1 whitespace-pre-line">${m.story}</p>` : ''}
+            ${note ? `<p class="text-stone-700 mt-1">💬 ${note}</p>` : ''}
+            ${m.story ? `<p class="text-stone-700 mt-1 whitespace-pre-line">${m.story}</p>` : ''}
             ${m.photo_url ? `
-              <img src="${m.photo_url}" onclick="openLightbox('${m.photo_url}', '#${seg.id} ${seg.title}')" class="mt-2 h-32 w-full object-cover rounded-xl cursor-pointer border border-emerald-200" />
+              <img src="${m.photo_url}" onclick="openLightbox('${m.photo_url}', '#${seg.id} ${seg.title}')" class="mt-2 h-36 w-full object-cover rounded-xl cursor-pointer border border-emerald-200" />
             ` : ''}
           `;
           container.appendChild(div);
         });
       } else {
         container.innerHTML = `
-          <div onclick="setModalFormMode('completed')" class="p-4 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 text-center cursor-pointer hover:border-emerald-400">
-            <p class="text-sm font-extrabold text-slate-700">📷 מחכים לתמונה שלכם מהמקטע הזה</p>
-            <p class="text-xs text-slate-500 mt-0.5">שריינו תאריך או העלו תמונה וזיכרון מהדרך</p>
+          <div onclick="setModalFormMode('completed')" class="p-4 rounded-2xl border-2 border-dashed bg-gradient-to-l ${rStyle.placeholder} text-center cursor-pointer hover:opacity-90">
+            <p class="text-sm font-black">📷 מחכים לתמונה שלכם מהמקטע הזה</p>
+            <p class="text-xs opacity-85 mt-0.5">שריינו תאריך או העלו תמונה וזיכרון מהדרך</p>
           </div>
         `;
       }
@@ -1115,7 +1182,7 @@
 
       if (mode === 'planned') {
         planBtn.className = 'touch-btn rounded-xl text-xs sm:text-sm font-extrabold bg-white text-amber-800 shadow-xs';
-        compBtn.className = 'touch-btn rounded-xl text-xs sm:text-sm font-bold text-slate-600';
+        compBtn.className = 'touch-btn rounded-xl text-xs sm:text-sm font-bold text-stone-600';
         planFields.classList.remove('hidden');
         compFields.classList.add('hidden');
         dateLabel.textContent = 'תאריך מתוכנן *';
@@ -1123,7 +1190,7 @@
         submitBtn.className = 'touch-btn w-full h-12 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-black text-base shadow-sm';
       } else {
         compBtn.className = 'touch-btn rounded-xl text-xs sm:text-sm font-extrabold bg-white text-emerald-800 shadow-xs';
-        planBtn.className = 'touch-btn rounded-xl text-xs sm:text-sm font-bold text-slate-600';
+        planBtn.className = 'touch-btn rounded-xl text-xs sm:text-sm font-bold text-stone-600';
         compFields.classList.remove('hidden');
         planFields.classList.add('hidden');
         dateLabel.textContent = 'תאריך ביצוע המסלול *';
@@ -1342,14 +1409,14 @@
         const waPhone = phone.replace(/[^0-9]/g, '').replace(/^0/, '972');
 
         const item = document.createElement('div');
-        item.className = `p-3 rounded-xl border text-xs space-y-2 ${!m.is_approved ? 'bg-amber-50 border-amber-300' : 'bg-slate-50 border-slate-200'}`;
+        item.className = `p-3 rounded-xl border text-xs space-y-2 ${!m.is_approved ? 'bg-amber-50 border-amber-300' : 'bg-stone-50 border-stone-200'}`;
         item.innerHTML = `
           <div class="flex items-center justify-between font-extrabold">
             <span>#${m.segment_id} • ${m.hiker_name} (${m.status})</span>
             <span>${formatDate(m.hike_date)}</span>
           </div>
-          ${phone ? `<p class="text-slate-600">📞 ${phone}</p>` : ''}
-          ${m.story ? `<p class="text-slate-700">${m.story}</p>` : ''}
+          ${phone ? `<p class="text-stone-600">📞 ${phone}</p>` : ''}
+          ${m.story ? `<p class="text-stone-700">${m.story}</p>` : ''}
           ${m.photo_url ? `<img src="${m.photo_url}" class="h-24 w-full object-cover rounded-lg" />` : ''}
           <div class="flex items-center gap-2 pt-1">
             ${!m.is_approved ? `
