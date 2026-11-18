@@ -2,2021 +2,1448 @@
 <html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>צועדים בשביל זוהר | לזכרו של זוהר תמיר ז"ל</title>
-  
-  <!-- Favicon & WhatsApp / Social Preview -->
-  <link rel="icon" type="image/jpeg" href="favicon.jpg" />
-  <meta property="og:title" content="צועדים בשביל זוהר | לזכרו של זוהר תמיר ז״ל" />
-  <meta property="og:description" content="החברים של זוהר ממשיכים יחד את המסע שלו בשביל ישראל — מקטע אחרי מקטע, מדן ועד אילת." />
-  <meta property="og:image" content="favicon.jpg" />
-  <meta property="og:type" content="website" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+  <title>צועדים בשביל זוהר | לזכרו של זוהר תמיר ז״ל</title>
+  <meta name="description" content="ממשיכים את הצעדים של זוהר תמיר ז״ל לאורך 56 מקטעי שביל ישראל – שריון מקטעים, גלויות מהדרך ומפה אינטראקטיבית." />
 
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <!-- Supabase JS v2 -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
-  <!-- Leaflet.js למפה אמיתית -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Google Fonts: Heebo -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;800&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
     body {
       font-family: 'Heebo', sans-serif;
       background-color: #f8fafc;
-      color: #1e293b;
+      color: #0f172a;
+      overflow-x: hidden;
     }
-    .high-contrast {
-      background-color: #000 !important;
-      color: #fff !important;
+    html.font-large { font-size: 114%; }
+    html.high-contrast body { background-color: #000000; color: #ffffff; }
+    html.high-contrast .bg-white,
+    html.high-contrast .bg-slate-50 { background-color: #111827 !important; color: #ffffff !important; border-color: #facc15 !important; }
+    html.high-contrast .text-slate-600,
+    html.high-contrast .text-slate-500,
+    html.high-contrast .text-slate-700 { color: #e2e8f0 !important; }
+
+    /* Hide scrollbars on horizontal filter chips */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Mobile-friendly Touch Targets (>=44px) */
+    .touch-btn {
+      min-height: 44px;
+      min-width: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.12s ease, background-color 0.15s ease;
     }
-    .high-contrast .bg-white, .high-contrast .bg-slate-50, .high-contrast .bg-amber-50, .high-contrast .hero-overlay {
-      background-color: #111 !important;
-      color: #fff !important;
-      border-color: #ffd700 !important;
+    .touch-btn:active { transform: scale(0.97); }
+
+    /* Leaflet Customizations */
+    .leaflet-container { font-family: 'Heebo', sans-serif !important; z-index: 10; }
+    .leaflet-control-zoom a {
+      width: 44px !important;
+      height: 44px !important;
+      line-height: 44px !important;
+      font-size: 20px !important;
+      font-weight: 700 !important;
+      color: #0f172a !important;
     }
-    .high-contrast button, .high-contrast a {
-      border: 1px solid #ffd700 !important;
+    .custom-pin {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 9999px;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 11px;
+      border: 2.5px solid #ffffff;
+      box-shadow: 0 3px 10px rgba(15, 23, 42, 0.35);
+      transition: transform 0.15s ease;
     }
-    .trail-stripe {
-      background: linear-gradient(180deg, #ffffff 0%, #ffffff 33.3%, #1d4ed8 33.3%, #1d4ed8 66.6%, #ea580c 66.6%, #ea580c 100%);
+    .custom-pin.selected {
+      transform: scale(1.28);
+      border-color: #facc15;
+      z-index: 999 !important;
     }
-    .leaflet-container {
-      font-family: 'Heebo', sans-serif !important;
-      z-index: 10;
+    @keyframes pulseRed {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.75); }
+      50% { box-shadow: 0 0 0 8px rgba(220, 38, 38, 0); }
     }
-    .custom-pin-icon {
-      background: transparent;
-      border: none;
+    .pin-overdue { animation: pulseRed 1.8s infinite; }
+
+    /* Bottom Sheet Slide Animation */
+    @keyframes slideUp {
+      from { transform: translateY(100%); opacity: 0.4; }
+      to { transform: translateY(0); opacity: 1; }
     }
+    .bottom-sheet-enter { animation: slideUp 0.24s cubic-bezier(0.16, 1, 0.3, 1); }
+
+    /* Prevent iOS auto-zoom on form inputs */
+    input, select, textarea { font-size: 16px !important; }
   </style>
 </head>
-<body class="antialiased selection:bg-orange-200 selection:text-orange-900">
+<body class="pb-20 md:pb-8">
 
-  <!-- סרגל עליון ונגישות -->
-  <nav class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
-    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-2">
-      <div class="flex items-center gap-2.5">
-        <img src="favicon.jpg" onerror="this.style.display='none'" alt="לוגו" class="w-9 h-9 rounded-lg object-cover border border-slate-200 shadow-xs" />
-        <div class="w-3.5 h-8 rounded-sm border border-slate-300 trail-stripe shadow-xs shrink-0" title="סימון שביל ישראל"></div>
-        <div>
-          <span class="font-extrabold text-base md:text-lg text-slate-900 block leading-none">צועדים בשביל זוהר</span>
-          <span class="text-[11px] md:text-xs text-slate-500 hidden sm:inline">החברים של זוהר ממשיכים יחד את המסע בשביל ישראל</span>
-        </div>
+  <!-- ==================== STICKY TOP HEADER ==================== -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200 h-14 px-3 md:px-6 flex items-center justify-between shadow-xs">
+    <div class="flex items-center gap-2.5">
+      <div class="w-9 h-9 rounded-xl bg-emerald-700 text-white flex items-center justify-center font-black text-base shadow-xs">
+        ש״י
       </div>
-      <div class="flex items-center gap-1.5 md:gap-2">
-        <button onclick="openPostcardModal()" class="px-2.5 md:px-3 py-1.5 text-xs font-bold rounded-lg bg-amber-100 text-amber-900 border border-amber-300 hover:bg-amber-200 transition flex items-center gap-1">
-          <span>📜</span>
-          <span class="hidden sm:inline">המשימה מזוהר</span>
-          <span class="sm:hidden">5 דקות</span>
-        </button>
-        <button onclick="openContactModal()" class="px-2.5 md:px-3 py-1.5 text-xs font-bold rounded-lg bg-blue-50 text-blue-900 border border-blue-200 hover:bg-blue-100 transition flex items-center gap-1" title="שליחת הודעה לצוות האתר">
-          <span>✉️</span>
-          <span class="hidden md:inline">הודעה למנהלים</span>
-        </button>
-        <button onclick="openAdminModal()" class="px-2.5 md:px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-800 text-white hover:bg-slate-700 transition flex items-center gap-1" title="ממשק ניהול, הודעות ואישור תמונות">
-          <span>⚙️ ניהול</span>
-          <span id="pendingBadge" class="hidden bg-red-500 text-white text-[10px] px-1.5 py-0.2 rounded-full">0</span>
-        </button>
-        <button onclick="toggleContrast()" class="px-2 py-1.5 text-xs font-medium rounded-lg border border-slate-300 hover:bg-slate-100 transition" aria-label="ניגודיות גבוהה">
-          👁️
-        </button>
-        <button onclick="increaseFont()" class="px-2 py-1.5 text-xs font-medium rounded-lg border border-slate-300 hover:bg-slate-100 transition" aria-label="הגדלת טקסט">
-          א+
-        </button>
+      <div>
+        <h1 class="text-base md:text-lg font-extrabold text-slate-900 leading-tight">צועדים בשביל זוהר</h1>
+        <p class="text-[11px] text-slate-500 hidden sm:block">לזכרו של זוהר תמיר ז״ל • 56 מקטעי שביל ישראל</p>
       </div>
     </div>
-  </nav>
 
-  <!-- פתיח (Hero): במובייל באנר חזותי נקי למעלה + תמונת זוהר חופפת + טקסט על רקע נקי; במחשב באנר רחב -->
-  <header class="relative overflow-hidden border-b border-slate-200 bg-gradient-to-b from-amber-50/70 via-white to-white">
-    <!-- תמונת באנר למחשב בלבד (מוצגת מ-md ומעלה) -->
-    <img src="banner-desktop.jpg" onerror="this.style.display='none'" alt="נופי שביל ישראל" class="hidden md:block absolute inset-0 w-full h-full object-cover object-left" />
-    <div class="hero-overlay hidden md:block absolute inset-0" style="background: linear-gradient(270deg, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.88) 55%, rgba(255,255,255,0.12) 100%);"></div>
+    <!-- Desktop Navigation Links -->
+    <nav class="hidden md:flex items-center gap-2">
+      <button onclick="switchMobileTab('map')" id="desk-tab-map" class="touch-btn px-4 rounded-xl text-sm font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+        🗺️ מפת השביל
+      </button>
+      <button onclick="switchMobileTab('segments')" id="desk-tab-segments" class="touch-btn px-4 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100">
+        🥾 כל המקטעים (56)
+      </button>
+      <button onclick="switchMobileTab('postcards')" id="desk-tab-postcards" class="touch-btn px-4 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100">
+        ✉️ גלויות מהדרך
+      </button>
+    </nav>
 
-    <!-- באנר מובייל ייעודי (מוצג במלואו ללא טקסט מעליו!) -->
-    <div class="block md:hidden relative w-full h-56 sm:h-64 overflow-hidden bg-amber-100">
-      <img src="banner-mobile.jpg" onerror="this.style.display='none'" alt="נופי שביל ישראל" class="w-full h-full object-cover object-center" />
-      <div class="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent"></div>
-    </div>
-
-    <div class="relative z-10 max-w-6xl mx-auto px-4 pb-10 pt-0 md:py-14">
-      <div class="flex flex-col md:flex-row items-center gap-6 md:gap-12">
-        <!-- מסגרת תמונת פורטרט (חופפת באלגנטיות את תחתית הבאנר במובייל) -->
-        <div class="relative shrink-0 -mt-20 md:mt-0">
-          <div class="w-36 h-36 sm:w-44 sm:h-44 md:w-56 md:h-56 rounded-3xl overflow-hidden border-4 border-white shadow-xl bg-slate-200 flex items-center justify-center relative">
-            <img id="zoharHeroImg" src="zohar.jpg" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=600&q=80';" alt="זוהר תמיר ז״ל" class="w-full h-full object-cover" />
-          </div>
-          <div class="absolute -bottom-3 right-1/2 translate-x-1/2 bg-orange-600 text-white text-xs font-bold px-3.5 py-1 rounded-full shadow whitespace-nowrap">
-            זוהר תמיר ז"ל
-          </div>
-        </div>
-
-        <!-- טקסט הנצחה ומד התקדמות מבוסס מקטעים -->
-        <div class="flex-1 text-center md:text-right mt-2 md:mt-0">
-          <h1 id="heroTitleText" class="text-2xl sm:text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-3 md:mb-4 leading-tight">
-            ממשיכים את הצעדים של זוהר בשביל ישראל
-          </h1>
-          <div id="heroBodyContainer" class="text-slate-700 text-sm sm:text-base md:text-lg leading-relaxed max-w-2xl mb-6 font-normal space-y-3">
-            <p id="heroPara1Text">
-              זוהר אהב את הארץ, את השבילים הפתוחים, את השקט של הטבע ואת הרגעים האמיתיים של שיחה ועצירה בדרך. החלום הגדול שלו לפני הגיוס היה לצאת ולכבוש את שביל ישראל — חלום שנקטע מוקדם מדי.
-            </p>
-            <p id="heroPara2Text">
-              הקמנו את האתר הזה, החברים של זוהר, כדי לקחת את החלום שלו איתנו על הגב ולהשלים יחד את כל 56 מקטעי השביל — מהחרמון ועד אילת. אנחנו מזמינים את כל מי שאהב אותו, וגם מטיילים שרוצים לצעוד איתנו לזכרו: בחרו מקטע, עצרו ל-5 דקות מול הנוף עם הפתק של זוהר, ושתפו תמונה ומחשבה שתלווה אותנו הלאה.
-            </p>
-          </div>
-
-          <!-- כפתור גלויית עצירה של 5 דקות -->
-          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-5 justify-center md:justify-start">
-            <button onclick="openPostcardModal()" class="px-4 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl text-sm shadow-sm transition flex items-center justify-center gap-2">
-              <span>📜 כרטיסיית המשימה מזוהר (עצירה של 5 דקות)</span>
-            </button>
-          </div>
-
-          <!-- מד התקדמות השביל לפי כל 56 המקטעים + גרף עיגולים קונצנטריים + פילוח אזורים -->
-          <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm max-w-2xl mx-auto md:mx-0 text-right">
-            <div class="flex flex-col sm:flex-row items-center gap-4 mb-3">
-              <!-- גרף עיגולים: חיצוני ירוק (בוצע), פנימי כתום (שוריין) -->
-              <div class="relative w-28 h-28 shrink-0 flex items-center justify-center" title="עיגול חיצוני: בוצע | עיגול פנימי: שוריין">
-                <svg class="w-28 h-28 -rotate-90" viewBox="0 0 100 100">
-                  <!-- מסלול רקע חיצוני (בוצע) -->
-                  <circle cx="50" cy="50" r="42" fill="none" stroke="#e2e8f0" stroke-width="8" />
-                  <!-- טבעת חיצונית: בוצע (היקף = 2 * pi * 42 = 263.89) -->
-                  <circle id="outerCompletedRing" cx="50" cy="50" r="42" fill="none" stroke="#10b981" stroke-width="8"
-                          stroke-linecap="round" stroke-dasharray="263.89" stroke-dashoffset="263.89"
-                          class="transition-all duration-700 ease-out" />
-                  <!-- מסלול רקע פנימי (שוריין) -->
-                  <circle cx="50" cy="50" r="30" fill="none" stroke="#fef3c7" stroke-width="7" />
-                  <!-- טבעת פנימית: שוריין (היקף = 2 * pi * 30 = 188.50) -->
-                  <circle id="innerPlannedRing" cx="50" cy="50" r="30" fill="none" stroke="#f59e0b" stroke-width="7"
-                          stroke-linecap="round" stroke-dasharray="188.50" stroke-dashoffset="188.50"
-                          class="transition-all duration-700 ease-out" />
-                </svg>
-                <div class="absolute inset-0 flex flex-col items-center justify-center text-center leading-tight pointer-events-none">
-                  <span id="completedPctText" class="text-sm font-extrabold text-emerald-700">0%</span>
-                  <span class="text-[9px] font-bold text-slate-400">בוצע</span>
-                  <span id="plannedPctText" class="text-[11px] font-extrabold text-amber-600 mt-0.5">0%</span>
-                  <span class="text-[8px] font-bold text-slate-400">שוריין</span>
-                </div>
-              </div>
-
-              <!-- פירוט מספרי ורצועת 56 קוביות -->
-              <div class="flex-1 w-full">
-                <div class="flex flex-wrap items-center justify-between gap-2 text-sm font-bold mb-2">
-                  <span class="text-slate-800">התקדמות 56 המקטעים (מצפון לדרום):</span>
-                  <div class="flex flex-wrap items-center gap-1.5 text-xs">
-                    <span class="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800">🟢 <span id="completedCount">0</span> בוצעו</span>
-                    <span class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-800">🟠 <span id="plannedCount">0</span> שוריינו</span>
-                    <span id="overdueSummaryBadge" class="hidden px-2 py-0.5 rounded-md bg-red-100 text-red-800">🔴 <span id="overdueCount">0</span> עבר הזמן</span>
-                    <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">⚫ <span id="availableCount">56</span> פנויים</span>
-                  </div>
-                </div>
-
-                <!-- רצועת 56 קוביות אינטראקטיביות -->
-                <div id="segmentsBlockBar" class="grid gap-1 my-2" style="grid-template-columns: repeat(28, minmax(0, 1fr));" title="לחצו על כל מקטע לצפייה או שריון"></div>
-
-                <div class="flex flex-wrap items-center gap-3 text-[11px] text-slate-500 mt-1">
-                  <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full border-2 border-emerald-500 inline-block"></span> עיגול חיצוני: בוצע (<span id="completedPctLegend">0%</span>)</span>
-                  <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full border-2 border-amber-500 inline-block"></span> עיגול פנימי: שוריין (<span id="plannedPctLegend">0%</span>)</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- פילוח מהיר לפי אזורים (לחיצה מסננת מיד את האזור) -->
-            <div id="regionBreakdownBar" class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 pt-3 border-t border-slate-100 text-xs"></div>
-
-            <!-- מד קילומטרים שבוצעו לאורך השביל -->
-            <div class="mt-3 pt-3 border-t border-slate-100">
-              <div class="flex items-center justify-between text-xs font-bold mb-1.5">
-                <span class="text-slate-700 flex items-center gap-1">🥾 מד קילומטרים שבוצעו:</span>
-                <span class="text-emerald-700 font-extrabold">
-                  <span id="completedKm">0</span> / <span id="totalTrailKm">0</span> ק"מ (<span id="completedKmPct">0%</span>)
-                </span>
-              </div>
-              <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200/80">
-                <div id="completedKmBar" class="h-full bg-gradient-to-l from-emerald-500 to-teal-500 rounded-full transition-all duration-700 ease-out" style="width: 0%"></div>
-              </div>
-            </div>
-
-            <!-- מקרא צבעים -->
-            <div class="flex flex-wrap gap-3 md:gap-4 mt-3 pt-2.5 border-t border-slate-100 text-[11px] text-slate-600">
-              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> בוצע</span>
-              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> שוריין</span>
-              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-red-600 inline-block animate-pulse"></span> עבר הזמן המשוער</span>
-              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-slate-900 inline-block"></span> לא נבחר</span>
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- Top Action Buttons (>=44px touch targets) -->
+    <div class="flex items-center gap-1.5">
+      <button onclick="openContactAdminModal()" class="touch-btn px-3 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs sm:text-sm font-bold gap-1.5" aria-label="הודעה למנהלים">
+        <span>✉️</span>
+        <span class="hidden sm:inline">הודעה למנהלים</span>
+      </button>
+      <button onclick="openMenuDrawer()" id="headerMenuBtn" class="touch-btn px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-sm relative" aria-label="תפריט וניהול">
+        <span>☰</span>
+        <span id="adminBadgeDot" class="hidden absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-600 text-white text-[11px] font-black flex items-center justify-center">0</span>
+      </button>
     </div>
   </header>
 
-  <!-- תוכן ראשי: מפה אמיתית + רשימת מקטעים -->
-  <main class="max-w-6xl mx-auto px-4 py-8 space-y-12">
-
-    <!-- אזור מפה אמיתית (Leaflet + Israel Hiking / OSM) -->
-    <section class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5">
-        <div>
-          <h2 class="text-2xl font-bold text-slate-900">מפת השביל בחלוקה למקטעים</h2>
-          <p class="text-sm text-slate-500">עשו זום פנימה לכל הר ונחל, ולחצו על הסיכות לאורך השביל כדי לראות מי צעד או מתכנן לצעוד</p>
-        </div>
-        <div class="flex flex-wrap items-center gap-2">
-          <select id="mapLayerSelect" onchange="changeMapLayer()" class="px-3 py-1.5 text-xs font-bold bg-slate-100 border border-slate-300 rounded-lg text-slate-700">
-            <option value="hiking">🥾 מפת שבילים (Israel Hiking)</option>
-            <option value="osm">🗺️ מפת רחובות ויישובים</option>
-          </select>
-          <button onclick="resetMapView()" class="px-3 py-1.5 text-xs font-bold bg-orange-50 hover:bg-orange-100 text-orange-800 border border-orange-200 rounded-lg transition" title="החזרת המפה לתצוגת כל הארץ">
-            🎯 איפוס מפה
-          </button>
-          <button onclick="loadData()" class="px-3 py-1.5 text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition">
-            🔄 רענן
-          </button>
-        </div>
+  <!-- ==================== COMPACT COLLAPSIBLE HERO & PROGRESS ==================== -->
+  <section class="max-w-6xl mx-auto px-3 md:px-6 pt-3 md:pt-5">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+      <!-- Desktop Banner -->
+      <div class="hidden md:block relative h-44 bg-gradient-to-l from-emerald-900 via-emerald-800 to-teal-700 overflow-hidden">
+        <img src="banner-desktop.jpg" onerror="this.style.display='none'" alt="באנר צועדים בשביל זוהר" class="w-full h-full object-cover opacity-55" />
+        <div class="absolute inset-0 bg-gradient-to-l from-slate-900/80 via-slate-900/40 to-transparent"></div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        <!-- מפת Leaflet אינטראקטיבית -->
-        <div class="lg:col-span-7 relative rounded-2xl border border-slate-300 overflow-hidden shadow-inner">
-          <div id="realIsraelMap" class="w-full h-[460px] md:h-[520px]"></div>
-          <button type="button" onclick="resetMapView()" class="absolute bottom-4 left-3 z-20 px-3 py-1.5 rounded-xl bg-white/95 hover:bg-white text-slate-800 border border-slate-300 shadow-md text-xs font-extrabold flex items-center gap-1 transition">
-            <span>🎯 איפוס תצוגת מפה</span>
-          </button>
-        </div>
+      <div class="p-3.5 md:p-6 md:-mt-16 relative z-10">
+        <div class="flex items-start gap-3.5 md:gap-5">
+          <!-- Locked Zohar Portrait -->
+          <div class="shrink-0">
+            <div class="w-16 h-16 md:w-28 md:h-28 rounded-2xl border-2 md:border-4 border-white shadow-md overflow-hidden bg-slate-200">
+              <img src="zohar.jpg" onerror="this.src='https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=300&q=80'" alt="זוהר תמיר ז״ל" class="w-full h-full object-cover" />
+            </div>
+          </div>
 
-        <!-- פאנל תצוגה מקדימה של המקטע הנבחר במפה -->
-        <div class="lg:col-span-5 bg-slate-50 rounded-2xl border border-slate-200 p-5 min-h-[340px] lg:h-[520px] flex flex-col justify-between overflow-y-auto" id="mapPreviewPanel">
-          <div class="text-center my-auto py-10 text-slate-500">
-            <span class="text-4xl block mb-2">🧭</span>
-            <p class="font-bold text-slate-700">בחרו נקודה על מפת ישראל או כרטיסייה למטה</p>
-            <p class="text-xs mt-1">תוכלו לראות את תוואי השביל האמיתי, את התמונות מהשטח ולשריין מקטע</p>
+          <!-- Story Intro & Collapsible Details -->
+          <div class="flex-1 min-w-0">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <h2 class="text-base md:text-2xl font-black text-slate-900 md:text-white md:drop-shadow">
+                ממשיכים את הצעדים של זוהר תמיר ז״ל
+              </h2>
+              <button onclick="openFiveMinCard()" class="touch-btn px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold gap-1">
+                <span>📜</span>
+                <span>עצירה של 5 דקות</span>
+              </button>
+            </div>
+
+            <p class="text-xs md:text-sm text-slate-600 md:text-slate-700 md:mt-4 leading-relaxed">
+              זוהר חלם לכבוש את שביל ישראל מצפון לדרום. אנחנו, החברים והמשפחה, משלימים יחד את 56 המקטעים לזכרו — בוחרים מקטע, יוצאים לטבע ועוצרים לרגע של זיכרון.
+            </p>
+
+            <!-- Collapsible Full Story (Mobile Friendly) -->
+            <div id="moreStoryBlock" class="hidden mt-2.5 pt-2.5 border-t border-slate-100 text-xs md:text-sm text-slate-600 space-y-2 leading-relaxed">
+              <p>
+                כל קבוצה או מטייל יכולים לשריין תאריך למקטע, להזמין חברים להצטרף, ובסיום המסלול להעלות תמונה וגלויה קצרה עם 3 שאלות בהשראת זוהר: מה ראינו בטבע, צידה לדרך, ומילה אישית לזוהר.
+              </p>
+              <p class="font-semibold text-emerald-800">
+                ניתן לשריין גם מקטעים שכבר נתפסו או בוצעו — כל צעד בשביל מוסיף עוד אור וזיכרון.
+              </p>
+            </div>
+
+            <button onclick="toggleStory()" id="toggleStoryBtn" class="mt-1.5 inline-flex items-center gap-1 text-xs font-bold text-emerald-700 hover:text-emerald-900 py-1">
+              <span id="toggleStoryLabel">קרא עוד על היוזמה</span>
+              <span id="toggleStoryIcon">▾</span>
+            </button>
           </div>
         </div>
-      </div>
-    </section>
 
-    <!-- אזור סינון ורשימת מקטעים -->
-    <section id="segmentsSection">
-      <div class="flex flex-col gap-4 mb-6">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div>
-            <h2 class="text-2xl font-bold text-slate-900">מקטעי שביל ישראל (<span id="filteredCounter">56</span> מקטעים)</h2>
-            <p class="text-sm text-slate-500">סננו לפי אזור, עונה מומלצת, אורך מסלול או רמת קושי כדי לבחור את הטיול הבא</p>
-          </div>
-          <button id="resetFiltersBtn" onclick="resetFilters()" class="hidden self-start sm:self-auto px-3 py-1.5 text-xs font-bold text-orange-700 bg-orange-50 border border-orange-200 rounded-xl hover:bg-orange-100 transition">
-            ✕ איפוס מסננים
-          </button>
-        </div>
-
-        <!-- סרגל פילטרים מורחב -->
-        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-2xs grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
-          <div>
-            <label class="block text-[11px] font-bold text-slate-500 mb-1">📍 אזור בארץ</label>
-            <select id="regionFilter" onchange="renderSegments()" class="w-full px-2.5 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-500">
-              <option value="all">כל האזורים</option>
-              <option value="צפון">צפון</option>
-              <option value="מרכז">מרכז</option>
-              <option value="ירושלים">ירושלים</option>
-              <option value="דרום">דרום</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-[11px] font-bold text-slate-500 mb-1">🌤️ עונה מומלצת</label>
-            <select id="seasonFilter" onchange="renderSegments()" class="w-full px-2.5 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-500">
-              <option value="all">כל העונות</option>
-              <option value="autumn">🍂 סתיו (אוקטובר–נובמבר)</option>
-              <option value="winter">🌧️ חורף (דצמבר–פברואר)</option>
-              <option value="spring">🌸 אביב (מרץ–מאי)</option>
-              <option value="summer">☀️ קיץ (יוני–ספטמבר)</option>
-            </select>
+        <!-- Unified Compact Progress Bar (Click to expand 56 blocks) -->
+        <div class="mt-3.5 pt-3 border-t border-slate-100">
+          <div class="flex flex-wrap items-center justify-between gap-2 text-xs md:text-sm mb-2">
+            <div class="flex items-center gap-3 font-bold">
+              <span class="inline-flex items-center gap-1 text-emerald-700">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
+                בוצעו: <strong id="statCompleted">0</strong>
+              </span>
+              <span class="inline-flex items-center gap-1 text-amber-600">
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                שוריינו: <strong id="statPlanned">0</strong>
+              </span>
+              <span class="inline-flex items-center gap-1 text-slate-600">
+                <span class="w-2.5 h-2.5 rounded-full bg-slate-800"></span>
+                פנויים: <strong id="statAvailable">56</strong>
+              </span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-extrabold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg">
+                🥾 <span id="statKm">0</span> / 1,040 ק״מ
+              </span>
+              <button onclick="toggleProgressMatrix()" class="text-xs font-bold text-slate-500 hover:text-slate-800 underline py-1">
+                <span id="matrixToggleText">56 קוביות ▾</span>
+              </button>
+            </div>
           </div>
 
-          <div>
-            <label class="block text-[11px] font-bold text-slate-500 mb-1">⛰️ רמת קושי</label>
-            <select id="difficultyFilter" onchange="renderSegments()" class="w-full px-2.5 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-500">
-              <option value="all">כל הרמות</option>
-              <option value="easy">קל / קל-בינוני</option>
-              <option value="medium">בינוני</option>
-              <option value="hard">בינוני-קשה / קשה</option>
-            </select>
+          <!-- Dual-layer Progress Bar -->
+          <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden flex">
+            <div id="barCompleted" class="bg-emerald-600 h-full transition-all duration-500" style="width: 0%"></div>
+            <div id="barPlanned" class="bg-amber-400 h-full transition-all duration-500" style="width: 0%"></div>
           </div>
 
-          <div>
-            <label class="block text-[11px] font-bold text-slate-500 mb-1">📏 אורך מסלול</label>
-            <select id="distanceFilter" onchange="renderSegments()" class="w-full px-2.5 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-500">
-              <option value="all">כל המרחקים</option>
-              <option value="short">קצר (עד 16 ק"מ)</option>
-              <option value="medium">בינוני (16–19.5 ק"מ)</option>
-              <option value="long">ארוך (20 ק"מ ומעלה)</option>
-            </select>
-          </div>
-
-          <div class="col-span-2 sm:col-span-1">
-            <label class="block text-[11px] font-bold text-slate-500 mb-1">🚩 סטטוס מקטע</label>
-            <select id="statusFilter" onchange="renderSegments()" class="w-full px-2.5 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-500">
-              <option value="all">הכל</option>
-              <option value="available">פנויים להליכה</option>
-              <option value="planned">משוריינים</option>
-              <option value="completed">הושלמו</option>
-            </select>
+          <!-- Expandable 56-Segment Mini Matrix -->
+          <div id="progressMatrixDrawer" class="hidden mt-3 pt-3 border-t border-slate-100">
+            <div class="flex items-center justify-between text-[11px] text-slate-500 mb-2">
+              <span>צפון (1 - חרמון)</span>
+              <span>לחצו על מספר מקטע לפתיחה</span>
+              <span>דרום (56 - אילת)</span>
+            </div>
+            <div id="miniBlocksGrid" class="grid grid-cols-14 sm:grid-cols-28 gap-1"></div>
           </div>
         </div>
       </div>
+    </div>
+  </section>
 
-      <!-- טעינה -->
-      <div id="loadingState" class="text-center py-12 text-slate-500">
-        טוען מקטעים ממסד הנתונים...
-      </div>
+  <!-- ==================== VIEW 1: MAP (DEFAULT ON MOBILE & DESKTOP) ==================== -->
+  <main id="view-map" class="max-w-6xl mx-auto px-3 md:px-6 pt-3">
+    <!-- Horizontal Quick Status Filter Pills over Map -->
+    <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2.5">
+      <button onclick="setQuickFilter('all')" data-qfilter="all" class="qfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-extrabold bg-slate-900 text-white shadow-xs">
+        הכל (56)
+      </button>
+      <button onclick="setQuickFilter('available')" data-qfilter="available" class="qfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-slate-700 border border-slate-200">
+        ⚫ פנויים (<span id="pillAvailCount">56</span>)
+      </button>
+      <button onclick="setQuickFilter('planned')" data-qfilter="planned" class="qfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-amber-800 border border-amber-200">
+        🟠 משוריינים (<span id="pillPlanCount">0</span>)
+      </button>
+      <button onclick="setQuickFilter('completed')" data-qfilter="completed" class="qfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-emerald-800 border border-emerald-200">
+        🟢 בוצעו (<span id="pillCompCount">0</span>)
+      </button>
+    </div>
 
-      <!-- הודעה כשאין תוצאות לסינון -->
-      <div id="emptyFilterState" class="hidden text-center py-12 bg-white rounded-3xl border border-slate-200">
-        <span class="text-3xl block mb-2">🔍</span>
-        <p class="font-bold text-slate-800">לא נמצאו מקטעים שתואמים לכל תנאי הסינון שבחרתם</p>
-        <button onclick="resetFilters()" class="mt-3 px-4 py-2 bg-orange-600 text-white text-xs font-bold rounded-xl hover:bg-orange-700 transition">
-          הצג את כל 56 המקטעים
+    <!-- Map Container + Floating Bottom Preview Card -->
+    <div class="relative bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <!-- Top Floating Map Controls -->
+      <div class="absolute top-3 left-3 z-20 flex flex-col gap-2">
+        <button onclick="toggleMapLayer()" id="mapLayerBtn" class="touch-btn px-3 rounded-xl bg-white/95 backdrop-blur shadow-md border border-slate-200 text-xs font-extrabold text-slate-800">
+          🗺️ מפת רחובות
+        </button>
+        <button onclick="resetMapBounds()" class="touch-btn px-3 rounded-xl bg-white/95 backdrop-blur shadow-md border border-slate-200 text-xs font-extrabold text-slate-800">
+          🇮🇱 כל הארץ
         </button>
       </div>
 
-      <!-- גריד כרטיסיות -->
-      <div id="segmentsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
-    </section>
+      <!-- Map Canvas -->
+      <div id="trailMap" class="w-full h-[62vh] md:h-[560px] bg-slate-100"></div>
 
-    <!-- גלויות מהדרך – אלבום זיכרונות אישי מהשביל -->
-    <section id="journeyFeedSection" class="bg-gradient-to-b from-amber-50/60 via-orange-50/25 to-white rounded-3xl border border-amber-200/80 shadow-sm p-6 md:p-8">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-7">
-        <div>
-          <span class="text-xs font-bold tracking-wide text-amber-800 block mb-1">✉️ מהתרמיל אל הלב</span>
-          <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900">גלויות מהדרך <span class="text-base font-bold text-amber-800">(<span id="journeyFeedCount">0</span>)</span></h2>
-          <p class="text-sm text-slate-600 mt-0.5">רגעים, תמונות ומילים שכתבו החברים והמטיילים לזכרו של זוהר בעצירה של 5 דקות</p>
+      <!-- Floating Bottom Preview Card for Selected Segment -->
+      <div id="mapFloatingCard" class="p-3.5 md:p-4 bg-white border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="min-w-0">
+          <div class="flex items-center gap-2 mb-1">
+            <span id="mfcNumber" class="px-2 py-0.5 rounded-lg bg-slate-900 text-white text-xs font-black">#1</span>
+            <span id="mfcStatusBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700">פנוי לשריון</span>
+            <span id="mfcRegion" class="text-xs text-slate-500 font-medium">צפון</span>
+          </div>
+          <h3 id="mfcTitle" class="text-base md:text-lg font-black text-slate-900 truncate">קופות החרמון – בניאס</h3>
+          <p id="mfcMeta" class="text-xs text-slate-600 mt-0.5">📏 16.5 ק״מ • ⛰️ בינוני • 🌤️ אביב, סתיו</p>
         </div>
-        <button onclick="openContactModal()" class="self-start sm:self-auto px-4 py-2 text-xs font-bold bg-white hover:bg-amber-50 text-amber-950 border border-amber-300 rounded-xl shadow-2xs transition">
-          ✉️ יש לכם גלויה מטיול קודם? שלחו לנו
+
+        <button id="mfcActionBtn" onclick="openSegmentModal(selectedSegmentId)" class="touch-btn w-full sm:w-auto px-5 h-12 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-sm shadow-sm shrink-0">
+          לשריון / תיעוד מקטע ←
         </button>
       </div>
-
-      <div id="journeyFeedGrid" class="grid grid-cols-1 md:grid-cols-2 gap-7"></div>
-    </section>
+    </div>
   </main>
 
-  <!-- מודאל מקטע (צפייה, שריון תאריך והעלאת ביצוע) -->
-  <div id="segmentModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs hidden items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-3xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden my-8">
-      <!-- כותרת מודאל -->
-      <div class="p-6 border-b border-slate-200 flex items-start justify-between gap-4 bg-slate-50">
-        <div>
-          <span id="modalRegionBadge" class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800 mb-1"></span>
-          <h3 id="modalTitle" class="text-2xl font-extrabold text-slate-900"></h3>
-          <div class="flex flex-wrap items-center gap-2 text-xs text-slate-600 mt-1.5">
-            <span id="modalDistance" class="font-medium"></span>
-            <span>•</span>
-            <span id="modalDifficulty" class="font-medium"></span>
-            <span>•</span>
-            <span id="modalSeason" class="font-bold text-sky-800 bg-sky-100 px-2 py-0.5 rounded-md"></span>
-          </div>
-          <div class="mt-3 flex flex-wrap items-center gap-2">
-            <a id="modalOfficialLink" href="#" target="_blank" rel="noopener" class="px-3 py-1.5 rounded-xl bg-white border border-slate-300 hover:bg-slate-100 text-xs text-slate-800 font-bold transition">
-              סיפור הדרך (החברה להגנת הטבע) ↗
-            </a>
-            <a id="modalWhatsappShareBtn" href="#" target="_blank" rel="noopener" class="px-3 py-1.5 rounded-xl bg-green-600 hover:bg-green-700 text-white text-xs font-bold transition shadow-2xs flex items-center gap-1">
-              <span>📲 הזמן חברים למקטע בוואטסאפ</span>
-            </a>
-          </div>
+  <!-- ==================== VIEW 2: ALL SEGMENTS LIST ==================== -->
+  <section id="view-segments" class="hidden max-w-6xl mx-auto px-3 md:px-6 pt-3">
+    <!-- Region Horizontal Chips + Advanced Filter Toggle -->
+    <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2">
+      <button onclick="setRegionFilter('all')" data-rfilter="all" class="rfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-extrabold bg-emerald-700 text-white">
+        כל הארץ
+      </button>
+      <button onclick="setRegionFilter('צפון')" data-rfilter="צפון" class="rfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-slate-700 border border-slate-200">
+        צפון
+      </button>
+      <button onclick="setRegionFilter('מרכז')" data-rfilter="מרכז" class="rfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-slate-700 border border-slate-200">
+        מרכז
+      </button>
+      <button onclick="setRegionFilter('ירושלים')" data-rfilter="ירושלים" class="rfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-slate-700 border border-slate-200">
+        ירושלים
+      </button>
+      <button onclick="setRegionFilter('דרום')" data-rfilter="דרום" class="rfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-slate-700 border border-slate-200">
+        דרום
+      </button>
+    </div>
+
+    <!-- Search Input + Advanced Filters Button -->
+    <div class="flex items-center gap-2 mb-3">
+      <div class="relative flex-1">
+        <input type="text" id="searchInput" oninput="renderSegmentsList()" placeholder="חיפוש לפי מספר מקטע, שם או יישוב..." class="w-full h-11 pr-9 pl-3 rounded-xl bg-white border border-slate-200 text-slate-900 focus:outline-none focus:border-emerald-600" />
+        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
+      </div>
+      <button onclick="toggleAdvancedFilters()" id="advFilterBtn" class="touch-btn px-3.5 h-11 rounded-xl bg-white border border-slate-200 text-slate-800 text-xs font-extrabold gap-1.5 shrink-0">
+        <span>⚙️</span>
+        <span>סינון</span>
+      </button>
+    </div>
+
+    <!-- Collapsible Advanced Filters Drawer -->
+    <div id="advancedFiltersBox" class="hidden bg-white p-3.5 rounded-2xl border border-slate-200 mb-3 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+      <div>
+        <label class="block text-xs font-bold text-slate-600 mb-1">סטטוס מקטע</label>
+        <select id="statusFilter" onchange="renderSegmentsList()" class="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 font-medium">
+          <option value="all">כל הסטטוסים</option>
+          <option value="available">⚫ פנויים בלבד</option>
+          <option value="planned">🟠 משוריינים בלבד</option>
+          <option value="completed">🟢 בוצעו ואושרו</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-600 mb-1">רמת קושי</label>
+        <select id="difficultyFilter" onchange="renderSegmentsList()" class="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 font-medium">
+          <option value="all">כל הרמות</option>
+          <option value="קל">קל / קל-בינוני</option>
+          <option value="בינוני">בינוני</option>
+          <option value="קשה">בינוני-קשה / קשה</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-600 mb-1">אורך מסלול</label>
+        <select id="lengthFilter" onchange="renderSegmentsList()" class="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 font-medium">
+          <option value="all">כל האורכים</option>
+          <option value="short">קצר (עד 14 ק״מ)</option>
+          <option value="medium">בינוני (14–20 ק״מ)</option>
+          <option value="long">ארוך (מעל 20 ק״מ)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Results Counter -->
+    <div class="flex items-center justify-between text-xs text-slate-500 font-semibold mb-2.5 px-1">
+      <span>מציג <strong id="filteredCount" class="text-slate-900">56</strong> מקטעים</span>
+      <button onclick="resetAllFilters()" class="text-emerald-700 font-bold hover:underline">איפוס סינון</button>
+    </div>
+
+    <!-- Segments Grid -->
+    <div id="segmentsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+  </section>
+
+  <!-- ==================== VIEW 3: POSTCARDS GALLERY ==================== -->
+  <section id="view-postcards" class="hidden max-w-6xl mx-auto px-3 md:px-6 pt-3">
+    <div class="bg-emerald-900 text-white rounded-2xl p-4 md:p-6 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div>
+        <h2 class="text-lg md:text-2xl font-black">✉️ גלויות מהדרך</h2>
+        <p class="text-xs md:text-sm text-emerald-100 mt-1">תמונות וזיכרונות מהשטח של החברים והמטיילים לאורך השביל.</p>
+      </div>
+      <button onclick="switchMobileTab('segments')" class="touch-btn px-4 h-11 rounded-xl bg-white text-emerald-900 font-extrabold text-xs sm:text-sm shrink-0">
+        + הוספת גלויה ממקטע
+      </button>
+    </div>
+
+    <div id="postcardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+  </section>
+
+  <!-- ==================== MOBILE STICKY BOTTOM TAB BAR (THUMB-FRIENDLY) ==================== -->
+  <nav class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur border-t border-slate-200 shadow-[0_-4px_16px_rgba(15,23,42,0.06)]" style="padding-bottom: var(--safe-bottom);">
+    <div class="grid grid-cols-3 h-16">
+      <button onclick="switchMobileTab('map')" id="mob-tab-map" class="flex flex-col items-center justify-center gap-0.5 text-emerald-700 font-black border-t-2 border-emerald-700">
+        <span class="text-xl leading-none">🗺️</span>
+        <span class="text-xs">מפה</span>
+      </button>
+      <button onclick="switchMobileTab('segments')" id="mob-tab-segments" class="flex flex-col items-center justify-center gap-0.5 text-slate-500 font-semibold border-t-2 border-transparent">
+        <span class="text-xl leading-none">🥾</span>
+        <span class="text-xs">מקטעים (56)</span>
+      </button>
+      <button onclick="switchMobileTab('postcards')" id="mob-tab-postcards" class="flex flex-col items-center justify-center gap-0.5 text-slate-500 font-semibold border-t-2 border-transparent">
+        <span class="text-xl leading-none">✉️</span>
+        <span class="text-xs">גלויות (<span id="mobPostcardCount">0</span>)</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ==================== SEGMENT DETAILS / BOOKING / UPLOAD BOTTOM SHEET ==================== -->
+  <div id="segmentModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-end md:items-center justify-center">
+    <div class="bottom-sheet-enter bg-white w-full md:max-w-2xl max-h-[92vh] rounded-t-3xl md:rounded-3xl flex flex-col overflow-hidden shadow-2xl">
+      <!-- Modal Header -->
+      <div class="px-4 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
+        <div class="flex items-center gap-2 min-w-0">
+          <span id="modalSegNum" class="px-2.5 py-1 rounded-xl bg-slate-900 text-white text-xs font-black shrink-0">#1</span>
+          <h3 id="modalSegTitle" class="text-base md:text-lg font-black text-slate-900 truncate">שם המקטע</h3>
         </div>
-        <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-white border border-slate-300 flex items-center justify-center text-slate-600 hover:bg-slate-100 font-bold shrink-0">✕</button>
+        <button onclick="closeModal('segmentModal')" class="touch-btn w-11 h-11 rounded-full bg-slate-200/80 hover:bg-slate-300 text-slate-800 font-black text-lg shrink-0" aria-label="סגור">
+          ✕
+        </button>
       </div>
 
-      <!-- גוף מודאל -->
-      <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
-        
-        <!-- באנר קטן למשימה מזוהר בתוך המקטע -->
-        <div class="bg-amber-50 border border-amber-200 rounded-2xl p-3.5 flex items-center justify-between gap-3">
-          <div class="text-xs text-amber-950">
-            <strong>📜 יוצאים למקטע?</strong> אל תשכחו לשמור את כרטיסיית <em>"עצירה של 5 דקות"</em> לדרך.
-          </div>
-          <button onclick="openPostcardModal()" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl text-xs shrink-0 transition">
-            פתיחת הכרטיסייה
+      <!-- Modal Scrollable Content -->
+      <div class="p-4 md:p-6 overflow-y-auto space-y-5 flex-1">
+        <!-- Segment Specs -->
+        <div class="flex flex-wrap items-center gap-2 text-xs font-bold">
+          <span id="modalSegRegion" class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700">אזור</span>
+          <span id="modalSegDist" class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700">מרחק</span>
+          <span id="modalSegDiff" class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700">קושי</span>
+          <a id="modalOfficialLink" href="#" target="_blank" rel="noopener" class="px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100">
+            סיפור דרך רשמי ↗
+          </a>
+        </div>
+
+        <!-- Existing Bookings & Memories on this Segment -->
+        <div id="modalExistingRecords" class="space-y-2.5"></div>
+
+        <!-- Mode Switcher Tabs inside Modal (>=44px height) -->
+        <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-2xl">
+          <button type="button" onclick="setModalFormMode('planned')" id="modePlanBtn" class="touch-btn rounded-xl text-xs sm:text-sm font-extrabold bg-white text-amber-800 shadow-xs">
+            📅 שריון תאריך
+          </button>
+          <button type="button" onclick="setModalFormMode('completed')" id="modeCompBtn" class="touch-btn rounded-xl text-xs sm:text-sm font-bold text-slate-600">
+            📸 העלאת תמונה וזיכרון
           </button>
         </div>
 
-        <!-- רשימת מתכננים עתידיים -->
-        <div id="modalPlannedSection" class="bg-amber-50/80 border border-amber-200 rounded-2xl p-4 hidden">
-          <h4 class="font-bold text-amber-900 text-sm mb-2">📅 מטיילים שכבר שריינו תאריך למקטע זה:</h4>
-          <ul id="modalPlannedList" class="space-y-2 text-sm text-amber-950"></ul>
-        </div>
+        <!-- Form: Reserve or Complete -->
+        <form id="memoryForm" onsubmit="submitMemoryForm(event)" class="space-y-3.5">
+          <input type="hidden" id="formMode" value="planned" />
 
-        <!-- גלריית זיכרונות שהושלמו -->
-        <div>
-          <h4 class="font-bold text-slate-800 text-sm mb-3">📸 תמונות וגלויות מהשביל:</h4>
-          <div id="modalCompletedList" class="space-y-4"></div>
-        </div>
-
-        <!-- טאבים לפעולה: שריון עתידי / דיווח ביצוע -->
-        <div class="border-t border-slate-200 pt-5">
-          <div class="flex gap-2 mb-4">
-            <button id="tabBtnPlan" onclick="switchActionTab('plan')" class="flex-1 py-2.5 px-3 rounded-xl text-sm font-bold border transition bg-amber-500 text-white border-amber-600">
-              📅 שריון תאריך עתידי
-            </button>
-            <button id="tabBtnComplete" onclick="switchActionTab('complete')" class="flex-1 py-2.5 px-3 rounded-xl text-sm font-bold border transition bg-white text-slate-700 border-slate-300 hover:bg-slate-50">
-              ✅ ביצענו! העלאת תמונה וזיכרון
-            </button>
+          <div>
+            <label class="block text-xs font-extrabold text-slate-700 mb-1">שם המטייל / הקבוצה *</label>
+            <input type="text" id="hikerName" required placeholder="לדוגמה: משפחת כהן / חברים מהצבא" class="w-full h-12 px-3.5 rounded-xl border border-slate-300 focus:border-emerald-600 focus:outline-none" />
           </div>
 
-          <!-- טופס 1: שריון תאריך -->
-          <form id="planForm" onsubmit="submitPlan(event)" class="space-y-3 bg-amber-50/50 p-4 rounded-2xl border border-amber-200">
-            <div id="multiPlanNotice" class="hidden bg-amber-100/90 border border-amber-300 text-amber-950 text-xs p-2.5 rounded-xl font-medium"></div>
-            <p class="text-xs text-amber-900">מתכננים ללכת את המקטע בקרוב? רשמו את שמכם והתאריך המתוכנן כדי שכולם יראו שהמקטע בדרך להשלמה.</p>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">שם המטייל / הקבוצה *</label>
-                <input type="text" id="planName" required placeholder="למשל: עומר והחבר'ה" class="w-full px-3 py-2 text-base bg-white border border-slate-300 rounded-xl" />
-              </div>
-              <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">תאריך מתוכנן *</label>
-                <input type="date" id="planDate" required class="w-full px-3 py-2 text-base bg-white border border-slate-300 rounded-xl" />
-              </div>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">מספר טלפון נייד (למנהלים בלבד) *</label>
-                <input type="tel" id="planPhone" required placeholder="050-0000000" dir="ltr" class="w-full px-3 py-2 text-base bg-white border border-slate-300 rounded-xl text-right" />
-                <span class="text-[10px] text-slate-500 block mt-0.5">🔒 חסוי — מוצג למנהלי האתר בלבד לתיאום</span>
-              </div>
-              <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">הערה פומבית להצטרפות (אופציונלי)</label>
-                <input type="text" id="planPublicNote" placeholder="למשל: נשמח שעוד יצטרפו! @omer_t" class="w-full px-3 py-2 text-base bg-white border border-slate-300 rounded-xl" />
-              </div>
-            </div>
-            <button type="submit" id="planSubmitBtn" class="w-full py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl text-sm transition shadow-xs">
-              שריינו לנו את התאריך
-            </button>
-          </form>
-
-          <!-- טופס 2: דיווח ביצוע (מפוצל ל-3 שאלות עצירה של 5 דקות) -->
-          <form id="completeForm" onsubmit="submitCompletion(event)" class="space-y-3 bg-emerald-50/50 p-4 rounded-2xl border border-emerald-200 hidden">
-            <div id="existingPlanSelectWrapper" class="hidden">
-              <label class="block text-xs font-bold text-emerald-900 mb-1">האם שריינתם מראש את המקטע? (בחרו לעדכון אוטומטי)</label>
-              <select id="existingPlanSelect" onchange="fillFromExistingPlan()" class="w-full px-3 py-2 text-base bg-white border border-emerald-300 rounded-xl">
-                <option value="">-- לא שריינו מראש / רישום חדש --</option>
-              </select>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">שם המטייל / הקבוצה *</label>
-                <input type="text" id="compName" required placeholder="השמות שלכם" class="w-full px-3 py-2 text-base bg-white border border-slate-300 rounded-xl" />
-              </div>
-              <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">טלפון נייד (למנהלים בלבד) *</label>
-                <input type="tel" id="compPhone" required placeholder="050-0000000" dir="ltr" class="w-full px-3 py-2 text-base bg-white border border-slate-300 rounded-xl text-right" />
-              </div>
-              <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">תאריך הביצוע *</label>
-                <input type="date" id="compDate" required class="w-full px-3 py-2 text-base bg-white border border-slate-300 rounded-xl" />
-              </div>
-            </div>
-
-            <div class="bg-white p-3.5 rounded-xl border border-emerald-200 space-y-3">
-              <div class="text-xs font-extrabold text-emerald-900">📜 גלויית עצירה של 5 דקות בדרך:</div>
-              <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">🌿 מה ראינו בטבע? (פרט קטן או נוף שתפס אתכם) *</label>
-                <input type="text" id="compNature" required placeholder="למשל: פריחת אירוסים מפתיעה ליד המצוק..." class="w-full px-3 py-2 text-base bg-slate-50 border border-slate-300 rounded-xl" />
-              </div>
-              <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">🧭 צידה לדרך (תובנה או כוח שלקחתם להמשך) *</label>
-                <input type="text" id="compGrowth" required placeholder="למשל: שגם עלייה תלולה עוברים צעד אחרי צעד..." class="w-full px-3 py-2 text-base bg-slate-50 border border-slate-300 rounded-xl" />
-              </div>
-              <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">🤍 מילה לזוהר *</label>
-                <textarea id="compZoharWord" rows="2" required placeholder="משפט שהייתם רוצים לספר לזוהר מהנקודה הזו..." class="w-full px-3 py-2 text-base bg-slate-50 border border-slate-300 rounded-xl"></textarea>
-              </div>
-            </div>
-
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">תמונה מהשביל (תידחס אוטומטית) *</label>
-              <input type="file" id="compPhoto" accept="image/*" required class="w-full text-xs text-slate-600 file:ml-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-600 file:text-white hover:file:bg-emerald-700" />
+              <label id="dateInputLabel" class="block text-xs font-extrabold text-slate-700 mb-1">תאריך מתוכנן *</label>
+              <input type="date" id="hikeDate" required class="w-full h-12 px-3.5 rounded-xl border border-slate-300 focus:border-emerald-600 focus:outline-none bg-white" />
+            </div>
+            <div>
+              <label class="block text-xs font-extrabold text-slate-700 mb-1">טלפון ליצירת קשר (חסוי למנהלים בלבד) *</label>
+              <input type="tel" id="hikerPhone" required placeholder="050-0000000" class="w-full h-12 px-3.5 rounded-xl border border-slate-300 focus:border-emerald-600 focus:outline-none" />
+            </div>
+          </div>
+
+          <!-- Fields for Planned Mode -->
+          <div id="plannedFields">
+            <label class="block text-xs font-extrabold text-slate-700 mb-1">הערה פומבית (אופציונלי — למשל הזמנה להצטרפות)</label>
+            <input type="text" id="publicNote" placeholder="יוצאים ב-07:00 מחניון הלילה, מוזמנים להצטרף!" class="w-full h-12 px-3.5 rounded-xl border border-slate-300 focus:border-emerald-600 focus:outline-none" />
+          </div>
+
+          <!-- Fields for Completed Mode (Photo + 3 Stop Questions) -->
+          <div id="completedFields" class="hidden space-y-3">
+            <div>
+              <label class="block text-xs font-extrabold text-slate-700 mb-1">תמונה מהשטח (מומלץ לרוחב) *</label>
+              <label class="touch-btn w-full h-14 px-4 rounded-xl border-2 border-dashed border-emerald-400 bg-emerald-50/60 hover:bg-emerald-50 text-emerald-900 font-bold text-sm cursor-pointer gap-2">
+                <span>📷</span>
+                <span id="photoFileName">בחרו תמונה מהגלריה או צלמו</span>
+                <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoSelected(this)" class="hidden" />
+              </label>
             </div>
 
-            <button type="submit" id="compSubmitBtn" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm transition shadow-xs">
-              שליחת תיעוד ותמונה לאישור
+            <div class="bg-amber-50/70 border border-amber-200 rounded-2xl p-3.5 space-y-2.5">
+              <p class="text-xs font-black text-amber-900">📜 גלויית עצירה של 5 דקות לזכר זוהר:</p>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">1. מה ראינו בטבע בדרך?</label>
+                <input type="text" id="qNature" placeholder="פריחה, תצפית, בעל חיים..." class="w-full h-11 px-3 rounded-xl border border-amber-200 bg-white" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">2. צידה לדרך (טיפ למטיילים הבאים)</label>
+                <input type="text" id="qTip" placeholder="נקודת צל, מים, שיר טוב..." class="w-full h-11 px-3 rounded-xl border border-amber-200 bg-white" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">3. מילה אישית לזוהר</label>
+                <textarea id="qZohar" rows="2" placeholder="מחשבה או זיכרון שעלה במהלך ההליכה..." class="w-full p-3 rounded-xl border border-amber-200 bg-white"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sticky Action Submit Button inside Form -->
+          <div class="pt-2 flex flex-col sm:flex-row gap-2">
+            <button type="submit" id="submitMemoryBtn" class="touch-btn w-full h-12 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-base shadow-sm">
+              שמירת שריון מקטע ✓
             </button>
-            <p class="text-[11px] text-slate-500 text-center">התמונה והגלויה יופיעו באתר ובמפה מיד לאחר אישור קצר של צוות האתר.</p>
+            <button type="button" onclick="shareSegmentWhatsApp()" class="touch-btn w-full sm:w-auto px-4 h-12 rounded-xl bg-green-50 hover:bg-green-100 text-green-800 border border-green-200 font-extrabold text-sm shrink-0">
+              📲 הזמנה בוואטסאפ
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MENU, ACCESSIBILITY & ADMIN DRAWER ==================== -->
+  <div id="menuDrawer" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-end md:items-center justify-center">
+    <div class="bottom-sheet-enter bg-white w-full md:max-w-lg max-h-[90vh] rounded-t-3xl md:rounded-3xl flex flex-col overflow-hidden shadow-2xl">
+      <div class="px-4 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <h3 class="text-base font-black text-slate-900">תפריט, נגישות וניהול</h3>
+        <button onclick="closeModal('menuDrawer')" class="touch-btn w-11 h-11 rounded-full bg-slate-200 text-slate-800 font-black">✕</button>
+      </div>
+
+      <div class="p-4 overflow-y-auto space-y-4">
+        <!-- Accessibility Large Buttons -->
+        <div>
+          <p class="text-xs font-extrabold text-slate-500 mb-2">התאמות תצוגה ונגישות</p>
+          <div class="grid grid-cols-2 gap-2.5">
+            <button onclick="toggleFontSize()" class="touch-btn h-12 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold text-sm gap-2">
+              <span>🔍</span>
+              <span>הגדלת טקסט</span>
+            </button>
+            <button onclick="toggleHighContrast()" class="touch-btn h-12 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold text-sm gap-2">
+              <span>🌓</span>
+              <span>ניגודיות גבוהה</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Admin Authentication / Dashboard -->
+        <div class="pt-3 border-t border-slate-200">
+          <p class="text-xs font-extrabold text-slate-500 mb-2">ממשק ניהול מערכת</p>
+
+          <!-- Login Form (when logged out) -->
+          <form id="adminLoginForm" onsubmit="handleAdminLogin(event)" class="space-y-2.5">
+            <input type="email" id="adminEmail" required placeholder="אימייל מנהל" class="w-full h-12 px-3.5 rounded-xl border border-slate-300" />
+            <input type="password" id="adminPassword" required placeholder="סיסמה" class="w-full h-12 px-3.5 rounded-xl border border-slate-300" />
+            <button type="submit" class="touch-btn w-full h-12 rounded-xl bg-slate-900 text-white font-extrabold text-sm">
+              🔐 התחברות מנהלים
+            </button>
           </form>
-        </div>
 
-      </div>
-    </div>
-  </div>
+          <!-- Admin Panel (when logged in) -->
+          <div id="adminDashboard" class="hidden space-y-3">
+            <div class="flex items-center justify-between bg-emerald-50 border border-emerald-200 p-3 rounded-xl">
+              <span class="text-xs font-extrabold text-emerald-900">מחובר כמנהל מערכת ✓</span>
+              <div class="flex items-center gap-2">
+                <button onclick="exportCSV()" class="touch-btn px-3 h-10 rounded-lg bg-white border border-emerald-300 text-emerald-900 text-xs font-bold">
+                  📥 ייצוא CSV
+                </button>
+                <button onclick="handleAdminLogout()" class="touch-btn px-3 h-10 rounded-lg bg-red-50 text-red-700 text-xs font-bold">
+                  יציאה
+                </button>
+              </div>
+            </div>
 
-  <!-- מודאל כרטיסיית המשימה מזוהר (עצירה של 5 דקות להורדה/הדפסה) -->
-  <div id="postcardModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs hidden items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden my-8">
-      <div class="p-4 bg-amber-50 border-b border-amber-200 flex items-center justify-between">
-        <h3 class="font-extrabold text-amber-950 text-base">📜 כרטיסיית שטח – עצירה של 5 דקות</h3>
-        <button onclick="closePostcardModal()" class="w-8 h-8 rounded-full bg-white border border-amber-300 flex items-center justify-center text-amber-900 font-bold">✕</button>
-      </div>
-      <div class="p-5 text-center space-y-4">
-        <p class="text-xs text-slate-600 leading-relaxed">
-          שמרו את הכרטיסייה בטלפון לפני היציאה לשביל (כדי שתהיה זמינה גם כשאין קליטה) או הדפיסו והצטלמו איתה בנקודת התצפית!
-        </p>
-        <div class="rounded-2xl overflow-hidden border border-amber-200 shadow-md bg-amber-50">
-          <img src="postcard-5min.jpg" alt="כרטיסיית עצירה של 5 דקות" class="w-full h-auto object-contain" />
-        </div>
-        <div class="flex gap-2">
-          <a href="postcard-5min.jpg" download="zohar-5min-stop.jpg" class="flex-1 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl text-sm transition shadow-xs">
-            ⬇️ הורדת הכרטיסייה לנייד / הדפסה
-          </a>
+            <div id="adminRecordsList" class="space-y-2.5 max-h-80 overflow-y-auto"></div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- מודאל שליחת הודעה למנהלים (צור קשר) -->
-  <div id="contactModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs hidden items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden my-8">
-      <div class="p-5 bg-blue-900 text-white flex items-center justify-between">
-        <div>
-          <h3 class="text-lg font-extrabold">✉️ הודעה לצוות המנהלים</h3>
-          <p class="text-xs text-blue-200">עדכון על שריון, הוספת מקטע שצועד בעבר או כל שאלה</p>
-        </div>
-        <button onclick="closeContactModal()" class="w-8 h-8 rounded-full bg-blue-800 hover:bg-blue-700 flex items-center justify-center font-bold">✕</button>
+  <!-- ==================== CONTACT ADMIN MODAL ==================== -->
+  <div id="contactAdminModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-end md:items-center justify-center">
+    <div class="bottom-sheet-enter bg-white w-full md:max-w-md rounded-t-3xl md:rounded-3xl overflow-hidden shadow-2xl">
+      <div class="px-4 py-3.5 border-b border-slate-200 flex items-center justify-between bg-amber-50">
+        <h3 class="text-base font-black text-amber-950">✉️ הודעה לצוות המנהלים</h3>
+        <button onclick="closeModal('contactAdminModal')" class="touch-btn w-11 h-11 rounded-full bg-amber-200/60 text-amber-950 font-black">✕</button>
       </div>
-      <form id="contactAdminForm" onsubmit="submitContactMessage(event)" class="p-6 space-y-3.5">
+      <form onsubmit="submitAdminMessage(event)" class="p-4 space-y-3">
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">השם שלך *</label>
-          <input type="text" id="msgSenderName" required placeholder="שם מלא" class="w-full px-3 py-2 text-base bg-slate-50 border border-slate-300 rounded-xl" />
+          <label class="block text-xs font-bold text-slate-700 mb-1">שם מלא *</label>
+          <input type="text" id="msgSenderName" required class="w-full h-12 px-3.5 rounded-xl border border-slate-300" />
         </div>
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">טלפון או אימייל לחזרה *</label>
-          <input type="text" id="msgSenderContact" required placeholder="050-0000000" class="w-full px-3 py-2 text-base bg-slate-50 border border-slate-300 rounded-xl" />
+          <label class="block text-xs font-bold text-slate-700 mb-1">טלפון לחזרה *</label>
+          <input type="tel" id="msgSenderPhone" required placeholder="050-0000000" class="w-full h-12 px-3.5 rounded-xl border border-slate-300" />
         </div>
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">נושא הפנייה</label>
-          <select id="msgSubject" class="w-full px-3 py-2 text-base bg-slate-50 border border-slate-300 rounded-xl">
-            <option value="עדכון או שינוי תאריך שריון">📅 עדכון או שינוי תאריך שריון</option>
-            <option value="הוספת מקטע שצעדנו בעבר">🥾 הוספת מקטע שצעדנו בעבר</option>
-            <option value="שאלה או הצעה לאתר">💡 שאלה או הצעה לאתר</option>
-            <option value="אחר">💬 אחר</option>
-          </select>
+          <label class="block text-xs font-bold text-slate-700 mb-1">מקטע קשור (אופציונלי)</label>
+          <select id="msgSegmentId" class="w-full h-12 px-3.5 rounded-xl border border-slate-300 bg-white"></select>
         </div>
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">תוכן ההודעה *</label>
-          <textarea id="msgBody" rows="3" required placeholder="כתבו כאן את הפרטים..." class="w-full px-3 py-2 text-base bg-slate-50 border border-slate-300 rounded-xl"></textarea>
+          <textarea id="msgBody" rows="3" required placeholder="שאלה, עדכון על שינוי תאריך או בקשה לעזרה..." class="w-full p-3.5 rounded-xl border border-slate-300"></textarea>
         </div>
-        <button type="submit" id="msgSubmitBtn" class="w-full py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded-xl text-sm transition shadow-xs">
-          שליחת הודעה למנהלים
+        <button type="submit" class="touch-btn w-full h-12 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-black text-base">
+          שליחת הודעה למנהלים ←
         </button>
       </form>
     </div>
   </div>
 
-  <!-- מודאל ממשק ניהול (Admin Panel) -->
-  <div id="adminModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs hidden items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-3xl max-w-3xl w-full shadow-2xl border border-slate-200 overflow-hidden my-8">
-      <div class="p-5 bg-slate-900 text-white flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <h3 class="text-lg font-extrabold">⚙️ ממשק ניהול האתר – אישורים, הודעות וגיבוי</h3>
-          <p id="adminUserSubtitle" class="text-xs text-slate-400">מיועד לצוות המנהלים (החברים והמשפחה)</p>
-        </div>
-        <div class="flex flex-wrap items-center gap-2">
-          <button id="exportCsvBtn" onclick="exportMemoriesToCSV()" class="hidden px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition flex items-center gap-1">
-            <span>📥 ייצוא לאקסל (CSV)</span>
-          </button>
-          <button id="adminLogoutBtn" onclick="logoutAdmin()" class="hidden px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold rounded-xl text-xs transition">
-            🚪 התנתקות
-          </button>
-          <button onclick="closeAdminModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center font-bold">✕</button>
-        </div>
+  <!-- ==================== 5-MINUTE STOP CARD MODAL ==================== -->
+  <div id="fiveMinModal" class="hidden fixed inset-0 z-50 bg-slate-900/75 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-3xl overflow-hidden shadow-2xl">
+      <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+        <h3 class="text-base font-black text-slate-900">📜 המשימה מזוהר – עצירה של 5 דקות</h3>
+        <button onclick="closeModal('fiveMinModal')" class="touch-btn w-11 h-11 rounded-full bg-slate-100 font-black">✕</button>
       </div>
-
-      <!-- מסך התחברות למנהל (Supabase Auth) -->
-      <div id="adminLoginView" class="p-8 text-center space-y-4">
-        <span class="text-4xl block">🔐</span>
-        <h4 class="text-lg font-bold text-slate-900">התחברות מנהלים (Supabase Auth)</h4>
-        <p class="text-xs text-slate-500 max-w-sm mx-auto">הזינו את כתובת האימייל והסיסמה שהוגדרו עבורכם במערכת</p>
-        <form onsubmit="verifyAdmin(event)" class="max-w-xs mx-auto space-y-2.5 text-right">
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">אימייל מנהל</label>
-            <input type="email" id="adminEmailInput" required placeholder="admin@example.com" dir="ltr" class="w-full px-3 py-2 text-base border border-slate-300 rounded-xl text-left" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">סיסמה</label>
-            <input type="password" id="adminPassInput" required placeholder="••••••••" dir="ltr" class="w-full px-3 py-2 text-base border border-slate-300 rounded-xl text-left" />
-          </div>
-          <button type="submit" id="adminLoginSubmitBtn" class="w-full py-2.5 bg-slate-900 text-white font-bold rounded-xl text-sm hover:bg-slate-800 transition">
-            התחברות לממשק הניהול
-          </button>
-        </form>
-      </div>
-
-      <!-- לוח בקרה למנהל -->
-      <div id="adminDashboardView" class="p-6 space-y-6 max-h-[78vh] overflow-y-auto hidden">
-        <!-- תיבת הודעות נכנסות מגולשים -->
-        <div class="bg-blue-50/70 border border-blue-200 rounded-2xl p-4">
-          <div class="flex items-center justify-between mb-3">
-            <h4 class="font-extrabold text-blue-950 text-base">✉️ הודעות מגולשים למנהלים (<span id="adminMessagesCount">0</span>)</h4>
-            <button onclick="loadAdminData()" class="text-xs text-blue-700 font-bold hover:underline">רענן</button>
-          </div>
-          <div id="adminMessagesList" class="space-y-2.5"></div>
+      <div class="p-4 space-y-3">
+        <div class="rounded-2xl overflow-hidden border border-slate-200 bg-amber-50 p-4 text-center space-y-2.5">
+          <img src="postcard-5min.jpg" onerror="this.style.display='none'" alt="כרטיסיית עצירה של 5 דקות" class="w-full rounded-xl shadow-xs" />
+          <p class="text-sm font-black text-emerald-900">עוצרים רגע באמצע השביל לזכרו של זוהר:</p>
+          <ul class="text-xs text-slate-700 text-right space-y-1.5 bg-white p-3 rounded-xl border border-amber-200">
+            <li><strong>1. מה ראינו בטבע?</strong> מתבוננים רגע בנוף, בצמחייה או בשקט שמסביב.</li>
+            <li><strong>2. צידה לדרך:</strong> משתפים טיפ, מחשבה או המלצה לצועדים הבאים.</li>
+            <li><strong>3. מילה לזוהר:</strong> מצטלמים יחד ומקדישים כמה מילים לזכרו.</li>
+          </ul>
         </div>
-
-        <div>
-          <div class="flex items-center justify-between mb-3">
-            <h4 class="font-extrabold text-slate-900 text-base">⏳ ממתינים לאישור פרסום (<span id="adminPendingCount">0</span>)</h4>
-          </div>
-          <div id="adminPendingList" class="space-y-3"></div>
-        </div>
-
-        <div class="border-t border-slate-200 pt-5">
-          <h4 class="font-extrabold text-slate-900 text-base mb-3">📋 כל הרשומות הפעילות באתר (מאושרים ושריונים)</h4>
-          <div id="adminAllList" class="space-y-3"></div>
-        </div>
+        <a href="postcard-5min.jpg" download="zohar-5min-task.jpg" class="touch-btn w-full h-12 rounded-xl bg-emerald-700 text-white font-extrabold text-sm">
+          📥 שמירת כרטיסייה לנייד (Offline)
+        </a>
       </div>
     </div>
   </div>
 
-  <!-- מודאל הגדלת תמונה (Lightbox) -->
-  <div id="photoLightboxModal" onclick="if(event.target===this) closeLightbox()" class="fixed inset-0 z-[60] bg-black/90 backdrop-blur-xs hidden items-center justify-center p-3 sm:p-6">
-    <button onclick="closeLightbox()" class="fixed top-4 left-4 z-[70] w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 text-white border border-white/30 flex items-center justify-center text-lg font-bold transition" aria-label="סגור תמונה">✕</button>
-    <div class="max-w-5xl w-full flex flex-col items-center justify-center gap-3">
-      <img id="lightboxImg" src="" alt="" class="max-h-[82vh] max-w-full w-auto object-contain rounded-2xl shadow-2xl border border-white/15" />
-      <div id="lightboxCaption" class="text-center text-white/95 text-xs sm:text-sm font-bold bg-black/60 px-4 py-2 rounded-full border border-white/15 hidden"></div>
-    </div>
+  <!-- ==================== FULL-SCREEN PHOTO LIGHTBOX ==================== -->
+  <div id="lightboxModal" onclick="closeModal('lightboxModal')" class="hidden fixed inset-0 z-50 bg-black/92 flex flex-col items-center justify-center p-4">
+    <button onclick="closeModal('lightboxModal')" class="touch-btn absolute top-4 left-4 w-12 h-12 rounded-full bg-white/15 text-white text-xl font-black">✕</button>
+    <img id="lightboxImg" src="" alt="תמונה מוגדלת" class="max-h-[78vh] max-w-full rounded-2xl object-contain shadow-2xl" onclick="event.stopPropagation()" />
+    <p id="lightboxCaption" class="text-white text-sm font-bold mt-3 text-center"></p>
   </div>
 
-  <!-- פוטר -->
-  <footer class="bg-slate-900 text-slate-400 py-8 mt-16 text-center text-sm">
-    <div class="max-w-6xl mx-auto px-4 space-y-2">
-      <p class="text-white font-bold">לזכרו של זוהר תמיר ז"ל</p>
-      <p class="text-xs">יוזמה של החברים של זוהר • נתוני השביל באדיבות החברה להגנת הטבע</p>
-      <div class="pt-2">
-        <button onclick="openContactModal()" class="text-xs text-amber-400 hover:text-amber-300 font-bold underline">
-          ✉️ יצירת קשר ושליחת הודעה למנהלי האתר
-        </button>
-      </div>
-    </div>
-  </footer>
+  <!-- ==================== TOAST NOTIFICATION ==================== -->
+  <div id="toastBox" class="hidden fixed top-16 inset-x-4 md:inset-x-auto md:left-6 md:w-96 z-50 bg-slate-900 text-white px-4 py-3.5 rounded-2xl shadow-xl text-sm font-bold text-center"></div>
 
+  <!-- ==================== APPLICATION LOGIC ==================== -->
   <script>
-    const SUPABASE_URL = 'https://boslnyksnzcenyexrtyk.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_iW_NlGwjhs63H1QZEpAq1Q_AFzR-TkP';
-    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // 1. Supabase Configuration
+    const SUPABASE_URL = "https://boslnyksnzcenyexrtyk.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_iW_NlGwjhs63H1QZEpAq1Q_AFzR-TkP";
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    let isAdminLoggedIn = false;
-    let adminUserEmail = '';
+    // 2. Global State
+    let segments = [];
+    let memories = [];
+    let currentUser = null;
+    let activeTab = 'map';
+    let quickMapFilter = 'all';
+    let regionFilter = 'all';
+    let selectedSegmentId = 1;
+    let selectedPhotoFile = null;
 
-    let segmentsData = [];
-    let memoriesData = [];
-    let allMemoriesAdmin = [];
-    let currentSegment = null;
-    let fontScale = 100;
-
+    // Leaflet Map State
     let map = null;
-    let currentTileLayer = null;
     let markersLayer = null;
+    let topoLayer = null;
+    let streetLayer = null;
+    let isStreetMap = false;
 
-    function getSegmentSeasonInfo(seg) {
-      const id = Number(seg.id);
-      if (id <= 13) {
-        return {
-          label: 'אביב, קיץ וסתיו',
-          codes: ['spring', 'summer', 'autumn'],
-          badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200'
-        };
-      } else if (id <= 21) {
-        return {
-          label: 'סתיו, חורף ואביב',
-          codes: ['autumn', 'winter', 'spring'],
-          badgeClass: 'bg-sky-50 text-sky-800 border-sky-200'
-        };
-      } else if (id <= 26) {
-        return {
-          label: 'סתיו, חורף ואביב',
-          codes: ['autumn', 'winter', 'spring'],
-          badgeClass: 'bg-sky-50 text-sky-800 border-sky-200'
-        };
-      } else {
-        return {
-          label: 'סתיו, חורף ואביב (ללא קיץ)',
-          codes: ['autumn', 'winter', 'spring'],
-          badgeClass: 'bg-amber-50 text-amber-800 border-amber-200'
-        };
-      }
-    }
-
-    const tileLayers = {
-      hiking: L.tileLayer('https://israelhiking.osm.org.il/Tiles/{z}/{x}/{y}.png', {
-        attribution: '© Israel Hiking Map | OpenStreetMap',
-        maxZoom: 16
-      }),
-      osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        maxZoom: 18
-      })
-    };
-
-    let endpointsLayer = null;
-
-    function initRealMap() {
-      if (map) return;
-      map = L.map('realIsraelMap').setView([31.45, 35.05], 7);
-      currentTileLayer = tileLayers.hiking;
-      currentTileLayer.addTo(map);
-      endpointsLayer = L.layerGroup().addTo(map);
-      markersLayer = L.layerGroup().addTo(map);
-    }
-
-    function changeMapLayer() {
-      const val = document.getElementById('mapLayerSelect').value;
-      if (currentTileLayer) map.removeLayer(currentTileLayer);
-      currentTileLayer = tileLayers[val];
-      currentTileLayer.addTo(map);
-    }
-
-    function resetMapView() {
-      if (!map) return;
-      map.flyTo([31.45, 35.05], 7, { duration: 0.7 });
-    }
-
-    function toggleContrast() {
-      document.body.classList.toggle('high-contrast');
-    }
-    function increaseFont() {
-      fontScale = fontScale >= 120 ? 100 : fontScale + 10;
-      document.documentElement.style.fontSize = fontScale + '%';
-    }
-
-    function openLightbox(url, caption = '') {
-      if (!url) return;
-      const modal = document.getElementById('photoLightboxModal');
-      const img = document.getElementById('lightboxImg');
-      const cap = document.getElementById('lightboxCaption');
-      img.src = url;
-      if (caption) {
-        cap.textContent = caption;
-        cap.classList.remove('hidden');
-      } else {
-        cap.textContent = '';
-        cap.classList.add('hidden');
-      }
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-    }
-
-    function closeLightbox() {
-      const modal = document.getElementById('photoLightboxModal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-      document.getElementById('lightboxImg').src = '';
-    }
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeLightbox();
+    // Fallback 56 Segments (used immediately while Supabase loads or if offline)
+    const FALLBACK_SEGMENTS = Array.from({ length: 56 }, (_, i) => {
+      const id = i + 1;
+      const region = id <= 19 ? 'צפון' : id <= 31 ? 'מרכז' : id <= 37 ? 'ירושלים' : 'דרום';
+      const lat = 33.28 - (i * (33.28 - 29.49) / 55);
+      const lng = 35.75 - (Math.sin(i / 8) * 0.35) - (i * (35.75 - 34.91) / 55);
+      return {
+        id,
+        title: `מקטע ${id} בשביל ישראל`,
+        region,
+        distance: 18.5,
+        difficulty: id % 3 === 0 ? 'קשה' : id % 2 === 0 ? 'בינוני' : 'קל-בינוני',
+        lat: Number(lat.toFixed(4)),
+        lng: Number(lng.toFixed(4)),
+        official_url: 'https://www.teva.org.il/israel-national-trail'
+      };
     });
 
-    function openPostcardModal() {
-      document.getElementById('postcardModal').classList.remove('hidden');
-      document.getElementById('postcardModal').classList.add('flex');
-    }
-    function closePostcardModal() {
-      document.getElementById('postcardModal').classList.add('hidden');
-      document.getElementById('postcardModal').classList.remove('flex');
-    }
+    // 3. Initialize App
+    document.addEventListener('DOMContentLoaded', async () => {
+      initMap();
+      await checkAdminSession();
+      await loadData();
+      populateSegmentSelect();
+    });
 
-    function formatStoryHtml(storyText) {
-      if (!storyText) return '';
-      return storyText
-        .replace(/🌿 מה ראינו בטבע:/g, '<strong class="text-emerald-800 block mt-1.5">🌿 מה ראינו בטבע:</strong>')
-        .replace(/🧭 צידה לדרך:/g, '<strong class="text-blue-800 block mt-1.5">🧭 צידה לדרך:</strong>')
-        .replace(/🤍 מילה לזוהר:/g, '<strong class="text-orange-800 block mt-1.5">🤍 מילה לזוהר:</strong>');
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        ['segmentModal', 'menuDrawer', 'contactAdminModal', 'fiveMinModal', 'lightboxModal'].forEach(closeModal);
+      }
+    });
+
+    async function checkAdminSession() {
+      const { data } = await sb.auth.getSession();
+      currentUser = data?.session?.user || null;
+      updateAdminUI();
     }
 
     async function loadData() {
-      document.getElementById('loadingState').classList.remove('hidden');
       try {
-        const [segRes, memRes] = await Promise.all([
-          sb.from('segments').select('*').order('id', { ascending: true }),
-          sb.from('public_memories').select('*').order('created_at', { ascending: false })
-        ]);
+        const { data: segData, error: segErr } = await sb
+          .from('segments')
+          .select('*')
+          .order('id', { ascending: true });
 
-        if (segRes.error) throw segRes.error;
-        if (memRes.error) throw memRes.error;
+        segments = (!segErr && segData && segData.length > 0) ? segData : FALLBACK_SEGMENTS;
 
-        segmentsData = segRes.data || [];
-        memoriesData = memRes.data || [];
+        // Authenticated admins read full memories table; public reads safe public_memories view
+        const tableSource = currentUser ? 'memories' : 'public_memories';
+        const { data: memData, error: memErr } = await sb
+          .from(tableSource)
+          .select('*')
+          .order('hike_date', { ascending: false });
 
-        initRealMap();
-        updateStats();
-        renderRealMapPins();
-        renderSegments();
-        renderJourneyFeed();
-        checkPendingCount();
+        memories = (!memErr && memData) ? memData : [];
       } catch (err) {
-        console.error('Error loading data:', err);
-        document.getElementById('loadingState').innerHTML = `<span class="text-red-600 font-bold">שגיאה בטעינת הנתונים: ${err.message}</span>`;
-      } finally {
-        if (segmentsData.length > 0) {
-          document.getElementById('loadingState').classList.add('hidden');
-        }
+        console.error('Data load error:', err);
+        segments = FALLBACK_SEGMENTS;
+        memories = [];
       }
+
+      updateStatsAndProgress();
+      renderMapPins();
+      selectSegmentOnMap(selectedSegmentId, false);
+      renderSegmentsList();
+      renderPostcards();
+      if (currentUser) renderAdminList();
     }
 
-    async function checkPendingCount() {
-      try {
-        const { data: sessionData } = await sb.auth.getSession();
-        if (!sessionData || !sessionData.session) {
-          isAdminLoggedIn = false;
-          document.getElementById('pendingBadge').classList.add('hidden');
-          return;
-        }
-        isAdminLoggedIn = true;
-        adminUserEmail = sessionData.session.user.email || '';
+    // 4. Segment Status Helper
+    function getSegmentStatusInfo(segId) {
+      const today = new Date().toISOString().split('T')[0];
+      const segMems = memories.filter(m => m.segment_id === segId && m.status !== 'message');
+      const completed = segMems.filter(m => m.status === 'completed' && m.is_approved);
+      const planned = segMems.filter(m => m.status === 'planned');
 
-        const { count } = await sb
-          .from('memories')
-          .select('*', { count: 'exact', head: true })
-          .eq('is_approved', false);
-        const badge = document.getElementById('pendingBadge');
-        if (count && count > 0) {
-          badge.textContent = count;
-          badge.classList.remove('hidden');
-        } else {
-          badge.classList.add('hidden');
-        }
-      } catch (e) {}
-    }
-
-    function openContactModal() {
-      document.getElementById('contactModal').classList.remove('hidden');
-      document.getElementById('contactModal').classList.add('flex');
-    }
-    function closeContactModal() {
-      document.getElementById('contactModal').classList.add('hidden');
-      document.getElementById('contactModal').classList.remove('flex');
-    }
-
-    async function submitContactMessage(e) {
-      e.preventDefault();
-      const btn = document.getElementById('msgSubmitBtn');
-      btn.disabled = true;
-      btn.textContent = 'שולח הודעה...';
-
-      const senderName = document.getElementById('msgSenderName').value.trim();
-      const senderContact = document.getElementById('msgSenderContact').value.trim();
-      const subject = document.getElementById('msgSubject').value;
-      const body = document.getElementById('msgBody').value.trim();
-      const todayStr = new Date().toISOString().split('T')[0];
-
-      try {
-        const payload = {
-          segment_id: 1,
-          hiker_name: senderName,
-          hike_date: todayStr,
-          contact_info: packContactInfo(senderContact, subject),
-          story: body,
-          status: 'message',
-          is_approved: false
+      if (completed.length > 0) {
+        return { state: 'completed', label: `בוצע (${completed.length})`, color: '#15803d', badgeClass: 'bg-emerald-100 text-emerald-800', overdue: false, completed, planned };
+      }
+      if (planned.length > 0) {
+        const hasOverdue = planned.some(p => p.hike_date && p.hike_date < today);
+        return {
+          state: 'planned',
+          label: hasOverdue ? 'שוריין (עבר תאריך)' : `שוריין (${planned.length})`,
+          color: hasOverdue ? '#dc2626' : '#d97706',
+          badgeClass: hasOverdue ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800',
+          overdue: hasOverdue,
+          completed,
+          planned
         };
-        const { error } = await sb.from('memories').insert([payload]);
-        if (error) throw error;
-
-        alert('ההודעה נשלחה בהצלחה לצוות המנהלים! נחזור אליך בהקדם.');
-        document.getElementById('contactAdminForm').reset();
-        closeContactModal();
-        await checkPendingCount();
-      } catch (err) {
-        alert('שגיאה בשליחת ההודעה: ' + err.message);
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'שליחת הודעה למנהלים';
       }
+      return { state: 'available', label: 'פנוי לשריון', color: '#0f172a', badgeClass: 'bg-slate-100 text-slate-700', overdue: false, completed: [], planned: [] };
     }
 
-    function renderJourneyFeed() {
-      const grid = document.getElementById('journeyFeedGrid');
-      const countEl = document.getElementById('journeyFeedCount');
-      const approvedMemories = memoriesData.filter(m => m.status === 'completed' && m.is_approved);
-      countEl.textContent = approvedMemories.length;
-
-      if (approvedMemories.length === 0) {
-        grid.innerHTML = `
-          <div class="col-span-full bg-[#fffdf7] border-2 border-dashed border-amber-300 rounded-2xl p-8 text-center text-slate-600">
-            <span class="text-3xl block mb-2">📮</span>
-            <p class="font-bold text-slate-800">תיבת הגלויות מחכה לגלויה הראשונה מהשטח!</p>
-            <p class="text-xs mt-1">ברגע שקבוצה תסיים מקטע ותעלה תמונה ומחשבה מעצירה של 5 דקות, הגלויה תופיע כאן.</p>
-          </div>
-        `;
-        return;
-      }
-
-      grid.innerHTML = approvedMemories.map((item, idx) => {
-        const seg = segmentsData.find(s => s.id === item.segment_id);
-        const segLabel = seg ? `מקטע ${seg.id} • ${seg.title}` : `מקטע ${item.segment_id}`;
-        const regionLabel = seg ? seg.region : 'שביל ישראל';
-        const tiltClass = idx % 2 === 0 ? 'md:-rotate-[0.4deg]' : 'md:rotate-[0.4deg]';
-
-        return `
-          <article class="relative bg-[#fffdf7] border border-amber-300/90 rounded-2xl p-4 sm:p-5 shadow-md hover:shadow-lg transition-all ${tiltClass} hover:rotate-0 flex flex-col justify-between">
-            <!-- חלק עליון: חותמת דואר ובול מקטע -->
-            <div>
-              <div class="flex items-start justify-between gap-3 pb-3 mb-3 border-b border-dashed border-amber-300">
-                <div>
-                  <span class="inline-block text-[11px] font-bold text-amber-800 uppercase tracking-wider">גלויה משביל ישראל • ${regionLabel}</span>
-                  <button onclick="openModal(${item.segment_id})" class="block text-base sm:text-lg font-extrabold text-slate-900 hover:text-orange-700 text-right leading-snug mt-0.5 transition">
-                    ${segLabel}
-                  </button>
-                </div>
-                <!-- בול דואר מעוצב -->
-                <div class="shrink-0 w-16 h-16 rounded-lg border-2 border-dashed border-orange-400 bg-orange-50/80 flex flex-col items-center justify-center text-center p-1 rotate-2 shadow-2xs select-none">
-                  <div class="w-6 h-1.5 rounded-xs trail-stripe mb-1"></div>
-                  <span class="text-[10px] font-extrabold text-orange-900 leading-none">מקטע #${item.segment_id}</span>
-                  <span class="text-[9px] text-slate-600 mt-1 font-medium">${item.hike_date}</span>
-                </div>
-              </div>
-
-              <!-- תמונת פולארויד מהשטח (לחיצה פותחת תצוגה מוגדלת) -->
-              ${item.photo_url ? `
-                <div onclick="openLightbox('${item.photo_url}', '${segLabel.replace(/'/g, "\'")} • ${item.hiker_name.replace(/'/g, "\'")} (${item.hike_date})')" class="cursor-zoom-in group relative bg-white p-2 pb-3 rounded-xl border border-slate-200 shadow-xs mb-4">
-                  <img src="${item.photo_url}" alt="${segLabel}" class="w-full h-56 sm:h-60 object-cover rounded-lg group-hover:brightness-95 transition" />
-                  <span class="absolute bottom-5 left-4 px-2.5 py-1 rounded-full bg-black/65 text-white text-[11px] font-bold opacity-90 sm:opacity-0 group-hover:opacity-100 transition flex items-center gap-1">🔍 להגדלה</span>
-                </div>
-              ` : ''}
-
-              <!-- תוכן הגלויה על נייר חמים -->
-              <div class="text-sm text-slate-800 leading-relaxed space-y-1.5 px-1">
-                ${formatStoryHtml(item.story)}
-              </div>
-            </div>
-
-            <!-- חתימה אישית בתחתית הגלויה -->
-            <div class="mt-5 pt-3 border-t border-amber-200/80 flex items-center justify-between gap-2">
-              <div class="text-xs text-slate-700">
-                <span class="text-slate-400">נכתב בדרך ע״י </span>
-                <strong class="font-extrabold text-slate-900 text-sm">${item.hiker_name}</strong>
-              </div>
-              <button onclick="openModal(${item.segment_id})" class="text-xs font-bold text-orange-700 hover:text-orange-800 hover:underline">
-                למקטע במפה ←
-              </button>
-            </div>
-          </article>
-        `;
-      }).join('');
-    }
-
-    function packContactInfo(phone, publicNote) {
-      const cleanPhone = (phone || '').trim();
-      const cleanNote = (publicNote || '').trim();
-      if (cleanPhone && cleanNote) return `PHONE:${cleanPhone}|NOTE:${cleanNote}`;
-      if (cleanPhone) return `PHONE:${cleanPhone}`;
-      return cleanNote;
-    }
-
-    function parseContactInfo(raw) {
-      if (!raw) return { phone: '', publicNote: '' };
-      if (raw.startsWith('PHONE:')) {
-        const parts = raw.split('|NOTE:');
-        const phone = parts[0].replace('PHONE:', '').trim();
-        const publicNote = parts[1] ? parts[1].trim() : '';
-        return { phone, publicNote };
-      }
-      return { phone: '', publicNote: raw };
-    }
-
-    function formatWhatsappLink(phone) {
-      if (!phone) return '';
-      let digits = phone.replace(/\D/g, '');
-      if (digits.startsWith('0')) digits = '972' + digits.substring(1);
-      return `https://wa.me/${digits}`;
-    }
-
-    function isPlanOverdue(hikeDateStr) {
-      if (!hikeDateStr) return false;
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const planDate = new Date(hikeDateStr + 'T00:00:00');
-      return planDate < today;
-    }
-
-    function getSegmentMemories(segmentId) {
-      const completed = memoriesData.filter(m => m.segment_id === segmentId && m.status === 'completed' && m.is_approved);
-      const planned = memoriesData.filter(m => m.segment_id === segmentId && m.status === 'planned');
-      return { completed, planned };
-    }
-
-    function filterByRegionFromProgress(regionName) {
-      const sel = document.getElementById('regionFilter');
-      sel.value = (sel.value === regionName) ? 'all' : regionName;
-      renderSegments();
-      document.getElementById('segmentsSection').scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function updateStats() {
-      let completedSegs = 0;
-      let activePlannedSegs = 0;
-      let overdueSegs = 0;
-      let availableSegs = 0;
-      let completedKm = 0;
+    // 5. Stats & Progress Bar
+    function updateStatsAndProgress() {
+      let compCount = 0;
+      let planCount = 0;
+      let availCount = 0;
       let totalKm = 0;
+      let doneKm = 0;
 
-      const regionOrder = ['צפון', 'מרכז', 'ירושלים', 'דרום'];
-      const regionStats = {
-        'צפון': { total: 0, completed: 0, planned: 0, overdue: 0 },
-        'מרכז': { total: 0, completed: 0, planned: 0, overdue: 0 },
-        'ירושלים': { total: 0, completed: 0, planned: 0, overdue: 0 },
-        'דרום': { total: 0, completed: 0, planned: 0, overdue: 0 }
-      };
+      const miniGrid = document.getElementById('miniBlocksGrid');
+      miniGrid.innerHTML = '';
 
-      const blockBar = document.getElementById('segmentsBlockBar');
-      blockBar.innerHTML = '';
+      segments.forEach(seg => {
+        const dist = Number(seg.distance) || 0;
+        totalKm += dist;
+        const info = getSegmentStatusInfo(seg.id);
 
-      segmentsData.forEach(seg => {
-        totalKm += Number(seg.distance) || 0;
-        const { completed, planned } = getSegmentMemories(seg.id);
-        const reg = regionStats[seg.region] ? seg.region : 'דרום';
-        regionStats[reg].total++;
-
-        let blockColor = 'bg-slate-900 hover:bg-slate-700';
-        let statusLabel = 'לא נבחר';
-
-        if (completed.length > 0) {
-          completedSegs++;
-          completedKm += Number(seg.distance);
-          regionStats[reg].completed++;
-          blockColor = 'bg-emerald-500 hover:bg-emerald-600';
-          statusLabel = 'בוצע';
-        } else if (planned.length > 0) {
-          const anyActive = planned.some(p => !isPlanOverdue(p.hike_date));
-          if (anyActive) {
-            activePlannedSegs++;
-            regionStats[reg].planned++;
-            blockColor = 'bg-amber-500 hover:bg-amber-600';
-            statusLabel = `שוריין (${planned[0].hike_date})`;
-          } else {
-            overdueSegs++;
-            regionStats[reg].overdue++;
-            blockColor = 'bg-red-600 hover:bg-red-700';
-            statusLabel = `עבר הזמן (${planned[0].hike_date})`;
-          }
+        let blockBg = 'bg-slate-800 text-white';
+        if (info.state === 'completed') {
+          compCount++;
+          doneKm += dist;
+          blockBg = 'bg-emerald-600 text-white';
+        } else if (info.state === 'planned') {
+          planCount++;
+          blockBg = info.overdue ? 'bg-red-600 text-white' : 'bg-amber-500 text-white';
         } else {
-          availableSegs++;
+          availCount++;
         }
 
-        const block = document.createElement('button');
-        block.type = 'button';
-        block.className = `h-3.5 rounded-[3px] transition-transform hover:scale-125 focus:outline-none ${blockColor}`;
-        block.title = `מקטע ${seg.id} (${seg.region}): ${seg.title} — ${statusLabel}`;
-        block.setAttribute('aria-label', `מקטע ${seg.id}: ${seg.title}`);
-        block.onclick = () => openModal(seg.id);
-        blockBar.appendChild(block);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = seg.id;
+        btn.title = `#${seg.id} ${seg.title}`;
+        btn.className = `h-6 rounded text-[10px] font-bold flex items-center justify-center ${blockBg} hover:opacity-80`;
+        btn.onclick = () => openSegmentModal(seg.id);
+        miniGrid.appendChild(btn);
       });
 
-      document.getElementById('completedCount').textContent = completedSegs;
-      document.getElementById('plannedCount').textContent = activePlannedSegs;
-      document.getElementById('availableCount').textContent = availableSegs;
-      document.getElementById('completedKm').textContent = completedKm.toFixed(1);
-      const totalKmEl = document.getElementById('totalTrailKm');
-      const kmPctEl = document.getElementById('completedKmPct');
-      const kmBarEl = document.getElementById('completedKmBar');
-      const kmPct = totalKm > 0 ? Math.min(100, Math.round((completedKm / totalKm) * 100)) : 0;
-      if (totalKmEl) totalKmEl.textContent = totalKm.toFixed(1);
-      if (kmPctEl) kmPctEl.textContent = `${kmPct}%`;
-      if (kmBarEl) kmBarEl.style.width = `${kmPct}%`;
+      document.getElementById('statCompleted').textContent = compCount;
+      document.getElementById('statPlanned').textContent = planCount;
+      document.getElementById('statAvailable').textContent = availCount;
+      document.getElementById('statKm').textContent = Math.round(doneKm);
 
-      // עדכון גרף עיגולים קונצנטריים (חיצוני = בוצע, פנימי = שוריין)
-      const totalSegs = segmentsData.length || 56;
-      const completedPct = Math.round((completedSegs / totalSegs) * 100);
-      const totalReservedSegs = activePlannedSegs + overdueSegs;
-      const plannedPct = Math.round((totalReservedSegs / totalSegs) * 100);
+      document.getElementById('pillAvailCount').textContent = availCount;
+      document.getElementById('pillPlanCount').textContent = planCount;
+      document.getElementById('pillCompCount').textContent = compCount;
 
-      const outerCircumference = 2 * Math.PI * 42; // 263.89
-      const innerCircumference = 2 * Math.PI * 30; // 188.50
+      const total = segments.length || 56;
+      document.getElementById('barCompleted').style.width = `${(compCount / total) * 100}%`;
+      document.getElementById('barPlanned').style.width = `${(planCount / total) * 100}%`;
 
-      const outerRing = document.getElementById('outerCompletedRing');
-      const innerRing = document.getElementById('innerPlannedRing');
-      if (outerRing) {
-        outerRing.style.strokeDashoffset = outerCircumference * (1 - completedSegs / totalSegs);
-      }
-      if (innerRing) {
-        innerRing.style.strokeDashoffset = innerCircumference * (1 - totalReservedSegs / totalSegs);
-      }
-
-      const cPctEl = document.getElementById('completedPctText');
-      const pPctEl = document.getElementById('plannedPctText');
-      const cLegEl = document.getElementById('completedPctLegend');
-      const pLegEl = document.getElementById('plannedPctLegend');
-      if (cPctEl) cPctEl.textContent = `${completedPct}%`;
-      if (pPctEl) pPctEl.textContent = `${plannedPct}%`;
-      if (cLegEl) cLegEl.textContent = `${completedPct}%`;
-      if (pLegEl) pLegEl.textContent = `${plannedPct}%`;
-
-      const overdueBadge = document.getElementById('overdueSummaryBadge');
-      if (overdueSegs > 0) {
-        document.getElementById('overdueCount').textContent = overdueSegs;
-        overdueBadge.classList.remove('hidden');
-      } else {
-        overdueBadge.classList.add('hidden');
-      }
-
-      const regionBar = document.getElementById('regionBreakdownBar');
-      regionBar.innerHTML = regionOrder.map(reg => {
-        const st = regionStats[reg];
-        return `
-          <button type="button" onclick="filterByRegionFromProgress('${reg}')" class="bg-slate-50 hover:bg-orange-50 border border-slate-200 hover:border-orange-300 rounded-xl p-2 text-right transition">
-            <div class="font-extrabold text-slate-800 flex items-center justify-between">
-              <span>${reg}</span>
-              <span class="text-[11px] text-slate-500">${st.total} מק'</span>
-            </div>
-            <div class="flex items-center gap-1.5 mt-1 text-[11px] font-bold">
-              <span class="text-emerald-700">🟢 ${st.completed}</span>
-              <span class="text-amber-700">🟠 ${st.planned}</span>
-              ${st.overdue > 0 ? `<span class="text-red-700">🔴 ${st.overdue}</span>` : ''}
-            </div>
-          </button>
-        `;
-      }).join('');
+      const approvedPostcards = memories.filter(m => m.status === 'completed' && m.is_approved);
+      document.getElementById('mobPostcardCount').textContent = approvedPostcards.length;
     }
 
-    function renderRealMapPins() {
+    // 6. Interactive Leaflet Map (Default View)
+    function initMap() {
+      map = L.map('trailMap', {
+        center: [31.5, 35.0],
+        zoom: 7,
+        zoomControl: true
+      });
+
+      topoLayer = L.tileLayer('https://israelhiking.osm.org.il/Hebrew/Tiles/{z}/{x}/{y}.png', {
+        attribution: '© Israel Hiking Map / OSM',
+        maxZoom: 16
+      });
+
+      streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap',
+        maxZoom: 18
+      });
+
+      topoLayer.addTo(map);
+      markersLayer = L.layerGroup().addTo(map);
+    }
+
+    function toggleMapLayer() {
+      const btn = document.getElementById('mapLayerBtn');
+      if (isStreetMap) {
+        map.removeLayer(streetLayer);
+        topoLayer.addTo(map);
+        btn.textContent = '🗺️ מפת רחובות';
+      } else {
+        map.removeLayer(topoLayer);
+        streetLayer.addTo(map);
+        btn.textContent = '⛰️ מפת שבילים';
+      }
+      isStreetMap = !isStreetMap;
+    }
+
+    function resetMapBounds() {
+      map.setView([31.5, 35.0], 7);
+    }
+
+    function setQuickFilter(status) {
+      quickMapFilter = status;
+      document.querySelectorAll('.qfilter-btn').forEach(btn => {
+        const active = btn.dataset.qfilter === status;
+        btn.className = active
+          ? 'qfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-extrabold bg-slate-900 text-white shadow-xs'
+          : 'qfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-slate-700 border border-slate-200';
+      });
+      renderMapPins();
+    }
+
+    function renderMapPins() {
       if (!markersLayer) return;
       markersLayer.clearLayers();
-      if (endpointsLayer) endpointsLayer.clearLayers();
 
-      // הוספת נקודות התחלה וסיום קבועות של שביל ישראל (קופות אתר החרמון בצפון ובית ספר שדה אילת בדרום)
-      if (endpointsLayer) {
-        const startPt = [33.3046, 35.7689]; // קופות אתר החרמון - התחלת שביל ישראל
-        const endPt = [29.5123, 34.9228];   // בית ספר שדה אילת - סיום שביל ישראל
+      const coords = [];
+      segments.forEach(seg => {
+        if (!seg.lat || !seg.lng) return;
+        coords.push([seg.lat, seg.lng]);
 
-        const startIcon = L.divIcon({
-          className: 'custom-pin-icon',
-          html: `<div class="px-2 py-0.5 rounded-full bg-blue-700 text-white text-[10px] font-extrabold border-2 border-white shadow-md whitespace-nowrap">🚩 התחלה: קופות החרמון</div>`,
-          iconSize: [124, 24],
-          iconAnchor: [62, 12]
-        });
-        const endIcon = L.divIcon({
-          className: 'custom-pin-icon',
-          html: `<div class="px-2 py-0.5 rounded-full bg-orange-700 text-white text-[10px] font-extrabold border-2 border-white shadow-md whitespace-nowrap">🏁 סיום: בי"ס שדה אילת</div>`,
-          iconSize: [128, 24],
-          iconAnchor: [64, 12]
+        const info = getSegmentStatusInfo(seg.id);
+        if (quickMapFilter !== 'all' && info.state !== quickMapFilter) return;
+
+        const isSelected = seg.id === selectedSegmentId;
+        const icon = L.divIcon({
+          className: '',
+          html: `<div class="custom-pin ${info.overdue ? 'pin-overdue' : ''} ${isSelected ? 'selected' : ''}" style="width:28px;height:28px;background:${info.color};">${seg.id}</div>`,
+          iconSize: [28, 28],
+          iconAnchor: [14, 14]
         });
 
-        L.marker(startPt, { icon: startIcon, interactive: false }).addTo(endpointsLayer);
-        L.marker(endPt, { icon: endIcon, interactive: false }).addTo(endpointsLayer);
-      }
-
-      segmentsData.forEach(seg => {
-        const lat = seg.lat || (33.24 - (seg.map_y / 100) * 3.7);
-        const lng = seg.lng || (34.9 + (seg.map_x / 100) * 0.7);
-        const { completed, planned } = getSegmentMemories(seg.id);
-
-        let iconHtml = '';
-        let iconSize = [24, 24];
-
-        if (completed.length > 0) {
-          iconSize = [24, 24];
-          iconHtml = `<div class="w-6 h-6 rounded-full bg-emerald-500 text-white text-[10px] font-extrabold flex items-center justify-center border-2 border-white shadow-md hover:scale-110 transition-transform select-none">${seg.id}</div>`;
-        } else if (planned.length > 0) {
-          const anyActive = planned.some(p => !isPlanOverdue(p.hike_date));
-          iconSize = [24, 24];
-          if (anyActive) {
-            iconHtml = `<div class="w-6 h-6 rounded-full bg-amber-500 text-white text-[10px] font-extrabold flex items-center justify-center border-2 border-white shadow-md hover:scale-110 transition-transform select-none">${seg.id}</div>`;
-          } else {
-            iconSize = [26, 26];
-            iconHtml = `<div class="w-6 h-6 rounded-full bg-red-600 text-white text-[10px] font-extrabold flex items-center justify-center border-2 border-white shadow-md animate-pulse select-none">${seg.id}</div>`;
-          }
-        } else {
-          iconSize = [22, 22];
-          iconHtml = `<div class="w-5 h-5 rounded-full bg-slate-900 text-white text-[9px] font-bold flex items-center justify-center border-[1.5px] border-white shadow hover:bg-orange-600 hover:scale-110 transition select-none">${seg.id}</div>`;
-        }
-
-        const customIcon = L.divIcon({
-          className: 'custom-pin-icon',
-          html: iconHtml,
-          iconSize: iconSize,
-          iconAnchor: [iconSize[0] / 2, iconSize[1] / 2]
-        });
-
-        const marker = L.marker([lat, lng], { icon: customIcon });
-        marker.bindTooltip(`מקטע ${seg.id}: ${seg.title}`, { direction: 'top' });
-        marker.on('click', () => {
-          selectMapSegment(seg);
-          map.flyTo([lat, lng], Math.max(map.getZoom(), 10), { duration: 0.8 });
-        });
+        const marker = L.marker([seg.lat, seg.lng], { icon });
+        marker.on('click', () => selectSegmentOnMap(seg.id, true));
         marker.addTo(markersLayer);
       });
 
-
+      if (coords.length > 1) {
+        L.polyline(coords, { color: '#0f766e', weight: 2.5, opacity: 0.45, dashArray: '5, 7' }).addTo(markersLayer);
+      }
     }
 
-    function selectMapSegment(seg) {
-      const { completed, planned } = getSegmentMemories(seg.id);
-      const seasonInfo = getSegmentSeasonInfo(seg);
-      const panel = document.getElementById('mapPreviewPanel');
+    function selectSegmentOnMap(segId, panToMarker = false) {
+      selectedSegmentId = segId;
+      const seg = segments.find(s => s.id === segId) || segments[0];
+      if (!seg) return;
 
-      let statusBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-slate-900 text-white">⚫ לא נבחר</span>`;
-      if (completed.length > 0) statusBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">🟢 בוצע (${completed.length})</span>`;
-      else if (planned.length > 0) {
-        const anyActive = planned.some(p => !isPlanOverdue(p.hike_date));
-        statusBadge = anyActive
-          ? `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800">🟠 שוריין (${planned.length})</span>`
-          : `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800">🔴 לא בוצע (עבר התאריך)</span>`;
+      const info = getSegmentStatusInfo(seg.id);
+      document.getElementById('mfcNumber').textContent = `#${seg.id}`;
+      document.getElementById('mfcStatusBadge').textContent = info.label;
+      document.getElementById('mfcStatusBadge').className = `px-2.5 py-0.5 rounded-full text-xs font-bold ${info.badgeClass}`;
+      document.getElementById('mfcRegion').textContent = seg.region;
+      document.getElementById('mfcTitle').textContent = seg.title;
+      document.getElementById('mfcMeta').textContent = `📏 ${seg.distance} ק״מ • ⛰️ ${seg.difficulty}`;
+
+      if (panToMarker && seg.lat && seg.lng && map) {
+        map.panTo([seg.lat, seg.lng]);
       }
-
-      let contentHtml = '';
-      if (completed.length > 0) {
-        const latest = completed[0];
-        contentHtml = `
-          <div class="mt-4 bg-white rounded-xl border border-slate-200 overflow-hidden">
-            ${latest.photo_url ? `<div onclick="openLightbox('${latest.photo_url}', 'מקטע #${seg.id}: ${seg.title.replace(/'/g, "\'")} • ${latest.hiker_name.replace(/'/g, "\'")}')" class="relative cursor-zoom-in group"><img src="${latest.photo_url}" class="w-full h-40 object-cover group-hover:brightness-95 transition" /><span class="absolute bottom-2 left-2 px-2 py-0.5 rounded-full bg-black/65 text-white text-[10px] font-bold">🔍 הגדל</span></div>` : ''}
-            <div class="p-4">
-              <div class="text-xs font-bold text-emerald-700">${latest.hiker_name} • ${latest.hike_date}</div>
-              <div class="text-xs text-slate-700 mt-1 leading-relaxed">${formatStoryHtml(latest.story)}</div>
-            </div>
-          </div>
-        `;
-      } else if (planned.length > 0) {
-        const itemsHtml = planned.map(p => {
-          const { publicNote } = parseContactInfo(p.public_note !== undefined ? p.public_note : p.contact_info);
-          const overdueTag = isPlanOverdue(p.hike_date) ? '<span class="text-red-700 font-bold">(עבר התאריך)</span>' : '';
-          return `<div class="py-1 border-b border-amber-200/60 last:border-0">
-            <strong>${p.hiker_name}</strong> • ${p.hike_date} ${overdueTag}
-            ${publicNote ? `<div class="text-xs text-amber-800 mt-0.5">${publicNote}</div>` : ''}
-          </div>`;
-        }).join('');
-        contentHtml = `
-          <div class="mt-4 bg-amber-50 border border-amber-200 rounded-xl p-3.5 text-sm text-amber-950">
-            <div class="text-xs font-extrabold text-amber-900 mb-1.5">📅 שוריין ע"י ${planned.length === 1 ? 'קבוצה אחת' : planned.length + ' קבוצות'}:</div>
-            ${itemsHtml}
-          </div>
-        `;
-      } else {
-        contentHtml = `
-          <div onclick="openModal(${seg.id}); switchActionTab('complete');" class="mt-4 cursor-pointer group bg-amber-50/40 hover:bg-amber-50 border-2 border-dashed border-amber-300/80 hover:border-orange-400 rounded-xl p-5 text-center transition">
-            <span class="text-3xl block mb-1.5 group-hover:scale-110 transition-transform">📷</span>
-            <p class="font-extrabold text-slate-800 text-sm">מחכים לתמונה שלכם מהשביל</p>
-            <p class="text-xs text-slate-500 mt-1">סיימתם את המקטע? לחצו כאן להעלאת תמונה וזיכרון</p>
-          </div>
-        `;
-      }
-
-      panel.innerHTML = `
-        <div>
-          <div class="flex items-center justify-between gap-2 mb-2">
-            <span class="text-xs font-bold text-blue-700">מקטע #${seg.id} • אזור ${seg.region}</span>
-            ${statusBadge}
-          </div>
-          <h3 class="text-xl font-extrabold text-slate-900">${seg.title}</h3>
-          <div class="flex flex-wrap items-center gap-2 text-xs text-slate-600 mt-1.5">
-            <span>📏 ${seg.distance} ק"מ</span>
-            <span>•</span>
-            <span>⛰️ קושי: ${seg.difficulty}</span>
-          </div>
-          <div class="mt-2">
-            <span class="inline-block text-[11px] font-bold px-2.5 py-0.5 rounded-md border ${seasonInfo.badgeClass}">
-              🌤️ עונה מומלצת: ${seasonInfo.label}
-            </span>
-          </div>
-          ${contentHtml}
-        </div>
-        <div class="mt-5 flex gap-3">
-          <button onclick="openModal(${seg.id})" class="flex-1 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-sm transition">
-            פתיחת מקטע / שריון / העלאה
-          </button>
-          <a href="${seg.official_url}" target="_blank" rel="noopener" class="px-4 py-2.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold rounded-xl text-sm transition">
-            סיפור דרך ↗
-          </a>
-        </div>
-      `;
+      renderMapPins();
     }
 
-    function resetFilters() {
-      document.getElementById('regionFilter').value = 'all';
-      document.getElementById('seasonFilter').value = 'all';
-      document.getElementById('difficultyFilter').value = 'all';
-      document.getElementById('distanceFilter').value = 'all';
+    // 7. Navigation Tabs (Mobile & Desktop)
+    function switchMobileTab(tab) {
+      activeTab = tab;
+      ['map', 'segments', 'postcards'].forEach(t => {
+        const viewEl = document.getElementById(`view-${t}`);
+        const mobBtn = document.getElementById(`mob-tab-${t}`);
+        const deskBtn = document.getElementById(`desk-tab-${t}`);
+
+        if (t === tab) {
+          viewEl.classList.remove('hidden');
+          if (mobBtn) mobBtn.className = 'flex flex-col items-center justify-center gap-0.5 text-emerald-700 font-black border-t-2 border-emerald-700';
+          if (deskBtn) deskBtn.className = 'touch-btn px-4 rounded-xl text-sm font-bold bg-emerald-50 text-emerald-800 border border-emerald-200';
+        } else {
+          viewEl.classList.add('hidden');
+          if (mobBtn) mobBtn.className = 'flex flex-col items-center justify-center gap-0.5 text-slate-500 font-semibold border-t-2 border-transparent';
+          if (deskBtn) deskBtn.className = 'touch-btn px-4 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100';
+        }
+      });
+
+      if (tab === 'map' && map) {
+        setTimeout(() => map.invalidateSize(), 80);
+      }
+    }
+
+    // 8. Segments List & Filtering
+    function setRegionFilter(region) {
+      regionFilter = region;
+      document.querySelectorAll('.rfilter-btn').forEach(btn => {
+        const active = btn.dataset.rfilter === region;
+        btn.className = active
+          ? 'rfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-extrabold bg-emerald-700 text-white'
+          : 'rfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-slate-700 border border-slate-200';
+      });
+      renderSegmentsList();
+    }
+
+    function toggleAdvancedFilters() {
+      document.getElementById('advancedFiltersBox').classList.toggle('hidden');
+    }
+
+    function resetAllFilters() {
+      regionFilter = 'all';
+      setRegionFilter('all');
+      document.getElementById('searchInput').value = '';
       document.getElementById('statusFilter').value = 'all';
-      renderSegments();
+      document.getElementById('difficultyFilter').value = 'all';
+      document.getElementById('lengthFilter').value = 'all';
+      renderSegmentsList();
     }
 
-    function renderSegments() {
-      const region = document.getElementById('regionFilter').value;
-      const season = document.getElementById('seasonFilter').value;
-      const difficulty = document.getElementById('difficultyFilter').value;
-      const distance = document.getElementById('distanceFilter').value;
-      const status = document.getElementById('statusFilter').value;
+    function renderSegmentsList() {
+      const search = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
+      const statusF = document.getElementById('statusFilter')?.value || 'all';
+      const diffF = document.getElementById('difficultyFilter')?.value || 'all';
+      const lenF = document.getElementById('lengthFilter')?.value || 'all';
 
-      const isAnyFilterActive = region !== 'all' || season !== 'all' || difficulty !== 'all' || distance !== 'all' || status !== 'all';
-      const resetBtn = document.getElementById('resetFiltersBtn');
-      if (isAnyFilterActive) {
-        resetBtn.classList.remove('hidden');
-      } else {
-        resetBtn.classList.add('hidden');
-      }
-
-      const grid = document.getElementById('segmentsGrid');
-      const emptyState = document.getElementById('emptyFilterState');
-      grid.innerHTML = '';
-
-      const filtered = segmentsData.filter(seg => {
-        if (region !== 'all' && seg.region !== region) return false;
-
-        const seasonInfo = getSegmentSeasonInfo(seg);
-        if (season !== 'all' && !seasonInfo.codes.includes(season)) return false;
-
-        const diffText = (seg.difficulty || '').trim();
-        if (difficulty === 'easy' && !diffText.startsWith('קל')) return false;
-        if (difficulty === 'medium' && diffText !== 'בינוני') return false;
-        if (difficulty === 'hard' && !diffText.includes('קשה')) return false;
-
-        const distNum = Number(seg.distance);
-        if (distance === 'short' && distNum >= 16) return false;
-        if (distance === 'medium' && (distNum < 16 || distNum >= 20)) return false;
-        if (distance === 'long' && distNum < 20) return false;
-
-        const { completed, planned } = getSegmentMemories(seg.id);
-        if (status === 'completed' && completed.length === 0) return false;
-        if (status === 'planned' && (planned.length === 0 || completed.length > 0)) return false;
-        if (status === 'available' && (completed.length > 0 || planned.length > 0)) return false;
-
+      const filtered = segments.filter(seg => {
+        const info = getSegmentStatusInfo(seg.id);
+        if (regionFilter !== 'all' && seg.region !== regionFilter) return false;
+        if (statusF !== 'all' && info.state !== statusF) return false;
+        if (diffF !== 'all' && !(seg.difficulty || '').includes(diffF)) return false;
+        const dist = Number(seg.distance) || 0;
+        if (lenF === 'short' && dist >= 14) return false;
+        if (lenF === 'medium' && (dist < 14 || dist > 20)) return false;
+        if (lenF === 'long' && dist <= 20) return false;
+        if (search && !String(seg.id).includes(search) && !(seg.title || '').toLowerCase().includes(search)) return false;
         return true;
       });
 
-      document.getElementById('filteredCounter').textContent = filtered.length;
-
-      if (filtered.length === 0 && segmentsData.length > 0) {
-        emptyState.classList.remove('hidden');
-      } else {
-        emptyState.classList.add('hidden');
-      }
+      document.getElementById('filteredCount').textContent = filtered.length;
+      const grid = document.getElementById('segmentsGrid');
+      grid.innerHTML = '';
 
       filtered.forEach(seg => {
-        const { completed, planned } = getSegmentMemories(seg.id);
-        const seasonInfo = getSegmentSeasonInfo(seg);
-        let badge = `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600">פנוי</span>`;
-        let borderClass = 'border-slate-200';
-        let previewImg = '';
+        const info = getSegmentStatusInfo(seg.id);
+        const latestPhoto = info.completed.find(c => c.photo_url)?.photo_url;
 
-        previewImg = `
-          <div onclick="openModal(${seg.id}); switchActionTab('complete');" class="cursor-pointer group w-full h-32 rounded-xl mb-3 bg-gradient-to-br from-slate-50 to-amber-50/50 border-2 border-dashed border-slate-200 hover:border-orange-300 flex flex-col items-center justify-center text-center p-3 transition">
-            <span class="text-2xl mb-1 opacity-75 group-hover:scale-110 transition-transform">📷</span>
-            <span class="text-xs font-bold text-slate-600 group-hover:text-orange-700 transition">מחכים לתמונה שלכם</span>
-          </div>
-        `;
-
-        if (completed.length > 0) {
-          badge = `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">✅ הושלם</span>`;
-          borderClass = 'border-emerald-300';
-          if (completed[0].photo_url) {
-            previewImg = `<div onclick="openLightbox('${completed[0].photo_url}', 'מקטע #${seg.id}: ${seg.title.replace(/'/g, "\'")} • ${completed[0].hiker_name.replace(/'/g, "\'")}')" class="relative cursor-zoom-in group mb-3"><img src="${completed[0].photo_url}" class="w-full h-36 object-cover rounded-xl group-hover:brightness-95 transition" alt="${seg.title}" /><span class="absolute bottom-2 left-2 px-2 py-0.5 rounded-full bg-black/65 text-white text-[10px] font-bold opacity-85 sm:opacity-0 group-hover:opacity-100 transition">🔍 הגדל</span></div>`;
-          }
-        } else if (planned.length > 0) {
-          const anyActive = planned.some(p => !isPlanOverdue(p.hike_date));
-          const countText = planned.length > 1 ? ` • ${planned.length} קבוצות` : '';
-          if (anyActive) {
-            badge = `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800">🟠 שוריין (${planned[0].hike_date}${countText})</span>`;
-            borderClass = 'border-amber-300';
-          } else {
-            badge = `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800">🔴 עבר הזמן (${planned[0].hike_date}${countText})</span>`;
-            borderClass = 'border-red-300';
-          }
-        }
-
-        const card = document.createElement('div');
-        card.className = `bg-white rounded-2xl border ${borderClass} p-5 shadow-xs hover:shadow-md transition flex flex-col justify-between`;
+        const card = document.createElement('article');
+        card.className = 'bg-white rounded-2xl border border-slate-200 p-4 flex flex-col justify-between gap-3 shadow-2xs hover:border-emerald-300 transition';
         card.innerHTML = `
           <div>
-            ${previewImg}
             <div class="flex items-center justify-between gap-2 mb-2">
-              <span class="text-xs font-bold text-slate-400">מקטע ${seg.id} • ${seg.region}</span>
-              ${badge}
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded-lg bg-slate-900 text-white text-xs font-black">#${seg.id}</span>
+                <span class="text-xs font-bold text-slate-500">${seg.region}</span>
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-xs font-bold ${info.badgeClass}">${info.label}</span>
             </div>
-            <h3 class="text-lg font-bold text-slate-900 mb-1.5">${seg.title}</h3>
-            <div class="flex flex-wrap items-center gap-2 text-xs text-slate-600 mb-2.5">
-              <span class="font-medium">📏 ${seg.distance} ק"מ</span>
-              <span>•</span>
-              <span class="font-medium">⛰️ ${seg.difficulty}</span>
-            </div>
-            <div class="mb-3">
-              <span class="inline-block text-[11px] font-bold px-2 py-0.5 rounded-md border ${seasonInfo.badgeClass}">
-                🌤️ ${seasonInfo.label}
-              </span>
-            </div>
-            ${planned.length > 0 && completed.length === 0 ? `<p class="text-xs text-amber-800 bg-amber-50 px-2.5 py-1.5 rounded-lg mb-3">מתוכנן: <strong>${planned.map(p => p.hiker_name).join(', ')}</strong></p>` : ''}
-            ${completed.length > 0 ? `<div class="text-xs text-slate-600 line-clamp-2 mb-3"><strong>${completed[0].hiker_name}:</strong> ${completed[0].story}</div>` : ''}
+
+            <h3 class="text-base font-black text-slate-900 leading-snug">${seg.title}</h3>
+            <p class="text-xs text-slate-600 mt-1">📏 ${seg.distance} ק״מ • ⛰️ ${seg.difficulty}</p>
+
+            ${latestPhoto ? `
+              <div class="mt-3 h-36 rounded-xl overflow-hidden border border-slate-200 cursor-pointer" onclick="openLightbox('${latestPhoto}', '#${seg.id} ${seg.title}')">
+                <img src="${latestPhoto}" alt="${seg.title}" class="w-full h-full object-cover" loading="lazy" />
+              </div>
+            ` : ''}
+
+            ${info.planned.length > 0 ? `
+              <div class="mt-2.5 text-xs bg-amber-50 text-amber-900 px-3 py-2 rounded-xl border border-amber-200">
+                📅 <strong>${info.planned[0].hiker_name}</strong> (${formatDate(info.planned[0].hike_date)})
+              </div>
+            ` : ''}
           </div>
-          <button onclick="openModal(${seg.id})" class="w-full py-2 px-3 rounded-xl bg-slate-100 hover:bg-orange-600 hover:text-white text-slate-800 font-bold text-xs transition">
-            פרטים / שריון / העלאת תמונה
+
+          <button onclick="openSegmentModal(${seg.id})" class="touch-btn w-full h-12 rounded-xl ${info.state === 'available' ? 'bg-emerald-700 hover:bg-emerald-800 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-900'} font-extrabold text-sm">
+            ${info.state === 'available' ? 'לשריון מקטע / פרטים ←' : 'פרטים / הצטרפות / תיעוד ←'}
           </button>
         `;
         grid.appendChild(card);
       });
     }
 
-    function openModal(segmentId) {
-      currentSegment = segmentsData.find(s => s.id === segmentId);
-      if (!currentSegment) return;
+    // 9. Postcards Gallery
+    function renderPostcards() {
+      const approved = memories.filter(m => m.status === 'completed' && m.is_approved);
+      const grid = document.getElementById('postcardsGrid');
+      grid.innerHTML = '';
 
-      const seasonInfo = getSegmentSeasonInfo(currentSegment);
-
-      document.getElementById('modalRegionBadge').textContent = `מקטע #${currentSegment.id} • ${currentSegment.region}`;
-      document.getElementById('modalTitle').textContent = currentSegment.title;
-      document.getElementById('modalDistance').textContent = `📏 מרחק: ${currentSegment.distance} ק"מ`;
-      document.getElementById('modalDifficulty').textContent = `⛰️ רמת קושי: ${currentSegment.difficulty}`;
-      document.getElementById('modalSeason').textContent = `🌤️ עונה מומלצת: ${seasonInfo.label}`;
-      document.getElementById('modalOfficialLink').href = currentSegment.official_url || 'https://www.teva.org.il/israel-national-trail';
-
-      const siteUrl = window.location.origin + window.location.pathname;
-      const waText = `היי! מי מצטרף אליי לצעוד את *מקטע ${currentSegment.id} בשביל ישראל* (${currentSegment.title}) לזכרו של זוהר תמיר ז"ל? 🥾🤍\n📏 מרחק: ${currentSegment.distance} ק"מ | ⛰️ קושי: ${currentSegment.difficulty}\n🌤️ עונה מומלצת: ${seasonInfo.label}\nלפרטים ושריון באתר: ${siteUrl}`;
-      document.getElementById('modalWhatsappShareBtn').href = `https://wa.me/?text=${encodeURIComponent(waText)}`;
-
-      const { completed, planned } = getSegmentMemories(segmentId);
-
-      const plannedSec = document.getElementById('modalPlannedSection');
-      const plannedList = document.getElementById('modalPlannedList');
-      const existingSelectWrapper = document.getElementById('existingPlanSelectWrapper');
-      const existingSelect = document.getElementById('existingPlanSelect');
-
-      const multiNotice = document.getElementById('multiPlanNotice');
-      if (planned.length > 0) {
-        plannedSec.classList.remove('hidden');
-        plannedList.innerHTML = planned.map(p => {
-          const { publicNote } = parseContactInfo(p.public_note !== undefined ? p.public_note : p.contact_info);
-          const overdueBadge = isPlanOverdue(p.hike_date)
-            ? '<span class="px-2 py-0.5 rounded bg-red-100 text-red-800 text-[11px] font-bold mr-1">עבר הזמן</span>'
-            : '<span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-[11px] font-bold mr-1">מתוכנן</span>';
-          return `
-            <li class="bg-white/90 p-2.5 rounded-xl border border-amber-200 flex justify-between items-center">
-              <div>
-                <strong>${p.hiker_name}</strong> — תאריך: <span class="font-bold">${p.hike_date}</span> ${overdueBadge}
-                ${publicNote ? `<div class="text-xs text-slate-600 mt-0.5">${publicNote}</div>` : ''}
-              </div>
-            </li>
-          `;
-        }).join('');
-
-        multiNotice.classList.remove('hidden');
-        multiNotice.innerHTML = `💡 <strong>שימו לב:</strong> מקטע זה כבר שוריין ע"י ${planned.length === 1 ? 'קבוצה אחת' : planned.length + ' קבוצות'} (מופיע למעלה). אפשר לשריין תאריך נוסף במקביל או ליצור איתם קשר להצטרפות!`;
-
-        existingSelectWrapper.classList.remove('hidden');
-        existingSelect.innerHTML = `<option value="">-- לא שריינו מראש / רישום חדש --</option>` +
-          planned.map(p => {
-            const { phone } = parseContactInfo(p.public_note !== undefined ? p.public_note : p.contact_info);
-            return `<option value="${p.id}" data-name="${p.hiker_name}" data-date="${p.hike_date}" data-phone="${phone}">${p.hiker_name} (${p.hike_date})</option>`;
-          }).join('');
-      } else {
-        plannedSec.classList.add('hidden');
-        existingSelectWrapper.classList.add('hidden');
-        multiNotice.classList.add('hidden');
+      if (approved.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full bg-white rounded-2xl border border-slate-200 p-8 text-center space-y-2">
+            <p class="text-3xl">📷</p>
+            <h3 class="text-base font-black text-slate-900">עדיין אין גלויות מאושרות</h3>
+            <p class="text-xs text-slate-500">היו הראשונים לצעוד במקטע ולהעלות גלויה לזכרו של זוהר!</p>
+          </div>
+        `;
+        return;
       }
 
-      const compList = document.getElementById('modalCompletedList');
-      if (completed.length > 0) {
-        compList.innerHTML = completed.map(c => `
-          <div class="bg-amber-50/40 border border-amber-200/80 rounded-2xl overflow-hidden shadow-2xs">
-            ${c.photo_url ? `<div onclick="openLightbox('${c.photo_url}', 'מקטע #${currentSegment.id}: ${currentSegment.title.replace(/'/g, "\'")} • ${c.hiker_name.replace(/'/g, "\'")} (${c.hike_date})')" class="relative cursor-zoom-in group"><img src="${c.photo_url}" class="w-full max-h-72 object-cover group-hover:brightness-95 transition" /><span class="absolute bottom-3 left-3 px-2.5 py-1 rounded-full bg-black/65 text-white text-xs font-bold opacity-90 sm:opacity-0 group-hover:opacity-100 transition">🔍 לחץ להגדלת התמונה</span></div>` : ''}
-            <div class="p-4">
-              <div class="flex justify-between text-xs text-slate-500 mb-2 border-b border-amber-100 pb-2">
-                <span class="font-bold text-slate-900">🥾 ${c.hiker_name}</span>
-                <span>📅 ${c.hike_date}</span>
+      approved.forEach(item => {
+        const seg = segments.find(s => s.id === item.segment_id);
+        const segLabel = seg ? `#${seg.id} ${seg.title}` : `מקטע #${item.segment_id}`;
+        const photo = item.photo_url || 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80';
+
+        const card = document.createElement('article');
+        card.className = 'bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs flex flex-col';
+        card.innerHTML = `
+          <div class="h-52 bg-slate-100 overflow-hidden cursor-pointer relative" onclick="openLightbox('${photo}', '${segLabel} • ${item.hiker_name}')">
+            <img src="${photo}" alt="${segLabel}" class="w-full h-full object-cover" loading="lazy" />
+            <span class="absolute top-3 right-3 px-2.5 py-1 rounded-xl bg-slate-900/85 text-white text-xs font-extrabold">${segLabel}</span>
+          </div>
+          <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
+            <div>
+              <div class="flex items-center justify-between text-xs text-slate-500 font-bold mb-1.5">
+                <span>🥾 ${item.hiker_name}</span>
+                <span>${formatDate(item.hike_date)}</span>
               </div>
-              <div class="text-sm text-slate-700 leading-relaxed">${formatStoryHtml(c.story)}</div>
+              <p class="text-xs sm:text-sm text-slate-700 whitespace-pre-line leading-relaxed">${item.story || ''}</p>
             </div>
           </div>
-        `).join('');
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // 10. Segment Modal, Booking & Compressed Photo Upload
+    function openSegmentModal(segId) {
+      selectedSegmentId = segId;
+      const seg = segments.find(s => s.id === segId);
+      if (!seg) return;
+
+      document.getElementById('modalSegNum').textContent = `#${seg.id}`;
+      document.getElementById('modalSegTitle').textContent = seg.title;
+      document.getElementById('modalSegRegion').textContent = `📍 ${seg.region}`;
+      document.getElementById('modalSegDist').textContent = `📏 ${seg.distance} ק״מ`;
+      document.getElementById('modalSegDiff').textContent = `⛰️ ${seg.difficulty}`;
+      document.getElementById('modalOfficialLink').href = seg.official_url || 'https://www.teva.org.il/israel-national-trail';
+
+      // Render existing bookings & memories
+      const container = document.getElementById('modalExistingRecords');
+      const segMems = memories.filter(m => m.segment_id === seg.id && m.status !== 'message' && (m.status === 'planned' || m.is_approved));
+      container.innerHTML = '';
+
+      if (segMems.length > 0) {
+        segMems.forEach(m => {
+          const isComp = m.status === 'completed';
+          const note = m.public_note || '';
+          const div = document.createElement('div');
+          div.className = `p-3 rounded-2xl border text-xs ${isComp ? 'bg-emerald-50/70 border-emerald-200' : 'bg-amber-50/70 border-amber-200'}`;
+          div.innerHTML = `
+            <div class="flex items-center justify-between font-extrabold mb-1">
+              <span>${isComp ? '🟢 בוצע ע״י' : '🟠 שוריין ע״י'}: ${m.hiker_name}</span>
+              <span>${formatDate(m.hike_date)}</span>
+            </div>
+            ${note ? `<p class="text-slate-700 mt-1">💬 ${note}</p>` : ''}
+            ${m.story ? `<p class="text-slate-700 mt-1 whitespace-pre-line">${m.story}</p>` : ''}
+            ${m.photo_url ? `
+              <img src="${m.photo_url}" onclick="openLightbox('${m.photo_url}', '#${seg.id} ${seg.title}')" class="mt-2 h-32 w-full object-cover rounded-xl cursor-pointer border border-emerald-200" />
+            ` : ''}
+          `;
+          container.appendChild(div);
+        });
       } else {
-        compList.innerHTML = `
-          <div onclick="switchActionTab('complete')" class="cursor-pointer group bg-amber-50/40 hover:bg-amber-50 border-2 border-dashed border-amber-300/80 hover:border-orange-400 rounded-2xl p-6 text-center transition">
-            <span class="text-3xl block mb-1.5 group-hover:scale-110 transition-transform">📷</span>
-            <p class="text-sm font-extrabold text-slate-800">מחכים לתמונה שלכם מהשביל</p>
-            <p class="text-xs text-slate-500 mt-1">לחצו כאן כדי להעלות תמונה וגלויה מהמקטע</p>
+        container.innerHTML = `
+          <div onclick="setModalFormMode('completed')" class="p-4 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 text-center cursor-pointer hover:border-emerald-400">
+            <p class="text-sm font-extrabold text-slate-700">📷 מחכים לתמונה שלכם מהמקטע הזה</p>
+            <p class="text-xs text-slate-500 mt-0.5">שריינו תאריך או העלו תמונה וזיכרון מהדרך</p>
           </div>
         `;
       }
 
-      switchActionTab('plan');
+      setModalFormMode('planned');
       document.getElementById('segmentModal').classList.remove('hidden');
-      document.getElementById('segmentModal').classList.add('flex');
     }
 
-    function closeModal() {
-      document.getElementById('segmentModal').classList.add('hidden');
-      document.getElementById('segmentModal').classList.remove('flex');
-    }
+    function setModalFormMode(mode) {
+      document.getElementById('formMode').value = mode;
+      const planBtn = document.getElementById('modePlanBtn');
+      const compBtn = document.getElementById('modeCompBtn');
+      const planFields = document.getElementById('plannedFields');
+      const compFields = document.getElementById('completedFields');
+      const submitBtn = document.getElementById('submitMemoryBtn');
+      const dateLabel = document.getElementById('dateInputLabel');
 
-    function switchActionTab(tab) {
-      const planForm = document.getElementById('planForm');
-      const compForm = document.getElementById('completeForm');
-      const btnPlan = document.getElementById('tabBtnPlan');
-      const btnComp = document.getElementById('tabBtnComplete');
-
-      if (tab === 'plan') {
-        planForm.classList.remove('hidden');
-        compForm.classList.add('hidden');
-        btnPlan.className = 'flex-1 py-2.5 px-3 rounded-xl text-sm font-bold border transition bg-amber-500 text-white border-amber-600';
-        btnComp.className = 'flex-1 py-2.5 px-3 rounded-xl text-sm font-bold border transition bg-white text-slate-700 border-slate-300 hover:bg-slate-50';
+      if (mode === 'planned') {
+        planBtn.className = 'touch-btn rounded-xl text-xs sm:text-sm font-extrabold bg-white text-amber-800 shadow-xs';
+        compBtn.className = 'touch-btn rounded-xl text-xs sm:text-sm font-bold text-slate-600';
+        planFields.classList.remove('hidden');
+        compFields.classList.add('hidden');
+        dateLabel.textContent = 'תאריך מתוכנן *';
+        submitBtn.textContent = 'שמירת שריון מקטע ✓';
+        submitBtn.className = 'touch-btn w-full h-12 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-black text-base shadow-sm';
       } else {
-        planForm.classList.add('hidden');
-        compForm.classList.remove('hidden');
-        btnComp.className = 'flex-1 py-2.5 px-3 rounded-xl text-sm font-bold border transition bg-emerald-600 text-white border-emerald-700';
-        btnPlan.className = 'flex-1 py-2.5 px-3 rounded-xl text-sm font-bold border transition bg-white text-slate-700 border-slate-300 hover:bg-slate-50';
+        compBtn.className = 'touch-btn rounded-xl text-xs sm:text-sm font-extrabold bg-white text-emerald-800 shadow-xs';
+        planBtn.className = 'touch-btn rounded-xl text-xs sm:text-sm font-bold text-slate-600';
+        compFields.classList.remove('hidden');
+        planFields.classList.add('hidden');
+        dateLabel.textContent = 'תאריך ביצוע המסלול *';
+        submitBtn.textContent = 'שליחת תמונה וגלויה לאישור ✓';
+        submitBtn.className = 'touch-btn w-full h-12 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-base shadow-sm';
       }
     }
 
-    function fillFromExistingPlan() {
-      const sel = document.getElementById('existingPlanSelect');
-      const opt = sel.options[sel.selectedIndex];
-      if (opt && opt.value) {
-        document.getElementById('compName').value = opt.dataset.name || '';
-        document.getElementById('compDate').value = opt.dataset.date || '';
-        if (opt.dataset.phone) document.getElementById('compPhone').value = opt.dataset.phone;
-      }
+    function handlePhotoSelected(input) {
+      selectedPhotoFile = input.files?.[0] || null;
+      document.getElementById('photoFileName').textContent = selectedPhotoFile
+        ? `נבחרה תמונה: ${selectedPhotoFile.name}`
+        : 'בחרו תמונה מהגלריה או צלמו';
     }
 
-    async function submitPlan(e) {
-      e.preventDefault();
-      if (!currentSegment) return;
-      const btn = document.getElementById('planSubmitBtn');
-      btn.disabled = true;
-      btn.textContent = 'שומר שריון...';
-
-      try {
-        const phoneVal = document.getElementById('planPhone').value.trim();
-        const publicNoteVal = document.getElementById('planPublicNote').value.trim();
-        const payload = {
-          segment_id: currentSegment.id,
-          hiker_name: document.getElementById('planName').value.trim(),
-          hike_date: document.getElementById('planDate').value,
-          contact_info: packContactInfo(phoneVal, publicNoteVal),
-          status: 'planned',
-          is_approved: true
-        };
-
-        const { error } = await sb.from('memories').insert([payload]);
-        if (error) throw error;
-
-        alert('התאריך שוריין בהצלחה! אל תשכחו לשמור את כרטיסיית "עצירה של 5 דקות" לטיול.');
-        document.getElementById('planForm').reset();
-        await loadData();
-        openModal(currentSegment.id);
-      } catch (err) {
-        alert('שגיאה בשמירת השריון: ' + err.message);
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'שריינו לנו את התאריך';
-      }
-    }
-
-    function compressImage(file, maxWidth = 1200, quality = 0.8) {
+    async function compressImage(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = event => {
+        reader.onload = (e) => {
           const img = new Image();
-          img.src = event.target.result;
           img.onload = () => {
+            const maxW = 1200;
+            const scale = img.width > maxW ? maxW / img.width : 1;
             const canvas = document.createElement('canvas');
-            let width = img.width;
-            let height = img.height;
-            if (width > maxWidth) {
-              height = Math.round((height * maxWidth) / width);
-              width = maxWidth;
-            }
-            canvas.width = width;
-            canvas.height = height;
+            canvas.width = Math.round(img.width * scale);
+            canvas.height = Math.round(img.height * scale);
             const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-            canvas.toBlob(blob => resolve(blob), 'image/jpeg', quality);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Compression failed')), 'image/jpeg', 0.8);
           };
-          img.onerror = reject;
+          img.src = e.target.result;
         };
         reader.onerror = reject;
+        reader.readAsDataURL(file);
       });
     }
 
-    async function submitCompletion(e) {
+    async function submitMemoryForm(e) {
       e.preventDefault();
-      if (!currentSegment) return;
-      const btn = document.getElementById('compSubmitBtn');
-      const file = document.getElementById('compPhoto').files[0];
-      if (!file) return;
+      const mode = document.getElementById('formMode').value;
+      const hikerName = document.getElementById('hikerName').value.trim();
+      const hikeDate = document.getElementById('hikeDate').value;
+      const phone = document.getElementById('hikerPhone').value.trim();
+      const submitBtn = document.getElementById('submitMemoryBtn');
 
-      btn.disabled = true;
-      btn.textContent = 'מכווץ ומעלה תמונה...';
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'שומר נתונים...';
 
       try {
-        const compressedBlob = await compressImage(file);
-        const fileName = `seg_${currentSegment.id}_${Date.now()}.jpg`;
+        let photoUrl = null;
+        let story = '';
+        let note = '';
 
-        const { error: uploadError } = await sb.storage
-          .from('trail-photos')
-          .upload(fileName, compressedBlob, { contentType: 'image/jpeg' });
+        if (mode === 'planned') {
+          note = document.getElementById('publicNote').value.trim();
+        } else {
+          if (!selectedPhotoFile) {
+            showToast('נא לבחור תמונה מהשטח לפני השליחה');
+            submitBtn.disabled = false;
+            setModalFormMode('completed');
+            return;
+          }
+          const compressedBlob = await compressImage(selectedPhotoFile);
+          const filePath = `seg_${selectedSegmentId}_${Date.now()}.jpg`;
+          const { error: upErr } = await sb.storage
+            .from('trail-photos')
+            .upload(filePath, compressedBlob, { contentType: 'image/jpeg' });
 
-        if (uploadError) throw uploadError;
+          if (upErr) throw upErr;
+          const { data: pubData } = sb.storage.from('trail-photos').getPublicUrl(filePath);
+          photoUrl = pubData.publicUrl;
 
-        const { data: publicUrlData } = sb.storage
-          .from('trail-photos')
-          .getPublicUrl(fileName);
+          const q1 = document.getElementById('qNature').value.trim();
+          const q2 = document.getElementById('qTip').value.trim();
+          const q3 = document.getElementById('qZohar').value.trim();
+          story = [
+            q1 ? `🌿 מה ראינו בטבע: ${q1}` : '',
+            q2 ? `🎒 צידה לדרך: ${q2}` : '',
+            q3 ? `💛 מילה לזוהר: ${q3}` : ''
+          ].filter(Boolean).join('\n');
+        }
 
-        const photoUrl = publicUrlData.publicUrl;
-        const existingPlanId = document.getElementById('existingPlanSelect').value;
-
-        const natureAns = document.getElementById('compNature').value.trim();
-        const growthAns = document.getElementById('compGrowth').value.trim();
-        const zoharAns = document.getElementById('compZoharWord').value.trim();
-        const formattedStory = `🌿 מה ראינו בטבע: ${natureAns}\n🧭 צידה לדרך: ${growthAns}\n🤍 מילה לזוהר: ${zoharAns}`;
-
-        const compPhoneVal = document.getElementById('compPhone').value.trim();
-        const payload = {
-          segment_id: currentSegment.id,
-          hiker_name: document.getElementById('compName').value.trim(),
-          hike_date: document.getElementById('compDate').value,
-          contact_info: packContactInfo(compPhoneVal, ''),
-          story: formattedStory,
+        const contactInfo = `PHONE:${phone}${note ? `|NOTE:${note}` : ''}`;
+        const { error: insErr } = await sb.from('memories').insert([{
+          segment_id: selectedSegmentId,
+          hiker_name: hikerName,
+          hike_date: hikeDate,
+          status: mode,
+          contact_info: contactInfo,
+          story,
           photo_url: photoUrl,
-          status: 'completed',
-          is_approved: false
-        };
+          is_approved: mode === 'planned'
+        }]);
 
-        if (existingPlanId) {
-          const { error: updateError } = await sb
-            .from('memories')
-            .update(payload)
-            .eq('id', existingPlanId);
-          if (updateError) throw updateError;
-        } else {
-          const { error: insertError } = await sb
-            .from('memories')
-            .insert([payload]);
-          if (insertError) throw insertError;
-        }
+        if (insErr) throw insErr;
 
-        alert('תודה! הגלויה והתמונה נשלחו בהצלחה. הן יופיעו באתר ובמפה מיד לאחר אישור קצר של המנהלים.');
-        document.getElementById('completeForm').reset();
+        document.getElementById('memoryForm').reset();
+        selectedPhotoFile = null;
+        closeModal('segmentModal');
+        showToast(mode === 'planned'
+          ? 'המקטע שוריין בהצלחה! התראה נשלחה למנהלים 🎉'
+          : 'התמונה והגלויה נשלחו! יפורסמו מיד לאחר אישור מנהל 📸');
         await loadData();
-        closeModal();
       } catch (err) {
-        alert('שגיאה בהעלאת התיעוד: ' + err.message);
+        console.error(err);
+        showToast('אירעה שגיאה בשמירה. נסו שוב.');
       } finally {
-        btn.disabled = false;
-        btn.textContent = 'שליחת תיעוד ותמונה לאישור';
+        submitBtn.disabled = false;
       }
     }
 
-    // ================= ממשק ניהול (Admin - Supabase Auth) =================
-    async function openAdminModal() {
-      document.getElementById('adminModal').classList.remove('hidden');
-      document.getElementById('adminModal').classList.add('flex');
+    function shareSegmentWhatsApp() {
+      const seg = segments.find(s => s.id === selectedSegmentId);
+      if (!seg) return;
+      const text = encodeURIComponent(
+        `היי! אנחנו יוצאים לצעוד לזכרו של זוהר תמיר ז״ל במקטע #${seg.id} (${seg.title} - ${seg.distance} ק״מ) במסגרת פרויקט "צועדים בשביל זוהר". מוזמנים להצטרף! 🥾🇮🇱\n${window.location.href}`
+      );
+      window.open(`https://wa.me/?text=${text}`, '_blank');
+    }
 
-      const { data: sessionData } = await sb.auth.getSession();
-      if (sessionData && sessionData.session) {
-        isAdminLoggedIn = true;
-        adminUserEmail = sessionData.session.user.email || '';
-        showAdminDashboardUI();
-        loadAdminData();
-      } else {
-        isAdminLoggedIn = false;
-        showAdminLoginUI();
+    // 11. Contact Admin Modal
+    function populateSegmentSelect() {
+      const sel = document.getElementById('msgSegmentId');
+      sel.innerHTML = '<option value="1">כללי / לא משויך למקטע</option>';
+      segments.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        opt.textContent = `#${s.id} - ${s.title}`;
+        sel.appendChild(opt);
+      });
+    }
+
+    async function submitAdminMessage(e) {
+      e.preventDefault();
+      const name = document.getElementById('msgSenderName').value.trim();
+      const phone = document.getElementById('msgSenderPhone').value.trim();
+      const segId = Number(document.getElementById('msgSegmentId').value) || 1;
+      const body = document.getElementById('msgBody').value.trim();
+
+      const { error } = await sb.from('memories').insert([{
+        segment_id: segId,
+        hiker_name: name,
+        hike_date: new Date().toISOString().split('T')[0],
+        status: 'message',
+        contact_info: `PHONE:${phone}`,
+        story: body,
+        is_approved: false
+      }]);
+
+      if (error) {
+        showToast('שגיאה בשליחת ההודעה');
+        return;
       }
+      e.target.reset();
+      closeModal('contactAdminModal');
+      showToast('ההודעה נשלחה למנהלים בטלגרם ✓');
     }
 
-    function showAdminDashboardUI() {
-      document.getElementById('adminLoginView').classList.add('hidden');
-      document.getElementById('adminDashboardView').classList.remove('hidden');
-      document.getElementById('exportCsvBtn').classList.remove('hidden');
-      document.getElementById('adminLogoutBtn').classList.remove('hidden');
-      if (adminUserEmail) {
-        document.getElementById('adminUserSubtitle').textContent = `מחובר כמנהל: ${adminUserEmail}`;
+    // 12. Admin Auth & Dashboard
+    async function handleAdminLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('adminEmail').value.trim();
+      const password = document.getElementById('adminPassword').value;
+
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) {
+        showToast('פרטי התחברות שגויים');
+        return;
       }
+      currentUser = data.user;
+      updateAdminUI();
+      await loadData();
+      showToast('התחברת בהצלחה לממשק הניהול ✓');
     }
 
-    function showAdminLoginUI() {
-      document.getElementById('adminLoginView').classList.remove('hidden');
-      document.getElementById('adminDashboardView').classList.add('hidden');
-      document.getElementById('exportCsvBtn').classList.add('hidden');
-      document.getElementById('adminLogoutBtn').classList.add('hidden');
-      document.getElementById('adminUserSubtitle').textContent = 'מיועד לצוות המנהלים (החברים והמשפחה)';
-    }
-
-    function closeAdminModal() {
-      document.getElementById('adminModal').classList.add('hidden');
-      document.getElementById('adminModal').classList.remove('flex');
-    }
-
-    async function verifyAdmin(e) {
-      if (e) e.preventDefault();
-      const email = document.getElementById('adminEmailInput').value.trim();
-      const password = document.getElementById('adminPassInput').value;
-      const btn = document.getElementById('adminLoginSubmitBtn');
-      btn.disabled = true;
-      btn.textContent = 'מתחבר...';
-
-      try {
-        const { data, error } = await sb.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-
-        isAdminLoggedIn = true;
-        adminUserEmail = data.user.email || email;
-        document.getElementById('adminPassInput').value = '';
-        showAdminDashboardUI();
-        await loadAdminData();
-        await checkPendingCount();
-      } catch (err) {
-        alert('שגיאת התחברות: אימייל או סיסמה שגויים (' + err.message + ')');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'התחברות לממשק הניהול';
-      }
-    }
-
-    async function logoutAdmin() {
+    async function handleAdminLogout() {
       await sb.auth.signOut();
-      isAdminLoggedIn = false;
-      adminUserEmail = '';
-      showAdminLoginUI();
-      document.getElementById('pendingBadge').classList.add('hidden');
+      currentUser = null;
+      updateAdminUI();
+      await loadData();
+      showToast('התנתקת מממשק הניהול');
     }
 
-    async function loadAdminData() {
-      const pendingList = document.getElementById('adminPendingList');
-      const allList = document.getElementById('adminAllList');
-      pendingList.innerHTML = '<p class="text-xs text-slate-500">טוען נתונים...</p>';
+    function updateAdminUI() {
+      const loginForm = document.getElementById('adminLoginForm');
+      const dash = document.getElementById('adminDashboard');
+      const badge = document.getElementById('adminBadgeDot');
 
-      try {
-        const { data, error } = await sb
-          .from('memories')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (error) throw error;
-        allMemoriesAdmin = data || [];
-
-        const messages = allMemoriesAdmin.filter(m => m.status === 'message');
-        const pending = allMemoriesAdmin.filter(m => m.status !== 'message' && !m.is_approved);
-        const approved = allMemoriesAdmin.filter(m => m.status !== 'message' && m.is_approved);
-
-        const messagesList = document.getElementById('adminMessagesList');
-        document.getElementById('adminMessagesCount').textContent = messages.length;
-        if (messages.length === 0) {
-          messagesList.innerHTML = '<p class="text-xs text-slate-500">אין הודעות חדשות מגולשים.</p>';
-        } else {
-          messagesList.innerHTML = messages.map(msg => {
-            const { phone, publicNote } = parseContactInfo(msg.contact_info);
-            const contactRaw = phone || msg.contact_info || '';
-            const waBtn = contactRaw && /\d{7,}/.test(contactRaw)
-              ? `<a href="${formatWhatsappLink(contactRaw)}" target="_blank" rel="noopener" class="px-2 py-0.5 bg-green-100 hover:bg-green-200 text-green-800 rounded text-[11px] font-bold">💬 וואטסאפ (${contactRaw})</a>`
-              : `<span class="text-xs text-slate-600 font-medium">📞 ${contactRaw}</span>`;
-            return `
-              <div class="bg-white border border-blue-200 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div class="space-y-1">
-                  <div class="flex flex-wrap items-center gap-2 text-xs">
-                    <span class="font-extrabold text-slate-900">${msg.hiker_name}</span>
-                    ${publicNote ? `<span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded font-bold">${publicNote}</span>` : ''}
-                    ${waBtn}
-                    <span class="text-slate-400 text-[11px]">${msg.hike_date}</span>
-                  </div>
-                  <p class="text-xs text-slate-700 leading-relaxed">${msg.story || ''}</p>
-                </div>
-                <button onclick="deleteMemory('${msg.id}')" class="self-end sm:self-center px-2.5 py-1 bg-slate-100 hover:bg-red-100 text-slate-700 hover:text-red-700 rounded-lg text-xs font-bold shrink-0">
-                  ✓ טופל / מחיקה
-                </button>
-              </div>
-            `;
-          }).join('');
-        }
-
-        document.getElementById('adminPendingCount').textContent = pending.length;
-
-        if (pending.length === 0) {
-          pendingList.innerHTML = '<div class="bg-slate-50 p-4 rounded-xl text-center text-xs text-slate-500">אין כרגע תמונות שממתינות לאישור 🎉</div>';
-        } else {
-          pendingList.innerHTML = pending.map(item => {
-            const seg = segmentsData.find(s => s.id === item.segment_id);
-            const segName = seg ? `מקטע #${seg.id}: ${seg.title}` : `מקטע ${item.segment_id}`;
-            const { phone } = parseContactInfo(item.contact_info);
-            const waBtn = phone ? `<a href="${formatWhatsappLink(phone)}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 hover:bg-green-200 text-green-800 rounded text-[11px] font-bold mr-1">📞 ${phone} (וואטסאפ)</a>` : '';
-            return `
-              <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex flex-col sm:flex-row gap-4 items-start">
-                ${item.photo_url ? `<img src="${item.photo_url}" class="w-full sm:w-32 h-28 object-cover rounded-xl shrink-0 border border-slate-200" />` : ''}
-                <div class="flex-1 w-full">
-                  <div class="text-xs font-bold text-blue-800">${segName}</div>
-                  <div class="font-bold text-slate-900 text-sm flex flex-wrap items-center gap-1">${item.hiker_name} <span class="text-xs font-normal text-slate-500">(${item.hike_date})</span> ${waBtn}</div>
-                  <div id="viewBox_${item.id}" class="text-xs text-slate-700 mt-1.5 bg-white p-2.5 rounded-lg border border-amber-100 leading-relaxed">${formatStoryHtml(item.story || '')}</div>
-                  
-                  <!-- טופס עריכה מהיר לפני אישור -->
-                  <div id="editBox_${item.id}" class="hidden mt-2 bg-white p-3 rounded-xl border border-amber-300 space-y-2">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      <div>
-                        <label class="block text-[11px] font-bold text-slate-600">שם המטייל / הקבוצה</label>
-                        <input type="text" id="editName_${item.id}" value="${(item.hiker_name || '').replace(/"/g, '&quot;')}" class="w-full px-2.5 py-1.5 text-sm border border-slate-300 rounded-lg" />
-                      </div>
-                      <div>
-                        <label class="block text-[11px] font-bold text-slate-600">תאריך</label>
-                        <input type="date" id="editDate_${item.id}" value="${item.hike_date || ''}" class="w-full px-2.5 py-1.5 text-sm border border-slate-300 rounded-lg" />
-                      </div>
-                    </div>
-                    <div>
-                      <label class="block text-[11px] font-bold text-slate-600">טקסט הגלויה (תשובות המשתתפים)</label>
-                      <textarea id="editStory_${item.id}" rows="4" class="w-full p-2 text-sm border border-slate-300 rounded-lg">${item.story || ''}</textarea>
-                    </div>
-                    <div class="flex gap-2">
-                      <button type="button" onclick="saveMemoryEdits('${item.id}')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-xs transition">💾 שמור עריכה</button>
-                      <button type="button" onclick="toggleEditBox('${item.id}')" class="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg text-xs transition">ביטול</button>
-                    </div>
-                  </div>
-
-                  <div class="flex flex-wrap gap-2 mt-3">
-                    <button onclick="approveMemory('${item.id}')" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs transition">
-                      ✅ אישור ופרסום באתר
-                    </button>
-                    <button onclick="toggleEditBox('${item.id}')" class="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 font-bold rounded-lg text-xs transition">
-                      ✏️ עריכת טקסט
-                    </button>
-                    <button onclick="deleteMemory('${item.id}')" class="px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 font-bold rounded-lg text-xs transition">
-                      🗑️ מחיקה
-                    </button>
-                  </div>
-                </div>
-              </div>
-            `;
-          }).join('');
-        }
-
-        if (approved.length === 0) {
-          allList.innerHTML = '<p class="text-xs text-slate-500">אין רשומות פעילות.</p>';
-        } else {
-          allList.innerHTML = approved.map(item => {
-            const seg = segmentsData.find(s => s.id === item.segment_id);
-            const segName = seg ? `#${seg.id} ${seg.title}` : `#${item.segment_id}`;
-            const { phone, publicNote } = parseContactInfo(item.contact_info);
-            const overdue = item.status === 'planned' && isPlanOverdue(item.hike_date);
-            const typeBadge = item.status === 'completed'
-              ? '<span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded text-[10px] font-bold">הושלם</span>'
-              : (overdue
-                  ? '<span class="px-2 py-0.5 bg-red-100 text-red-800 rounded text-[10px] font-bold">עבר הזמן</span>'
-                  : '<span class="px-2 py-0.5 bg-amber-100 text-amber-800 rounded text-[10px] font-bold">משוריין</span>');
-            const waLink = phone ? `<a href="${formatWhatsappLink(phone)}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 hover:bg-green-200 text-green-800 rounded text-[10px] font-bold">💬 ${phone}</a>` : '';
-            const textLabel = item.status === 'completed' ? 'טקסט הגלויה' : 'הערה פומבית להצטרפות';
-            const currentTextVal = item.status === 'completed' ? (item.story || '') : publicNote;
-            return `
-              <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
-                <div class="flex items-center justify-between gap-3">
-                  <div class="flex items-center gap-3">
-                    ${item.photo_url ? `<img src="${item.photo_url}" class="w-11 h-11 rounded-lg object-cover shrink-0" />` : ''}
-                    <div>
-                      <div class="text-xs font-bold text-slate-900 flex flex-wrap items-center gap-1.5">${typeBadge} ${segName} — ${item.hiker_name} ${waLink}</div>
-                      <div class="text-[11px] text-slate-500">${item.hike_date} ${currentTextVal ? '• ' + currentTextVal.substring(0, 45) + '...' : ''}</div>
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-1.5 shrink-0">
-                    <button onclick="toggleEditBox('${item.id}')" class="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 rounded-lg text-xs font-bold">
-                      ✏️ עריכה
-                    </button>
-                    <button onclick="deleteMemory('${item.id}')" class="px-2.5 py-1 bg-white border border-red-200 hover:bg-red-50 text-red-600 rounded-lg text-xs font-bold">
-                      מחיקה
-                    </button>
-                  </div>
-                </div>
-
-                <!-- תיבת עריכה לרשומה קיימת -->
-                <div id="editBox_${item.id}" class="hidden pt-2 border-t border-slate-200 space-y-2">
-                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <div>
-                      <label class="block text-[11px] font-bold text-slate-600">שם המטייל / הקבוצה</label>
-                      <input type="text" id="editName_${item.id}" value="${(item.hiker_name || '').replace(/"/g, '&quot;')}" class="w-full px-2.5 py-1.5 text-sm bg-white border border-slate-300 rounded-lg" />
-                    </div>
-                    <div>
-                      <label class="block text-[11px] font-bold text-slate-600">תאריך</label>
-                      <input type="date" id="editDate_${item.id}" value="${item.hike_date || ''}" class="w-full px-2.5 py-1.5 text-sm bg-white border border-slate-300 rounded-lg" />
-                    </div>
-                  </div>
-                  <div>
-                    <label class="block text-[11px] font-bold text-slate-600">${textLabel}</label>
-                    <textarea id="editStory_${item.id}" rows="3" class="w-full p-2 text-sm bg-white border border-slate-300 rounded-lg">${currentTextVal}</textarea>
-                  </div>
-                  <div class="flex gap-2">
-                    <button type="button" onclick="saveMemoryEdits('${item.id}')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-xs transition">💾 שמור שינויים</button>
-                    <button type="button" onclick="toggleEditBox('${item.id}')" class="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg text-xs transition">ביטול</button>
-                  </div>
-                </div>
-              </div>
-            `;
-          }).join('');
-        }
-
-      } catch (err) {
-        pendingList.innerHTML = `<p class="text-xs text-red-600">שגיאה בטעינת נתוני ניהול: ${err.message}</p>`;
-      }
-    }
-
-    function toggleEditBox(id) {
-      const box = document.getElementById(`editBox_${id}`);
-      if (box) box.classList.toggle('hidden');
-    }
-
-    async function saveMemoryEdits(id) {
-      const item = allMemoriesAdmin.find(m => String(m.id) === String(id));
-      if (!item) return;
-
-      const updatedName = document.getElementById(`editName_${id}`).value.trim();
-      const updatedDate = document.getElementById(`editDate_${id}`).value;
-      const updatedText = document.getElementById(`editStory_${id}`).value.trim();
-
-      const updatePayload = {
-        hiker_name: updatedName || item.hiker_name,
-        hike_date: updatedDate || item.hike_date
-      };
-
-      if (item.status === 'completed') {
-        updatePayload.story = updatedText;
+      if (currentUser) {
+        loginForm.classList.add('hidden');
+        dash.classList.remove('hidden');
       } else {
-        const { phone } = parseContactInfo(item.contact_info);
-        updatePayload.contact_info = packContactInfo(phone, updatedText);
+        loginForm.classList.remove('hidden');
+        dash.classList.add('hidden');
+        badge.classList.add('hidden');
+      }
+    }
+
+    function renderAdminList() {
+      const list = document.getElementById('adminRecordsList');
+      const badge = document.getElementById('adminBadgeDot');
+      if (!list) return;
+
+      const pendingCount = memories.filter(m => !m.is_approved).length;
+      if (pendingCount > 0) {
+        badge.textContent = pendingCount;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
       }
 
-      try {
-        const { error } = await sb
-          .from('memories')
-          .update(updatePayload)
-          .eq('id', id);
-        if (error) throw error;
-        alert('השינויים נשמרו בהצלחה!');
-        await loadAdminData();
-        await loadData();
-      } catch (err) {
-        alert('שגיאה בשמירת העריכה: ' + err.message);
-      }
+      list.innerHTML = '';
+      memories.forEach(m => {
+        const phoneMatch = (m.contact_info || '').match(/PHONE:([^|]+)/);
+        const phone = phoneMatch ? phoneMatch[1].trim() : '';
+        const waPhone = phone.replace(/[^0-9]/g, '').replace(/^0/, '972');
+
+        const item = document.createElement('div');
+        item.className = `p-3 rounded-xl border text-xs space-y-2 ${!m.is_approved ? 'bg-amber-50 border-amber-300' : 'bg-slate-50 border-slate-200'}`;
+        item.innerHTML = `
+          <div class="flex items-center justify-between font-extrabold">
+            <span>#${m.segment_id} • ${m.hiker_name} (${m.status})</span>
+            <span>${formatDate(m.hike_date)}</span>
+          </div>
+          ${phone ? `<p class="text-slate-600">📞 ${phone}</p>` : ''}
+          ${m.story ? `<p class="text-slate-700">${m.story}</p>` : ''}
+          ${m.photo_url ? `<img src="${m.photo_url}" class="h-24 w-full object-cover rounded-lg" />` : ''}
+          <div class="flex items-center gap-2 pt-1">
+            ${!m.is_approved ? `
+              <button onclick="approveMemory('${m.id}')" class="touch-btn flex-1 h-11 rounded-xl bg-emerald-700 text-white font-bold">
+                ✓ אישור פרסום
+              </button>
+            ` : ''}
+            ${waPhone ? `
+              <a href="https://wa.me/${waPhone}" target="_blank" class="touch-btn flex-1 h-11 rounded-xl bg-green-100 text-green-900 font-bold">
+                📲 וואטסאפ
+              </a>
+            ` : ''}
+            <button onclick="deleteMemory('${m.id}')" class="touch-btn px-3 h-11 rounded-xl bg-red-100 text-red-800 font-bold">
+              🗑️ מחיקה
+            </button>
+          </div>
+        `;
+        list.appendChild(item);
+      });
     }
 
     async function approveMemory(id) {
-      try {
-        const { error } = await sb
-          .from('memories')
-          .update({ is_approved: true })
-          .eq('id', id);
-        if (error) throw error;
-        await loadAdminData();
+      const { error } = await sb.from('memories').update({ is_approved: true }).eq('id', id);
+      if (!error) {
+        showToast('הרשומה אושרה ופורסמה באתר ✓');
         await loadData();
-      } catch (err) {
-        alert('שגיאה באישור: ' + err.message);
       }
     }
 
     async function deleteMemory(id) {
-      if (!confirm('האם למחוק רשומה זו לצמיתות?')) return;
-      try {
-        const { error } = await sb
-          .from('memories')
-          .delete()
-          .eq('id', id);
-        if (error) throw error;
-        await loadAdminData();
+      if (!confirm('למחוק רשומה זו לצמיתות?')) return;
+      const { error } = await sb.from('memories').delete().eq('id', id);
+      if (!error) {
+        showToast('הרשומה נמחקה');
         await loadData();
-      } catch (err) {
-        alert('שגיאה במחיקה: ' + err.message);
       }
     }
 
-    function exportMemoriesToCSV() {
-      const records = allMemoriesAdmin.filter(m => m.status !== 'message');
-      if (records.length === 0) {
-        alert('אין עדיין רשומות לייצוא.');
-        return;
-      }
-
-      const headers = ['מספר מקטע', 'שם המקטע', 'אזור', 'סטטוס', 'שם המטייל/קבוצה', 'טלפון', 'תאריך', 'הערה פומבית', 'טקסט גלויית 5 דקות', 'קישור לתמונה'];
-      const rows = records.map(item => {
-        const seg = segmentsData.find(s => s.id === item.segment_id);
-        const { phone, publicNote } = parseContactInfo(item.contact_info);
-        const statusHeb = item.status === 'completed' ? (item.is_approved ? 'בוצע ומאושר' : 'ממתין לאישור') : 'משוריין';
-        return [
-          item.segment_id,
-          seg ? seg.title : '',
-          seg ? seg.region : '',
-          statusHeb,
-          item.hiker_name || '',
-          phone,
-          item.hike_date || '',
-          publicNote,
-          (item.story || '').replace(/\n/g, ' | '),
-          item.photo_url || ''
-        ].map(val => `"${String(val).replace(/"/g, '""')}"`).join(',');
-      });
-
-      const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\n');
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    function exportCSV() {
+      const headers = ['id', 'segment_id', 'hiker_name', 'hike_date', 'status', 'contact_info', 'story', 'is_approved'];
+      const rows = memories.map(m => headers.map(h => `"${String(m[h] ?? '').replace(/"/g, '""')}"`).join(','));
+      const csv = '\uFEFF' + [headers.join(','), ...rows].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      const dateStamp = new Date().toISOString().split('T')[0];
-      link.href = url;
-      link.download = `zohar-trail-backup-${dateStamp}.csv`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `shvil-zohar-backup-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
     }
 
-    loadData();
+    // 13. UI Helpers
+    function toggleStory() {
+      const block = document.getElementById('moreStoryBlock');
+      const label = document.getElementById('toggleStoryLabel');
+      const icon = document.getElementById('toggleStoryIcon');
+      const isHidden = block.classList.toggle('hidden');
+      label.textContent = isHidden ? 'קרא עוד על היוזמה' : 'הסתר פירוט';
+      icon.textContent = isHidden ? '▾' : '▴';
+    }
+
+    function toggleProgressMatrix() {
+      const drawer = document.getElementById('progressMatrixDrawer');
+      const txt = document.getElementById('matrixToggleText');
+      const isHidden = drawer.classList.toggle('hidden');
+      txt.textContent = isHidden ? '56 קוביות ▾' : 'הסתר קוביות ▴';
+    }
+
+    function openMenuDrawer() { document.getElementById('menuDrawer').classList.remove('hidden'); }
+    function openContactAdminModal() { document.getElementById('contactAdminModal').classList.remove('hidden'); }
+    function openFiveMinCard() { document.getElementById('fiveMinModal').classList.remove('hidden'); }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+    function openLightbox(src, caption) {
+      document.getElementById('lightboxImg').src = src;
+      document.getElementById('lightboxCaption').textContent = caption || '';
+      document.getElementById('lightboxModal').classList.remove('hidden');
+    }
+
+    function toggleFontSize() { document.documentElement.classList.toggle('font-large'); }
+    function toggleHighContrast() { document.documentElement.classList.toggle('high-contrast'); }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      const [y, m, d] = dateStr.split('-');
+      return d && m && y ? `${d}/${m}/${y}` : dateStr;
+    }
+
+    function showToast(msg) {
+      const box = document.getElementById('toastBox');
+      box.textContent = msg;
+      box.classList.remove('hidden');
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => box.classList.add('hidden'), 3800);
+    }
   </script>
 </body>
 </html>
