@@ -100,325 +100,302 @@
     input, select, textarea { font-size: 16px !important; }
   </style>
 </head>
-<body class="pb-20 lg:pb-10">
+<body class="pb-20 md:pb-8">
 
   <!-- ==================== STICKY TOP HEADER ==================== -->
-  <header class="sticky top-0 z-40 bg-[#faf8f5]/95 backdrop-blur border-b border-stone-200 h-14 md:h-16 px-3 md:px-6 flex items-center justify-between shadow-xs">
-    <div class="max-w-7xl mx-auto w-full flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 md:w-11 md:h-11 rounded-xl overflow-hidden border border-emerald-200 shadow-xs bg-emerald-700 flex items-center justify-center shrink-0">
-          <img src="favicon.jpg" onerror="this.parentElement.innerHTML='<span class='text-white font-black text-base'>ש״י</span>'" alt="לוגו צועדים בשביל זוהר" class="w-full h-full object-cover" />
-        </div>
-        <div>
-          <h1 class="text-base md:text-xl font-extrabold text-stone-900 leading-tight">צועדים בשביל זוהר</h1>
-          <p class="text-[11px] md:text-xs text-stone-500 hidden sm:block">לזכרו של זוהר תמיר ז״ל • 56 מקטעי שביל ישראל מחרמון עד אילת</p>
-        </div>
+  <header class="sticky top-0 z-40 bg-[#faf8f5]/95 backdrop-blur border-b border-stone-200 h-14 px-3 md:px-6 flex items-center justify-between shadow-xs">
+    <div class="flex items-center gap-2.5">
+      <div class="w-10 h-10 rounded-xl overflow-hidden border border-emerald-200 shadow-xs bg-emerald-700 flex items-center justify-center shrink-0">
+        <img src="favicon.jpg" onerror="this.parentElement.innerHTML='<span class=\'text-white font-black text-base\'>ש״י</span>'" alt="לוגו צועדים בשביל זוהר" class="w-full h-full object-cover" />
       </div>
-
-      <!-- Desktop Quick Jump Anchors -->
-      <nav class="hidden lg:flex items-center gap-2">
-        <a href="#desktop-trail-workspace" class="touch-btn px-4 rounded-xl text-sm font-bold text-stone-700 hover:bg-stone-200/70">
-          🗺️ מפה ומקטעים (56)
-        </a>
-        <a href="#postcards-section" class="touch-btn px-4 rounded-xl text-sm font-bold text-stone-700 hover:bg-stone-200/70">
-          ✉️ גלויות מהדרך (<span id="deskPostcardCount">0</span>)
-        </a>
-      </nav>
-
-      <!-- Top Action Buttons (>=44px touch targets) -->
-      <div class="flex items-center gap-2">
-        <button onclick="openFiveMinCard()" class="hidden md:inline-flex touch-btn px-3.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 text-xs font-extrabold gap-1.5">
-          <span>📜</span>
-          <span>עצירה של 5 דקות</span>
-        </button>
-        <button onclick="openContactAdminModal()" class="touch-btn px-3.5 rounded-xl bg-amber-100/90 hover:bg-amber-200 text-amber-950 border border-amber-300 text-xs sm:text-sm font-bold gap-1.5" aria-label="הודעה למנהלים">
-          <span>✉️</span>
-          <span class="hidden sm:inline">הודעה למנהלים</span>
-        </button>
-        <button onclick="openMenuDrawer()" id="headerMenuBtn" class="touch-btn px-3.5 rounded-xl bg-stone-200/80 hover:bg-stone-300 text-stone-800 font-bold text-sm relative" aria-label="תפריט וניהול">
-          <span>☰</span>
-          <span id="adminBadgeDot" class="hidden absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-600 text-white text-[11px] font-black flex items-center justify-center">0</span>
-        </button>
+      <div>
+        <h1 class="text-base md:text-lg font-extrabold text-stone-900 leading-tight">צועדים בשביל זוהר</h1>
+        <p class="text-[11px] text-stone-500 hidden sm:block">לזכרו של זוהר תמיר ז״ל • 56 מקטעי שביל ישראל</p>
       </div>
+    </div>
+
+    <!-- Desktop Navigation Links -->
+    <nav class="hidden md:flex items-center gap-2">
+      <button onclick="switchMobileTab('map')" id="desk-tab-map" class="touch-btn px-4 rounded-xl text-sm font-bold bg-emerald-100/80 text-emerald-900 border border-emerald-300">
+        🗺️ מפת השביל
+      </button>
+      <button onclick="switchMobileTab('segments')" id="desk-tab-segments" class="touch-btn px-4 rounded-xl text-sm font-semibold text-stone-600 hover:bg-stone-200/60">
+        🥾 כל המקטעים (56)
+      </button>
+      <button onclick="switchMobileTab('postcards')" id="desk-tab-postcards" class="touch-btn px-4 rounded-xl text-sm font-semibold text-stone-600 hover:bg-stone-200/60">
+        ✉️ גלויות מהדרך
+      </button>
+    </nav>
+
+    <!-- Top Action Buttons (>=44px touch targets) -->
+    <div class="flex items-center gap-1.5">
+      <button onclick="openContactAdminModal()" class="touch-btn px-3 rounded-xl bg-amber-100/80 hover:bg-amber-200/80 text-amber-950 border border-amber-300 text-xs sm:text-sm font-bold gap-1.5" aria-label="הודעה למנהלים">
+        <span>✉️</span>
+        <span class="hidden sm:inline">הודעה למנהלים</span>
+      </button>
+      <button onclick="openMenuDrawer()" id="headerMenuBtn" class="touch-btn px-3 rounded-xl bg-stone-200/70 hover:bg-stone-300/70 text-stone-800 font-bold text-sm relative" aria-label="תפריט וניהול">
+        <span>☰</span>
+        <span id="adminBadgeDot" class="hidden absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-600 text-white text-[11px] font-black flex items-center justify-center">0</span>
+      </button>
     </div>
   </header>
 
-  <!-- ==================== HERO SECTION: COMPACT IN MOBILE, 2-COLUMN BALANCED IN DESKTOP ==================== -->
-  <section class="max-w-7xl mx-auto px-3 md:px-6 pt-3 md:pt-5">
+  <!-- ==================== WARM VISUAL HERO WITH BANNER & LARGE ZOHAR PORTRAIT ==================== -->
+  <section class="max-w-6xl mx-auto px-3 md:px-6 pt-3 md:pt-5">
     <div class="bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden">
-      <!-- Illustrated Trail Banner -->
-      <div class="relative h-36 sm:h-44 lg:h-52 bg-gradient-to-l from-emerald-900 via-teal-800 to-amber-700 overflow-hidden">
+      <!-- Illustrated Trail Banner (Mobile + Desktop) -->
+      <div class="relative h-36 sm:h-44 md:h-52 bg-gradient-to-l from-emerald-900 via-teal-800 to-amber-700 overflow-hidden">
         <picture>
           <source media="(min-width: 768px)" srcset="banner-desktop.jpg" />
-          <img src="banner-mobile.jpg" onerror="this.src='https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1400&q=85'" alt="באנר צועדים בשביל זוהר" class="w-full h-full object-cover opacity-85" />
+          <img src="banner-mobile.jpg" onerror="this.src='https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80'" alt="באנר צועדים בשביל זוהר" class="w-full h-full object-cover opacity-85" />
         </picture>
-        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/15 to-transparent"></div>
-        <div class="absolute top-3 left-3 bg-white/95 backdrop-blur px-3.5 py-1 rounded-full text-xs font-extrabold text-emerald-950 shadow-xs">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent"></div>
+        <div class="absolute top-3 left-3 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[11px] font-extrabold text-emerald-950 shadow-xs">
           🇮🇱 מחרמון ועד אילת • 1,040 ק״מ
         </div>
       </div>
 
-      <!-- Hero Body: 12-Col Grid on Desktop (7 Cols Story + 5 Cols Progress Card) -->
+      <!-- Overlapping Large Portrait + Warm Story -->
       <div class="px-4 pb-4 md:px-6 md:pb-6 relative z-10">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start">
-
-          <!-- Right Column (7 Cols on Desktop): Large Portrait + Full Story -->
-          <div class="lg:col-span-7">
-            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 -mt-20 sm:-mt-24 lg:-mt-24 mb-3">
-              <div class="flex items-end gap-4">
-                <!-- Large Portrait of Zohar -->
-                <div class="w-36 h-36 sm:w-40 sm:h-40 lg:w-44 lg:h-44 rounded-3xl border-4 border-white shadow-xl overflow-hidden bg-amber-100 shrink-0">
-                  <img src="zohar.jpg" onerror="this.src='https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=450&q=85'" alt="זוהר תמיר ז״ל" class="w-full h-full object-cover" />
-                </div>
-                <div class="pb-1">
-                  <span class="inline-block px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-xs font-extrabold mb-1">
-                    לזכרו של זוהר תמיר ז״ל
-                  </span>
-                  <h2 class="text-xl sm:text-2xl lg:text-3xl font-black text-stone-900 leading-tight">
-                    ממשיכים את הצעדים של זוהר
-                  </h2>
-                </div>
-              </div>
-
-              <button onclick="openFiveMinCard()" class="lg:hidden touch-btn self-start sm:self-end px-3.5 py-2 rounded-2xl bg-gradient-to-l from-amber-500 to-orange-500 text-white text-xs font-extrabold gap-1.5 shadow-xs">
-                <span>📜</span>
-                <span>המשימה מזוהר (עצירה של 5 דקות)</span>
-              </button>
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 -mt-20 sm:-mt-24 md:-mt-28 mb-3">
+          <div class="flex items-end gap-3.5 md:gap-5">
+            <!-- Large Locked Portrait of Zohar -->
+            <div class="w-36 h-36 sm:w-44 sm:h-44 md:w-48 md:h-48 rounded-3xl border-4 border-white shadow-xl overflow-hidden bg-amber-100 shrink-0">
+              <img src="zohar.jpg" onerror="this.src='https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=400&q=85'" alt="זוהר תמיר ז״ל" class="w-full h-full object-cover" />
             </div>
-
-            <p class="text-xs sm:text-sm text-stone-700 leading-relaxed">
-              זוהר חלם לכבוש את שביל ישראל מצפון לדרום. אנחנו, החברים והמשפחה, משלימים יחד את 56 המקטעים לזכרו — בוחרים מקטע, יוצאים לטבע, עוצרים לרגע של זיכרון ומשתפים תמונה וגלויה מהדרך.
-            </p>
-
-            <!-- Collapsible on Mobile, Always Open on Desktop -->
-            <div id="moreStoryBlock" class="hidden lg:block mt-2 pt-2 border-t border-stone-100 text-xs sm:text-sm text-stone-600 space-y-1.5 leading-relaxed">
-              <p>
-                כל קבוצה או מטייל יכולים לשריין תאריך למקטע, להזמין חברים להצטרף, ובסיום המסלול להעלות תמונה וגלויה קצרה עם 3 שאלות בהשראת זוהר: מה ראינו בטבע, צידה לדרך, ומילה אישית לזוהר.
-              </p>
-              <p class="font-bold text-emerald-800">
-                ניתן לשריין גם מקטעים שכבר נתפסו או בוצעו — כל צעד בשביל מוסיף עוד אור וזיכרון.
-              </p>
+            <div class="pb-1">
+              <span class="inline-block px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[11px] font-extrabold mb-1">
+                לזכרו של זוהר תמיר ז״ל
+              </span>
+              <h2 class="text-lg sm:text-xl md:text-2xl font-black text-stone-900 leading-tight">
+                ממשיכים את הצעדים של זוהר
+              </h2>
             </div>
-
-            <button onclick="toggleStory()" id="toggleStoryBtn" class="lg:hidden mt-1.5 inline-flex items-center gap-1 text-xs font-extrabold text-emerald-700 hover:text-emerald-900 py-1">
-              <span id="toggleStoryLabel">קרא עוד על היוזמה</span>
-              <span id="toggleStoryIcon">▾</span>
-            </button>
           </div>
 
-          <!-- Left Column (5 Cols on Desktop): Dedicated Progress & 56-Blocks Card -->
-          <div class="lg:col-span-5 lg:mt-4 bg-stone-50/90 rounded-2xl border border-stone-200/80 p-3.5 md:p-4">
-            <div class="flex items-center justify-between gap-2 text-xs md:text-sm mb-2">
-              <div class="flex flex-wrap items-center gap-3 font-bold">
-                <span class="inline-flex items-center gap-1.5 text-emerald-800">
-                  <span class="w-3 h-3 rounded-full bg-emerald-600"></span>
-                  בוצעו: <strong id="statCompleted">0</strong>
-                </span>
-                <span class="inline-flex items-center gap-1.5 text-amber-700">
-                  <span class="w-3 h-3 rounded-full bg-amber-500"></span>
-                  שוריינו: <strong id="statPlanned">0</strong>
-                </span>
-                <span class="inline-flex items-center gap-1.5 text-stone-700">
-                  <span class="w-3 h-3 rounded-full bg-stone-800"></span>
-                  פנויים: <strong id="statAvailable">56</strong>
-                </span>
-              </div>
-              <span class="text-xs font-extrabold text-emerald-950 bg-emerald-100 border border-emerald-200 px-2.5 py-1 rounded-xl shrink-0">
-                🥾 <span id="statKm">0</span> / 1,040 ק״מ
+          <button onclick="openFiveMinCard()" class="touch-btn self-start sm:self-end px-3.5 py-2 rounded-2xl bg-gradient-to-l from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs sm:text-sm font-extrabold gap-1.5 shadow-xs">
+            <span>📜</span>
+            <span>המשימה מזוהר (עצירה של 5 דקות)</span>
+          </button>
+        </div>
+
+        <p class="text-xs sm:text-sm text-stone-700 leading-relaxed">
+          זוהר חלם לכבוש את שביל ישראל מצפון לדרום. אנחנו, החברים והמשפחה, משלימים יחד את 56 המקטעים לזכרו — בוחרים מקטע, יוצאים לטבע, עוצרים לרגע של זיכרון ומשתפים תמונה וגלויה מהדרך.
+        </p>
+
+        <!-- Collapsible Full Story -->
+        <div id="moreStoryBlock" class="hidden mt-2.5 pt-2.5 border-t border-stone-100 text-xs sm:text-sm text-stone-600 space-y-2 leading-relaxed">
+          <p>
+            כל קבוצה או מטייל יכולים לשריין תאריך למקטע, להזמין חברים להצטרף, ובסיום המסלול להעלות תמונה וגלויה קצרה עם 3 שאלות בהשראת זוהר: מה ראינו בטבע, צידה לדרך, ומילה אישית לזוהר.
+          </p>
+          <p class="font-bold text-emerald-800">
+            ניתן לשריין גם מקטעים שכבר נתפסו או בוצעו — כל צעד בשביל מוסיף עוד אור וזיכרון.
+          </p>
+        </div>
+
+        <button onclick="toggleStory()" id="toggleStoryBtn" class="mt-1.5 inline-flex items-center gap-1 text-xs font-extrabold text-emerald-700 hover:text-emerald-900 py-1">
+          <span id="toggleStoryLabel">קרא עוד על היוזמה</span>
+          <span id="toggleStoryIcon">▾</span>
+        </button>
+
+        <!-- Unified Colorful Progress Bar -->
+        <div class="mt-3.5 pt-3.5 border-t border-stone-100 bg-stone-50/80 -mx-4 px-4 py-3 md:mx-0 md:rounded-2xl md:border md:border-stone-200/70">
+          <div class="flex flex-wrap items-center justify-between gap-2 text-xs md:text-sm mb-2">
+            <div class="flex items-center gap-3 font-bold">
+              <span class="inline-flex items-center gap-1.5 text-emerald-800">
+                <span class="w-3 h-3 rounded-full bg-emerald-600 shadow-2xs"></span>
+                בוצעו: <strong id="statCompleted">0</strong>
+              </span>
+              <span class="inline-flex items-center gap-1.5 text-amber-700">
+                <span class="w-3 h-3 rounded-full bg-amber-500 shadow-2xs"></span>
+                שוריינו: <strong id="statPlanned">0</strong>
+              </span>
+              <span class="inline-flex items-center gap-1.5 text-stone-700">
+                <span class="w-3 h-3 rounded-full bg-stone-800 shadow-2xs"></span>
+                פנויים: <strong id="statAvailable">56</strong>
               </span>
             </div>
-
-            <!-- Dual-layer Progress Bar -->
-            <div class="w-full h-3.5 bg-stone-200/90 rounded-full overflow-hidden flex p-0.5 mb-2">
-              <div id="barCompleted" class="bg-gradient-to-l from-emerald-500 to-emerald-700 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
-              <div id="barPlanned" class="bg-gradient-to-l from-amber-400 to-orange-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
-            </div>
-
-            <div class="flex items-center justify-between lg:hidden">
-              <span class="text-[11px] text-stone-500 font-semibold">התקדמות לאורך 56 מקטעי השביל</span>
-              <button onclick="toggleProgressMatrix()" class="text-xs font-extrabold text-stone-700 underline py-0.5">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-extrabold text-emerald-950 bg-emerald-100/80 border border-emerald-200 px-2.5 py-1 rounded-xl">
+                🥾 <span id="statKm">0</span> / 1,040 ק״מ
+              </span>
+              <button onclick="toggleProgressMatrix()" class="text-xs font-extrabold text-stone-600 hover:text-stone-900 underline py-1">
                 <span id="matrixToggleText">56 קוביות ▾</span>
               </button>
             </div>
-
-            <!-- 56-Segment Matrix: Collapsible on Mobile, Always Visible & Tight on Desktop -->
-            <div id="progressMatrixDrawer" class="hidden lg:block mt-2.5 pt-2.5 border-t border-stone-200/70">
-              <div class="flex items-center justify-between text-[11px] text-stone-500 mb-1.5 font-semibold">
-                <span>1 (חרמון)</span>
-                <span>לחצו על מספר מקטע</span>
-                <span>56 (אילת)</span>
-              </div>
-              <div id="miniBlocksGrid" class="grid grid-cols-14 gap-1"></div>
-            </div>
           </div>
 
+          <!-- Dual-layer Progress Bar -->
+          <div class="w-full h-3.5 bg-stone-200/80 rounded-full overflow-hidden flex p-0.5">
+            <div id="barCompleted" class="bg-gradient-to-l from-emerald-500 to-emerald-700 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+            <div id="barPlanned" class="bg-gradient-to-l from-amber-400 to-orange-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+          </div>
+
+          <!-- Expandable 56-Segment Mini Matrix -->
+          <div id="progressMatrixDrawer" class="hidden mt-3 pt-3 border-t border-stone-200/70">
+            <div class="flex items-center justify-between text-[11px] text-stone-500 mb-2 font-semibold">
+              <span>צפון (1 - חרמון)</span>
+              <span>לחצו על מספר מקטע לפתיחה</span>
+              <span>דרום (56 - אילת)</span>
+            </div>
+            <div id="miniBlocksGrid" class="grid grid-cols-14 sm:grid-cols-28 gap-1"></div>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ==================== HYBRID WORKSPACE: SPLIT SCREEN ON DESKTOP, TABS ON MOBILE ==================== -->
-  <div id="desktop-trail-workspace" class="max-w-7xl mx-auto px-3 md:px-6 pt-4">
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+  <!-- ==================== VIEW 1: MAP (DEFAULT ON MOBILE & DESKTOP) ==================== -->
+  <main id="view-map" class="max-w-6xl mx-auto px-3 md:px-6 pt-3">
+    <!-- Horizontal Quick Status Filter Pills over Map -->
+    <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2.5">
+      <button onclick="setQuickFilter('all')" data-qfilter="all" class="qfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-extrabold bg-emerald-800 text-white shadow-xs">
+        הכל (56)
+      </button>
+      <button onclick="setQuickFilter('available')" data-qfilter="available" class="qfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-stone-700 border border-stone-200">
+        ⚫ פנויים (<span id="pillAvailCount">56</span>)
+      </button>
+      <button onclick="setQuickFilter('planned')" data-qfilter="planned" class="qfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-amber-800 border border-amber-200">
+        🟠 משוריינים (<span id="pillPlanCount">0</span>)
+      </button>
+      <button onclick="setQuickFilter('completed')" data-qfilter="completed" class="qfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-emerald-800 border border-emerald-200">
+        🟢 בוצעו (<span id="pillCompCount">0</span>)
+      </button>
+    </div>
 
-      <!-- RIGHT COLUMN ON DESKTOP (7 COLS): SEGMENTS LIST + POSTCARDS -->
-      <div class="lg:col-span-7 space-y-6 order-2 lg:order-1">
-
-        <!-- SEGMENTS SECTION -->
-        <section id="view-segments" class="hidden lg:block">
-          <!-- Region Filter Chips -->
-          <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2.5">
-            <button onclick="setRegionFilter('all')" data-rfilter="all" class="rfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-extrabold bg-emerald-800 text-white shadow-xs">
-              🇮🇱 כל הארץ
-            </button>
-            <button onclick="setRegionFilter('צפון')" data-rfilter="צפון" class="rfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-emerald-900 border border-emerald-200">
-              🌲 צפון
-            </button>
-            <button onclick="setRegionFilter('מרכז')" data-rfilter="מרכז" class="rfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-sky-900 border border-sky-200">
-              🌊 מרכז
-            </button>
-            <button onclick="setRegionFilter('ירושלים')" data-rfilter="ירושלים" class="rfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-amber-900 border border-amber-200">
-              🏛️ ירושלים
-            </button>
-            <button onclick="setRegionFilter('דרום')" data-rfilter="דרום" class="rfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-orange-900 border border-orange-200">
-              🏜️ דרום
-            </button>
-          </div>
-
-          <!-- Search & Advanced Filters -->
-          <div class="flex items-center gap-2 mb-3">
-            <div class="relative flex-1">
-              <input type="text" id="searchInput" oninput="renderSegmentsList()" placeholder="חיפוש לפי מספר מקטע, שם או יישוב..." class="w-full h-11 pr-9 pl-3 rounded-2xl bg-white border border-stone-200 text-stone-900 focus:outline-none focus:border-emerald-600 shadow-2xs" />
-              <span class="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400">🔍</span>
-            </div>
-            <button onclick="toggleAdvancedFilters()" id="advFilterBtn" class="touch-btn px-3.5 h-11 rounded-2xl bg-white border border-stone-200 text-stone-800 text-xs font-extrabold gap-1.5 shrink-0 shadow-2xs">
-              <span>⚙️</span>
-              <span>סינון מתקדם</span>
-            </button>
-          </div>
-
-          <!-- Collapsible Advanced Filters -->
-          <div id="advancedFiltersBox" class="hidden bg-white p-3.5 rounded-2xl border border-stone-200 mb-3 grid grid-cols-1 sm:grid-cols-3 gap-2.5 shadow-2xs">
-            <div>
-              <label class="block text-xs font-bold text-stone-600 mb-1">סטטוס מקטע</label>
-              <select id="statusFilter" onchange="renderSegmentsList()" class="w-full h-11 px-3 rounded-xl border border-stone-200 bg-stone-50 font-medium">
-                <option value="all">כל הסטטוסים</option>
-                <option value="available">⚫ פנויים בלבד</option>
-                <option value="planned">🟠 משוריינים בלבד</option>
-                <option value="completed">🟢 בוצעו ואושרו</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-stone-600 mb-1">רמת קושי</label>
-              <select id="difficultyFilter" onchange="renderSegmentsList()" class="w-full h-11 px-3 rounded-xl border border-stone-200 bg-stone-50 font-medium">
-                <option value="all">כל הרמות</option>
-                <option value="קל">קל / קל-בינוני</option>
-                <option value="בינוני">בינוני</option>
-                <option value="קשה">בינוני-קשה / קשה</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-stone-600 mb-1">אורך מסלול</label>
-              <select id="lengthFilter" onchange="renderSegmentsList()" class="w-full h-11 px-3 rounded-xl border border-stone-200 bg-stone-50 font-medium">
-                <option value="all">כל האורכים</option>
-                <option value="short">קצר (עד 14 ק״מ)</option>
-                <option value="medium">בינוני (14–20 ק״מ)</option>
-                <option value="long">ארוך (מעל 20 ק״מ)</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Results Counter -->
-          <div class="flex items-center justify-between text-xs text-stone-500 font-semibold mb-2.5 px-1">
-            <span>מציג <strong id="filteredCount" class="text-stone-900">56</strong> מקטעים</span>
-            <button onclick="resetAllFilters()" class="text-emerald-700 font-bold hover:underline">איפוס סינון</button>
-          </div>
-
-          <!-- Tight 2-Column Segment Cards Grid on Desktop -->
-          <div id="segmentsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-3.5"></div>
-        </section>
-
-        <!-- POSTCARDS GALLERY SECTION (Visible below segments on Desktop, dedicated tab on Mobile) -->
-        <section id="view-postcards" class="hidden lg:block pt-2">
-          <div id="postcards-section" class="bg-gradient-to-l from-emerald-900 via-teal-800 to-emerald-800 text-white rounded-3xl p-4 md:p-5 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
-            <div>
-              <h2 class="text-lg md:text-xl font-black">✉️ גלויות מהדרך</h2>
-              <p class="text-xs md:text-sm text-emerald-100 mt-0.5">תמונות וזיכרונות מהשטח לזכרו של זוהר.</p>
-            </div>
-            <button onclick="openSegmentModal(selectedSegmentId)" class="touch-btn px-4 h-11 rounded-2xl bg-amber-400 hover:bg-amber-300 text-stone-950 font-black text-xs sm:text-sm shrink-0 shadow-xs">
-              + הוספת גלויה ממקטע
-            </button>
-          </div>
-
-          <div id="postcardsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-        </section>
-
+    <!-- Map Container + Floating Bottom Preview Card with Photo Frame -->
+    <div class="relative bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden">
+      <!-- Top Floating Map Controls -->
+      <div class="absolute top-3 left-3 z-20 flex flex-col gap-2">
+        <button onclick="toggleMapLayer()" id="mapLayerBtn" class="touch-btn px-3 rounded-xl bg-white/95 backdrop-blur shadow-md border border-stone-200 text-xs font-extrabold text-stone-800">
+          🗺️ מפת רחובות
+        </button>
+        <button onclick="resetMapBounds()" class="touch-btn px-3 rounded-xl bg-white/95 backdrop-blur shadow-md border border-stone-200 text-xs font-extrabold text-stone-800">
+          🇮🇱 כל הארץ
+        </button>
       </div>
 
-      <!-- LEFT COLUMN ON DESKTOP (5 COLS): STICKY INTERACTIVE MAP + SELECTED CARD -->
-      <main id="view-map" class="lg:col-span-5 lg:sticky lg:top-20 order-1 lg:order-2">
-        <!-- Quick Status Filter Pills -->
-        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-2.5">
-          <button onclick="setQuickFilter('all')" data-qfilter="all" class="qfilter-btn touch-btn shrink-0 px-3.5 rounded-full text-xs font-extrabold bg-emerald-800 text-white shadow-xs">
-            הכל (56)
-          </button>
-          <button onclick="setQuickFilter('available')" data-qfilter="available" class="qfilter-btn touch-btn shrink-0 px-3.5 rounded-full text-xs font-bold bg-white text-stone-700 border border-stone-200">
-            ⚫ פנויים (<span id="pillAvailCount">56</span>)
-          </button>
-          <button onclick="setQuickFilter('planned')" data-qfilter="planned" class="qfilter-btn touch-btn shrink-0 px-3.5 rounded-full text-xs font-bold bg-white text-amber-800 border border-amber-200">
-            🟠 משוריינים (<span id="pillPlanCount">0</span>)
-          </button>
-          <button onclick="setQuickFilter('completed')" data-qfilter="completed" class="qfilter-btn touch-btn shrink-0 px-3.5 rounded-full text-xs font-bold bg-white text-emerald-800 border border-emerald-200">
-            🟢 בוצעו (<span id="pillCompCount">0</span>)
-          </button>
-        </div>
+      <!-- Map Canvas -->
+      <div id="trailMap" class="w-full h-[58vh] md:h-[540px] bg-stone-100"></div>
 
-        <!-- Map Container + Selected Segment Floating Card -->
-        <div class="relative bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden">
-          <!-- Top Floating Map Controls -->
-          <div class="absolute top-3 left-3 z-20 flex flex-col gap-2">
-            <button onclick="toggleMapLayer()" id="mapLayerBtn" class="touch-btn px-3 rounded-xl bg-white/95 backdrop-blur shadow-md border border-stone-200 text-xs font-extrabold text-stone-800">
-              🗺️ מפת רחובות
-            </button>
-            <button onclick="resetMapBounds()" class="touch-btn px-3 rounded-xl bg-white/95 backdrop-blur shadow-md border border-stone-200 text-xs font-extrabold text-stone-800">
-              🇮🇱 כל הארץ
-            </button>
+      <!-- Floating Bottom Preview Card with Thumbnail / Photo Invite -->
+      <div id="mapFloatingCard" class="p-3.5 md:p-4 bg-gradient-to-l from-white to-stone-50 border-t border-stone-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <!-- Thumbnail or "Waiting for your photo" frame -->
+          <div id="mfcThumbBox" onclick="openSegmentModal(selectedSegmentId)" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden shrink-0 cursor-pointer border border-emerald-200 bg-gradient-to-br from-emerald-50 to-amber-50 flex flex-col items-center justify-center text-center p-1">
+            <span class="text-lg">📷</span>
+            <span class="text-[10px] font-extrabold text-emerald-900 leading-tight">מחכים לתמונה</span>
           </div>
 
-          <!-- Map Canvas (Balanced height for sticky desktop column & mobile viewport) -->
-          <div id="trailMap" class="w-full h-[56vh] lg:h-[520px] bg-stone-100"></div>
-
-          <!-- Selected Segment Preview Card -->
-          <div id="mapFloatingCard" class="p-3.5 bg-gradient-to-l from-white to-stone-50 border-t border-stone-200 flex flex-col gap-3">
-            <div class="flex items-center gap-3 min-w-0">
-              <div id="mfcThumbBox" onclick="openSegmentModal(selectedSegmentId)" class="w-16 h-16 rounded-2xl overflow-hidden shrink-0 cursor-pointer border border-emerald-200 bg-gradient-to-br from-emerald-50 to-amber-50 flex flex-col items-center justify-center text-center p-1">
-                <span class="text-lg">📷</span>
-                <span class="text-[10px] font-extrabold text-emerald-900 leading-tight">מחכים לתמונה</span>
-              </div>
-
-              <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-2 mb-1">
-                  <span id="mfcNumber" class="px-2 py-0.5 rounded-lg bg-stone-900 text-white text-xs font-black">#1</span>
-                  <span id="mfcStatusBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-stone-100 text-stone-700">פנוי לשריון</span>
-                  <span id="mfcRegion" class="text-xs text-emerald-800 font-bold">צפון</span>
-                </div>
-                <h3 id="mfcTitle" class="text-base font-black text-stone-900 truncate">קופות החרמון – בניאס</h3>
-                <p id="mfcMeta" class="text-xs text-stone-600 mt-0.5">📏 16.5 ק״מ • ⛰️ בינוני</p>
-              </div>
+          <div class="min-w-0">
+            <div class="flex items-center gap-2 mb-1">
+              <span id="mfcNumber" class="px-2 py-0.5 rounded-lg bg-stone-900 text-white text-xs font-black">#1</span>
+              <span id="mfcStatusBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-stone-100 text-stone-700">פנוי לשריון</span>
+              <span id="mfcRegion" class="text-xs text-emerald-800 font-bold">צפון</span>
             </div>
-
-            <button id="mfcActionBtn" onclick="openSegmentModal(selectedSegmentId)" class="touch-btn w-full h-12 rounded-2xl bg-gradient-to-l from-emerald-700 to-teal-700 hover:from-emerald-800 hover:to-teal-800 text-white font-extrabold text-sm shadow-sm">
-              לשריון / תיעוד מקטע ←
-            </button>
+            <h3 id="mfcTitle" class="text-base md:text-lg font-black text-stone-900 truncate">קופות החרמון – בניאס</h3>
+            <p id="mfcMeta" class="text-xs text-stone-600 mt-0.5">📏 16.5 ק״מ • ⛰️ בינוני</p>
           </div>
         </div>
-      </main>
 
+        <button id="mfcActionBtn" onclick="openSegmentModal(selectedSegmentId)" class="touch-btn w-full sm:w-auto px-5 h-12 rounded-2xl bg-gradient-to-l from-emerald-700 to-teal-700 hover:from-emerald-800 hover:to-teal-800 text-white font-extrabold text-sm shadow-sm shrink-0">
+          לשריון / תיעוד מקטע ←
+        </button>
+      </div>
     </div>
-  </div>
+  </main>
 
-  <!-- ==================== MOBILE STICKY BOTTOM TAB BAR (< 1024px ONLY) ==================== -->
-  <nav class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur border-t border-stone-200 shadow-[0_-4px_16px_rgba(28,25,23,0.07)]" style="padding-bottom: var(--safe-bottom);">
+  <!-- ==================== VIEW 2: ALL SEGMENTS LIST ==================== -->
+  <section id="view-segments" class="hidden max-w-6xl mx-auto px-3 md:px-6 pt-3">
+    <!-- Region Horizontal Chips with Nature Colors -->
+    <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2">
+      <button onclick="setRegionFilter('all')" data-rfilter="all" class="rfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-extrabold bg-emerald-800 text-white">
+        🇮🇱 כל הארץ
+      </button>
+      <button onclick="setRegionFilter('צפון')" data-rfilter="צפון" class="rfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-emerald-900 border border-emerald-200">
+        🌲 צפון
+      </button>
+      <button onclick="setRegionFilter('מרכז')" data-rfilter="מרכז" class="rfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-sky-900 border border-sky-200">
+        🌊 מרכז
+      </button>
+      <button onclick="setRegionFilter('ירושלים')" data-rfilter="ירושלים" class="rfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-amber-900 border border-amber-200">
+        🏛️ ירושלים
+      </button>
+      <button onclick="setRegionFilter('דרום')" data-rfilter="דרום" class="rfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-orange-900 border border-orange-200">
+        🏜️ דרום
+      </button>
+    </div>
+
+    <!-- Search Input + Advanced Filters Button -->
+    <div class="flex items-center gap-2 mb-3">
+      <div class="relative flex-1">
+        <input type="text" id="searchInput" oninput="renderSegmentsList()" placeholder="חיפוש לפי מספר מקטע, שם או יישוב..." class="w-full h-11 pr-9 pl-3 rounded-2xl bg-white border border-stone-200 text-stone-900 focus:outline-none focus:border-emerald-600" />
+        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400">🔍</span>
+      </div>
+      <button onclick="toggleAdvancedFilters()" id="advFilterBtn" class="touch-btn px-3.5 h-11 rounded-2xl bg-white border border-stone-200 text-stone-800 text-xs font-extrabold gap-1.5 shrink-0">
+        <span>⚙️</span>
+        <span>סינון</span>
+      </button>
+    </div>
+
+    <!-- Collapsible Advanced Filters Drawer -->
+    <div id="advancedFiltersBox" class="hidden bg-white p-3.5 rounded-2xl border border-stone-200 mb-3 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+      <div>
+        <label class="block text-xs font-bold text-stone-600 mb-1">סטטוס מקטע</label>
+        <select id="statusFilter" onchange="renderSegmentsList()" class="w-full h-11 px-3 rounded-xl border border-stone-200 bg-stone-50 font-medium">
+          <option value="all">כל הסטטוסים</option>
+          <option value="available">⚫ פנויים בלבד</option>
+          <option value="planned">🟠 משוריינים בלבד</option>
+          <option value="completed">🟢 בוצעו ואושרו</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-stone-600 mb-1">רמת קושי</label>
+        <select id="difficultyFilter" onchange="renderSegmentsList()" class="w-full h-11 px-3 rounded-xl border border-stone-200 bg-stone-50 font-medium">
+          <option value="all">כל הרמות</option>
+          <option value="קל">קל / קל-בינוני</option>
+          <option value="בינוני">בינוני</option>
+          <option value="קשה">בינוני-קשה / קשה</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-stone-600 mb-1">אורך מסלול</label>
+        <select id="lengthFilter" onchange="renderSegmentsList()" class="w-full h-11 px-3 rounded-xl border border-stone-200 bg-stone-50 font-medium">
+          <option value="all">כל האורכים</option>
+          <option value="short">קצר (עד 14 ק״מ)</option>
+          <option value="medium">בינוני (14–20 ק״מ)</option>
+          <option value="long">ארוך (מעל 20 ק״מ)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Results Counter -->
+    <div class="flex items-center justify-between text-xs text-stone-500 font-semibold mb-2.5 px-1">
+      <span>מציג <strong id="filteredCount" class="text-stone-900">56</strong> מקטעים</span>
+      <button onclick="resetAllFilters()" class="text-emerald-700 font-bold hover:underline">איפוס סינון</button>
+    </div>
+
+    <!-- Segments Grid -->
+    <div id="segmentsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5"></div>
+  </section>
+
+  <!-- ==================== VIEW 3: POSTCARDS GALLERY ==================== -->
+  <section id="view-postcards" class="hidden max-w-6xl mx-auto px-3 md:px-6 pt-3">
+    <div class="bg-gradient-to-l from-emerald-900 via-teal-800 to-emerald-800 text-white rounded-3xl p-4 md:p-6 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+      <div>
+        <h2 class="text-lg md:text-2xl font-black">✉️ גלויות מהדרך</h2>
+        <p class="text-xs md:text-sm text-emerald-100 mt-1">תמונות וזיכרונות מהשטח של החברים והמטיילים לאורך השביל לזכרו של זוהר.</p>
+      </div>
+      <button onclick="switchMobileTab('segments')" class="touch-btn px-4 h-11 rounded-2xl bg-amber-400 hover:bg-amber-300 text-stone-950 font-black text-xs sm:text-sm shrink-0 shadow-xs">
+        + הוספת גלויה ממקטע
+      </button>
+    </div>
+
+    <div id="postcardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+  </section>
+
+  <!-- ==================== MOBILE STICKY BOTTOM TAB BAR (THUMB-FRIENDLY) ==================== -->
+  <nav class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur border-t border-stone-200 shadow-[0_-4px_16px_rgba(28,25,23,0.07)]" style="padding-bottom: var(--safe-bottom);">
     <div class="grid grid-cols-3 h-16">
       <button onclick="switchMobileTab('map')" id="mob-tab-map" class="flex flex-col items-center justify-center gap-0.5 text-emerald-800 font-black border-t-2 border-emerald-700">
         <span class="text-xl leading-none">🗺️</span>
@@ -435,106 +412,109 @@
     </div>
   </nav>
 
-  <!-- ==================== SEGMENT DETAILS / BOOKING / UPLOAD MODAL (2-COL ON DESKTOP, BOTTOM SHEET ON MOBILE) ==================== -->
-  <div id="segmentModal" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs flex items-end md:items-center justify-center md:p-4">
-    <div class="bottom-sheet-enter bg-white w-full md:max-w-3xl max-h-[92vh] rounded-t-3xl md:rounded-3xl flex flex-col overflow-hidden shadow-2xl">
+  <!-- ==================== SEGMENT DETAILS / BOOKING / UPLOAD BOTTOM SHEET ==================== -->
+  <div id="segmentModal" class="hidden fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs flex items-end md:items-center justify-center">
+    <div class="bottom-sheet-enter bg-white w-full md:max-w-2xl max-h-[92vh] rounded-t-3xl md:rounded-3xl flex flex-col overflow-hidden shadow-2xl">
       <!-- Modal Header -->
-      <div class="px-4 md:px-6 py-3.5 border-b border-stone-200 flex items-center justify-between bg-gradient-to-l from-emerald-50 to-amber-50 shrink-0">
-        <div class="flex items-center gap-2.5 min-w-0">
+      <div class="px-4 py-3.5 border-b border-stone-200 flex items-center justify-between bg-gradient-to-l from-emerald-50 to-amber-50 shrink-0">
+        <div class="flex items-center gap-2 min-w-0">
           <span id="modalSegNum" class="px-2.5 py-1 rounded-xl bg-emerald-900 text-white text-xs font-black shrink-0">#1</span>
           <h3 id="modalSegTitle" class="text-base md:text-lg font-black text-stone-900 truncate">שם המקטע</h3>
         </div>
-        <button onclick="closeModal('segmentModal')" class="touch-btn w-11 h-11 rounded-full bg-white/90 hover:bg-white text-stone-800 font-black text-lg shrink-0 shadow-2xs" aria-label="סגור">
+        <button onclick="closeModal('segmentModal')" class="touch-btn w-11 h-11 rounded-full bg-white/80 hover:bg-white text-stone-800 font-black text-lg shrink-0 shadow-2xs" aria-label="סגור">
           ✕
         </button>
       </div>
 
-      <!-- Modal Scrollable Content: 2-Column Split on Desktop -->
-      <div class="p-4 md:p-6 overflow-y-auto flex-1">
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
-
-          <!-- Right Side (5 Cols on Desktop): Specs & Existing Records -->
-          <div class="md:col-span-5 space-y-3">
-            <div class="flex flex-wrap items-center gap-1.5 text-xs font-bold">
-              <span id="modalSegRegion" class="px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-900 border border-emerald-200">אזור</span>
-              <span id="modalSegDist" class="px-2.5 py-1 rounded-xl bg-stone-100 text-stone-700">מרחק</span>
-              <span id="modalSegDiff" class="px-2.5 py-1 rounded-xl bg-stone-100 text-stone-700">קושי</span>
-            </div>
-
-            <a id="modalOfficialLink" href="#" target="_blank" rel="noopener" class="touch-btn w-full h-11 px-3 rounded-xl bg-sky-50 text-sky-900 border border-sky-200 hover:bg-sky-100 text-xs font-extrabold">
-              🧭 לסיפור הדרך הרשמי (החברה להגנת הטבע) ↗
-            </a>
-
-            <div id="modalExistingRecords" class="space-y-2.5"></div>
-          </div>
-
-          <!-- Left Side (7 Cols on Desktop): Booking / Memory Form -->
-          <div class="md:col-span-7 space-y-3.5 md:border-r md:border-stone-200 md:pr-5">
-            <div class="grid grid-cols-2 gap-2 p-1 bg-stone-100 rounded-2xl">
-              <button type="button" onclick="setModalFormMode('planned')" id="modePlanBtn" class="touch-btn rounded-xl text-xs sm:text-sm font-extrabold bg-white text-amber-800 shadow-xs">
-                📅 שריון תאריך
-              </button>
-              <button type="button" onclick="setModalFormMode('completed')" id="modeCompBtn" class="touch-btn rounded-xl text-xs sm:text-sm font-bold text-stone-600">
-                📸 העלאת תמונה וזיכרון
-              </button>
-            </div>
-
-            <form id="memoryForm" onsubmit="submitMemoryForm(event)" class="space-y-3">
-              <input type="hidden" id="formMode" value="planned" />
-
-              <div>
-                <label class="block text-xs font-extrabold text-stone-700 mb-1">שם המטייל / הקבוצה *</label>
-                <input type="text" id="hikerName" required placeholder="לדוגמה: משפחת כהן / חברים מהצבא" class="w-full h-11 px-3.5 rounded-xl border border-stone-300 focus:border-emerald-600 focus:outline-none" />
-              </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <div>
-                  <label id="dateInputLabel" class="block text-xs font-extrabold text-stone-700 mb-1">תאריך מתוכנן *</label>
-                  <input type="date" id="hikeDate" required class="w-full h-11 px-3 rounded-xl border border-stone-300 focus:border-emerald-600 focus:outline-none bg-white" />
-                </div>
-                <div>
-                  <label class="block text-xs font-extrabold text-stone-700 mb-1">טלפון (חסוי למנהלים בלבד) *</label>
-                  <input type="tel" id="hikerPhone" required placeholder="050-0000000" class="w-full h-11 px-3 rounded-xl border border-stone-300 focus:border-emerald-600 focus:outline-none" />
-                </div>
-              </div>
-
-              <!-- Fields for Planned Mode -->
-              <div id="plannedFields">
-                <label class="block text-xs font-extrabold text-stone-700 mb-1">הערה פומבית (אופציונלי — למשל הזמנה להצטרפות)</label>
-                <input type="text" id="publicNote" placeholder="יוצאים ב-07:00 מחניון הלילה, מוזמנים להצטרף!" class="w-full h-11 px-3.5 rounded-xl border border-stone-300 focus:border-emerald-600 focus:outline-none" />
-              </div>
-
-              <!-- Fields for Completed Mode -->
-              <div id="completedFields" class="hidden space-y-2.5">
-                <div>
-                  <label class="block text-xs font-extrabold text-stone-700 mb-1">תמונה מהשטח (מומלץ לרוחב) *</label>
-                  <label class="touch-btn w-full h-12 px-4 rounded-xl border-2 border-dashed border-emerald-400 bg-gradient-to-l from-emerald-50 to-teal-50 hover:from-emerald-100 text-emerald-950 font-bold text-xs sm:text-sm cursor-pointer gap-2">
-                    <span>📷</span>
-                    <span id="photoFileName">בחרו תמונה מהגלריה או צלמו</span>
-                    <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoSelected(this)" class="hidden" />
-                  </label>
-                </div>
-
-                <div class="bg-amber-50/80 border border-amber-200 rounded-2xl p-3 space-y-2">
-                  <p class="text-xs font-black text-amber-950">📜 גלויית עצירה של 5 דקות לזכר זוהר:</p>
-                  <input type="text" id="qNature" placeholder="1. מה ראינו בטבע בדרך?" class="w-full h-10 px-3 rounded-xl border border-amber-200 bg-white text-sm" />
-                  <input type="text" id="qTip" placeholder="2. צידה לדרך (טיפ למטיילים הבאים)" class="w-full h-10 px-3 rounded-xl border border-amber-200 bg-white text-sm" />
-                  <textarea id="qZohar" rows="2" placeholder="3. מילה אישית לזוהר..." class="w-full p-2.5 rounded-xl border border-amber-200 bg-white text-sm"></textarea>
-                </div>
-              </div>
-
-              <div class="pt-1 flex flex-col sm:flex-row gap-2">
-                <button type="submit" id="submitMemoryBtn" class="touch-btn w-full h-12 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-sm sm:text-base shadow-sm">
-                  שמירת שריון מקטע ✓
-                </button>
-                <button type="button" onclick="shareSegmentWhatsApp()" class="touch-btn w-full sm:w-auto px-4 h-12 rounded-xl bg-green-50 hover:bg-green-100 text-green-800 border border-green-200 font-extrabold text-xs sm:text-sm shrink-0">
-                  📲 הזמנה בוואטסאפ
-                </button>
-              </div>
-            </form>
-          </div>
-
+      <!-- Modal Scrollable Content -->
+      <div class="p-4 md:p-6 overflow-y-auto space-y-5 flex-1">
+        <!-- Segment Specs -->
+        <div class="flex flex-wrap items-center gap-2 text-xs font-bold">
+          <span id="modalSegRegion" class="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-900 border border-emerald-200">אזור</span>
+          <span id="modalSegDist" class="px-3 py-1.5 rounded-xl bg-stone-100 text-stone-700">מרחק</span>
+          <span id="modalSegDiff" class="px-3 py-1.5 rounded-xl bg-stone-100 text-stone-700">קושי</span>
+          <a id="modalOfficialLink" href="#" target="_blank" rel="noopener" class="px-3 py-1.5 rounded-xl bg-sky-50 text-sky-800 border border-sky-200 hover:bg-sky-100">
+            סיפור דרך רשמי ↗
+          </a>
         </div>
+
+        <!-- Existing Bookings & Memories on this Segment -->
+        <div id="modalExistingRecords" class="space-y-2.5"></div>
+
+        <!-- Mode Switcher Tabs inside Modal (>=44px height) -->
+        <div class="grid grid-cols-2 gap-2 p-1 bg-stone-100 rounded-2xl">
+          <button type="button" onclick="setModalFormMode('planned')" id="modePlanBtn" class="touch-btn rounded-xl text-xs sm:text-sm font-extrabold bg-white text-amber-800 shadow-xs">
+            📅 שריון תאריך
+          </button>
+          <button type="button" onclick="setModalFormMode('completed')" id="modeCompBtn" class="touch-btn rounded-xl text-xs sm:text-sm font-bold text-stone-600">
+            📸 העלאת תמונה וזיכרון
+          </button>
+        </div>
+
+        <!-- Form: Reserve or Complete -->
+        <form id="memoryForm" onsubmit="submitMemoryForm(event)" class="space-y-3.5">
+          <input type="hidden" id="formMode" value="planned" />
+
+          <div>
+            <label class="block text-xs font-extrabold text-stone-700 mb-1">שם המטייל / הקבוצה *</label>
+            <input type="text" id="hikerName" required placeholder="לדוגמה: משפחת כהן / חברים מהצבא" class="w-full h-12 px-3.5 rounded-xl border border-stone-300 focus:border-emerald-600 focus:outline-none" />
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label id="dateInputLabel" class="block text-xs font-extrabold text-stone-700 mb-1">תאריך מתוכנן *</label>
+              <input type="date" id="hikeDate" required class="w-full h-12 px-3.5 rounded-xl border border-stone-300 focus:border-emerald-600 focus:outline-none bg-white" />
+            </div>
+            <div>
+              <label class="block text-xs font-extrabold text-stone-700 mb-1">טלפון ליצירת קשר (חסוי למנהלים בלבד) *</label>
+              <input type="tel" id="hikerPhone" required placeholder="050-0000000" class="w-full h-12 px-3.5 rounded-xl border border-stone-300 focus:border-emerald-600 focus:outline-none" />
+            </div>
+          </div>
+
+          <!-- Fields for Planned Mode -->
+          <div id="plannedFields">
+            <label class="block text-xs font-extrabold text-stone-700 mb-1">הערה פומבית (אופציונלי — למשל הזמנה להצטרפות)</label>
+            <input type="text" id="publicNote" placeholder="יוצאים ב-07:00 מחניון הלילה, מוזמנים להצטרף!" class="w-full h-12 px-3.5 rounded-xl border border-stone-300 focus:border-emerald-600 focus:outline-none" />
+          </div>
+
+          <!-- Fields for Completed Mode (Photo + 3 Stop Questions) -->
+          <div id="completedFields" class="hidden space-y-3">
+            <div>
+              <label class="block text-xs font-extrabold text-stone-700 mb-1">תמונה מהשטח (מומלץ לרוחב) *</label>
+              <label class="touch-btn w-full h-14 px-4 rounded-xl border-2 border-dashed border-emerald-400 bg-gradient-to-l from-emerald-50 to-teal-50 hover:from-emerald-100 text-emerald-950 font-bold text-sm cursor-pointer gap-2">
+                <span>📷</span>
+                <span id="photoFileName">בחרו תמונה מהגלריה או צלמו</span>
+                <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoSelected(this)" class="hidden" />
+              </label>
+            </div>
+
+            <div class="bg-amber-50/80 border border-amber-200 rounded-2xl p-3.5 space-y-2.5">
+              <p class="text-xs font-black text-amber-950">📜 גלויית עצירה של 5 דקות לזכר זוהר:</p>
+              <div>
+                <label class="block text-xs font-bold text-stone-700 mb-1">1. מה ראינו בטבע בדרך?</label>
+                <input type="text" id="qNature" placeholder="פריחה, תצפית, בעל חיים..." class="w-full h-11 px-3 rounded-xl border border-amber-200 bg-white" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-stone-700 mb-1">2. צידה לדרך (טיפ למטיילים הבאים)</label>
+                <input type="text" id="qTip" placeholder="נקודת צל, מים, שיר טוב..." class="w-full h-11 px-3 rounded-xl border border-amber-200 bg-white" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-stone-700 mb-1">3. מילה אישית לזוהר</label>
+                <textarea id="qZohar" rows="2" placeholder="מחשבה או זיכרון שעלה במהלך ההליכה..." class="w-full p-3 rounded-xl border border-amber-200 bg-white"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sticky Action Submit Button inside Form -->
+          <div class="pt-2 flex flex-col sm:flex-row gap-2">
+            <button type="submit" id="submitMemoryBtn" class="touch-btn w-full h-12 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-base shadow-sm">
+              שמירת שריון מקטע ✓
+            </button>
+            <button type="button" onclick="shareSegmentWhatsApp()" class="touch-btn w-full sm:w-auto px-4 h-12 rounded-xl bg-green-50 hover:bg-green-100 text-green-800 border border-green-200 font-extrabold text-sm shrink-0">
+              📲 הזמנה בוואטסאפ
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
@@ -567,6 +547,7 @@
         <div class="pt-3 border-t border-stone-200">
           <p class="text-xs font-extrabold text-stone-500 mb-2">ממשק ניהול מערכת</p>
 
+          <!-- Login Form (when logged out) -->
           <form id="adminLoginForm" onsubmit="handleAdminLogin(event)" class="space-y-2.5">
             <input type="email" id="adminEmail" required placeholder="אימייל מנהל" class="w-full h-12 px-3.5 rounded-xl border border-stone-300" />
             <input type="password" id="adminPassword" required placeholder="סיסמה" class="w-full h-12 px-3.5 rounded-xl border border-stone-300" />
@@ -575,6 +556,7 @@
             </button>
           </form>
 
+          <!-- Admin Panel (when logged in) -->
           <div id="adminDashboard" class="hidden space-y-3">
             <div class="flex items-center justify-between bg-emerald-50 border border-emerald-200 p-3 rounded-xl">
               <span class="text-xs font-extrabold text-emerald-900">מחובר כמנהל מערכת ✓</span>
@@ -684,7 +666,7 @@
     let streetLayer = null;
     let isStreetMap = false;
 
-    // Region visual themes
+    // Region visual themes (Warm nature tones)
     const REGION_STYLES = {
       'צפון': {
         strip: 'bg-gradient-to-l from-emerald-600 to-teal-500',
@@ -832,10 +814,7 @@
         btn.textContent = seg.id;
         btn.title = `#${seg.id} ${seg.title}`;
         btn.className = `h-6 rounded text-[10px] font-bold flex items-center justify-center ${blockBg} hover:opacity-80`;
-        btn.onclick = () => {
-          selectSegmentOnMap(seg.id, true);
-          openSegmentModal(seg.id);
-        };
+        btn.onclick = () => openSegmentModal(seg.id);
         miniGrid.appendChild(btn);
       });
 
@@ -854,11 +833,9 @@
 
       const approvedPostcards = memories.filter(m => m.status === 'completed' && m.is_approved);
       document.getElementById('mobPostcardCount').textContent = approvedPostcards.length;
-      const deskCnt = document.getElementById('deskPostcardCount');
-      if (deskCnt) deskCnt.textContent = approvedPostcards.length;
     }
 
-    // 6. Interactive Leaflet Map
+    // 6. Interactive Leaflet Map (Default View)
     function initMap() {
       map = L.map('trailMap', {
         center: [31.5, 35.0],
@@ -903,8 +880,8 @@
       document.querySelectorAll('.qfilter-btn').forEach(btn => {
         const active = btn.dataset.qfilter === status;
         btn.className = active
-          ? 'qfilter-btn touch-btn shrink-0 px-3.5 rounded-full text-xs font-extrabold bg-emerald-800 text-white shadow-xs'
-          : 'qfilter-btn touch-btn shrink-0 px-3.5 rounded-full text-xs font-bold bg-white text-stone-700 border border-stone-200';
+          ? 'qfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-extrabold bg-emerald-800 text-white shadow-xs'
+          : 'qfilter-btn touch-btn shrink-0 px-4 rounded-full text-xs font-bold bg-white text-stone-700 border border-stone-200';
       });
       renderMapPins();
     }
@@ -957,32 +934,35 @@
 
       const thumbBox = document.getElementById('mfcThumbBox');
       if (latestPhoto) {
-        thumbBox.className = 'w-16 h-16 rounded-2xl overflow-hidden shrink-0 cursor-pointer border-2 border-emerald-400 shadow-xs';
+        thumbBox.className = 'w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden shrink-0 cursor-pointer border-2 border-emerald-400 shadow-xs';
         thumbBox.innerHTML = `<img src="${latestPhoto}" alt="${seg.title}" class="w-full h-full object-cover" />`;
       } else {
-        thumbBox.className = `w-16 h-16 rounded-2xl overflow-hidden shrink-0 cursor-pointer border bg-gradient-to-br ${rStyle.placeholder} flex flex-col items-center justify-center text-center p-1`;
+        thumbBox.className = `w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden shrink-0 cursor-pointer border bg-gradient-to-br ${rStyle.placeholder} flex flex-col items-center justify-center text-center p-1`;
         thumbBox.innerHTML = `<span class="text-lg">📷</span><span class="text-[10px] font-extrabold leading-tight">מחכים לתמונה</span>`;
       }
 
       if (panToMarker && seg.lat && seg.lng && map) {
-        map.panTo([seg.lat, seg.lng], { animate: true });
+        map.panTo([seg.lat, seg.lng]);
       }
       renderMapPins();
     }
 
-    // 7. Mobile Navigation Tabs (< 1024px)
+    // 7. Navigation Tabs (Mobile & Desktop)
     function switchMobileTab(tab) {
       activeTab = tab;
       ['map', 'segments', 'postcards'].forEach(t => {
         const viewEl = document.getElementById(`view-${t}`);
         const mobBtn = document.getElementById(`mob-tab-${t}`);
+        const deskBtn = document.getElementById(`desk-tab-${t}`);
 
         if (t === tab) {
           viewEl.classList.remove('hidden');
           if (mobBtn) mobBtn.className = 'flex flex-col items-center justify-center gap-0.5 text-emerald-800 font-black border-t-2 border-emerald-700';
+          if (deskBtn) deskBtn.className = 'touch-btn px-4 rounded-xl text-sm font-bold bg-emerald-100/80 text-emerald-900 border border-emerald-300';
         } else {
           viewEl.classList.add('hidden');
           if (mobBtn) mobBtn.className = 'flex flex-col items-center justify-center gap-0.5 text-stone-500 font-semibold border-t-2 border-transparent';
+          if (deskBtn) deskBtn.className = 'touch-btn px-4 rounded-xl text-sm font-semibold text-stone-600 hover:bg-stone-200/60';
         }
       });
 
@@ -991,7 +971,7 @@
       }
     }
 
-    // 8. Segments List & Filtering
+    // 8. Segments List & Filtering (With Colorful Region Strips & Photo Frames)
     function setRegionFilter(region) {
       regionFilter = region;
       document.querySelectorAll('.rfilter-btn').forEach(btn => {
@@ -1047,52 +1027,49 @@
 
         const card = document.createElement('article');
         card.className = 'bg-white rounded-3xl border border-stone-200 overflow-hidden flex flex-col justify-between shadow-xs hover:shadow-md hover:border-emerald-300 transition';
-        card.onmouseenter = () => {
-          if (window.innerWidth >= 1024 && selectedSegmentId !== seg.id) {
-            selectSegmentOnMap(seg.id, true);
-          }
-        };
         card.innerHTML = `
           <div>
+            <!-- Colorful Region Top Accent Strip -->
             <div class="h-1.5 w-full ${rStyle.strip}"></div>
 
+            <!-- Photo or Warm "Waiting for your photo" Frame -->
             ${latestPhoto ? `
-              <div class="h-36 bg-stone-100 overflow-hidden cursor-pointer relative" onclick="openLightbox('${latestPhoto}', '#${seg.id} ${seg.title}')">
+              <div class="h-40 bg-stone-100 overflow-hidden cursor-pointer relative" onclick="openLightbox('${latestPhoto}', '#${seg.id} ${seg.title}')">
                 <img src="${latestPhoto}" alt="${seg.title}" class="w-full h-full object-cover" loading="lazy" />
-                <span class="absolute bottom-2 right-2 px-2.5 py-0.5 rounded-full bg-black/65 text-white text-[11px] font-bold">🔍 הגדלה</span>
+                <span class="absolute bottom-2 right-2 px-2.5 py-0.5 rounded-full bg-black/65 text-white text-[11px] font-bold">🔍 לחצו להגדלה</span>
               </div>
             ` : `
               <div onclick="openSegmentModal(${seg.id})" class="h-24 bg-gradient-to-l ${rStyle.placeholder} border-b flex items-center justify-center gap-2.5 px-4 cursor-pointer hover:opacity-90 transition">
                 <span class="text-2xl">📷</span>
                 <div class="text-right">
                   <p class="text-xs font-black">מחכים לתמונה שלכם מהשטח</p>
-                  <p class="text-[11px] opacity-80">לחצו לשריון או להעלאת תיעוד</p>
+                  <p class="text-[11px] opacity-80">לחצו לשריון או להעלאת תיעוד מהמקטע</p>
                 </div>
               </div>
             `}
 
-            <div class="p-3.5">
-              <div class="flex items-center justify-between gap-2 mb-1.5">
+            <div class="p-4">
+              <div class="flex items-center justify-between gap-2 mb-2">
                 <div class="flex items-center gap-2">
                   <span class="px-2.5 py-0.5 rounded-lg bg-stone-900 text-white text-xs font-black">#${seg.id}</span>
                   <span class="text-xs font-extrabold text-stone-600">${rStyle.icon} ${seg.region}</span>
                 </div>
-                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${info.badgeClass}">${info.label}</span>
+                <span class="px-2.5 py-1 rounded-full text-xs font-bold ${info.badgeClass}">${info.label}</span>
               </div>
 
               <h3 class="text-base font-black text-stone-900 leading-snug">${seg.title}</h3>
               <p class="text-xs text-stone-600 mt-1">📏 ${seg.distance} ק״מ • ⛰️ ${seg.difficulty}</p>
 
               ${info.planned.length > 0 ? `
-                <div class="mt-2 text-xs bg-amber-50 text-amber-950 px-2.5 py-1.5 rounded-xl border border-amber-200 truncate">
+                <div class="mt-2.5 text-xs bg-amber-50 text-amber-950 px-3 py-2 rounded-xl border border-amber-200">
                   📅 <strong>${info.planned[0].hiker_name}</strong> (${formatDate(info.planned[0].hike_date)})
                 </div>
               ` : ''}
             </div>
           </div>
 
-          <div class="px-3.5 pb-3.5 mt-auto">
-            <button onclick="openSegmentModal(${seg.id})" class="touch-btn w-full h-11 rounded-2xl ${info.state === 'available' ? 'bg-gradient-to-l from-emerald-700 to-teal-700 hover:from-emerald-800 hover:to-teal-800 text-white' : 'bg-stone-100 hover:bg-stone-200 text-stone-900'} font-extrabold text-xs sm:text-sm shadow-2xs">
+          <div class="px-4 pb-4">
+            <button onclick="openSegmentModal(${seg.id})" class="touch-btn w-full h-12 rounded-2xl ${info.state === 'available' ? 'bg-gradient-to-l from-emerald-700 to-teal-700 hover:from-emerald-800 hover:to-teal-800 text-white' : 'bg-stone-100 hover:bg-stone-200 text-stone-900'} font-extrabold text-sm shadow-2xs">
               ${info.state === 'available' ? 'לשריון מקטע / פרטים ←' : 'פרטים / הצטרפות / תיעוד ←'}
             </button>
           </div>
@@ -1126,11 +1103,11 @@
         const card = document.createElement('article');
         card.className = 'bg-white rounded-3xl border border-stone-200 overflow-hidden shadow-xs flex flex-col';
         card.innerHTML = `
-          <div class="h-48 bg-stone-100 overflow-hidden cursor-pointer relative" onclick="openLightbox('${photo}', '${segLabel} • ${item.hiker_name}')">
+          <div class="h-52 bg-stone-100 overflow-hidden cursor-pointer relative" onclick="openLightbox('${photo}', '${segLabel} • ${item.hiker_name}')">
             <img src="${photo}" alt="${segLabel}" class="w-full h-full object-cover" loading="lazy" />
             <span class="absolute top-3 right-3 px-3 py-1 rounded-xl bg-emerald-950/85 text-white text-xs font-extrabold shadow-xs">${segLabel}</span>
           </div>
-          <div class="p-4 flex-1 flex flex-col justify-between space-y-2">
+          <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
             <div>
               <div class="flex items-center justify-between text-xs text-stone-500 font-bold mb-1.5">
                 <span>🥾 ${item.hiker_name}</span>
@@ -1177,7 +1154,7 @@
             ${note ? `<p class="text-stone-700 mt-1">💬 ${note}</p>` : ''}
             ${m.story ? `<p class="text-stone-700 mt-1 whitespace-pre-line">${m.story}</p>` : ''}
             ${m.photo_url ? `
-              <img src="${m.photo_url}" onclick="openLightbox('${m.photo_url}', '#${seg.id} ${seg.title}')" class="mt-2 h-32 w-full object-cover rounded-xl cursor-pointer border border-emerald-200" />
+              <img src="${m.photo_url}" onclick="openLightbox('${m.photo_url}', '#${seg.id} ${seg.title}')" class="mt-2 h-36 w-full object-cover rounded-xl cursor-pointer border border-emerald-200" />
             ` : ''}
           `;
           container.appendChild(div);
@@ -1211,7 +1188,7 @@
         compFields.classList.add('hidden');
         dateLabel.textContent = 'תאריך מתוכנן *';
         submitBtn.textContent = 'שמירת שריון מקטע ✓';
-        submitBtn.className = 'touch-btn w-full h-12 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-black text-sm sm:text-base shadow-sm';
+        submitBtn.className = 'touch-btn w-full h-12 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-black text-base shadow-sm';
       } else {
         compBtn.className = 'touch-btn rounded-xl text-xs sm:text-sm font-extrabold bg-white text-emerald-800 shadow-xs';
         planBtn.className = 'touch-btn rounded-xl text-xs sm:text-sm font-bold text-stone-600';
@@ -1219,7 +1196,7 @@
         planFields.classList.add('hidden');
         dateLabel.textContent = 'תאריך ביצוע המסלול *';
         submitBtn.textContent = 'שליחת תמונה וגלויה לאישור ✓';
-        submitBtn.className = 'touch-btn w-full h-12 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-sm sm:text-base shadow-sm';
+        submitBtn.className = 'touch-btn w-full h-12 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-base shadow-sm';
       }
     }
 
@@ -1294,8 +1271,7 @@
             q1 ? `🌿 מה ראינו בטבע: ${q1}` : '',
             q2 ? `🎒 צידה לדרך: ${q2}` : '',
             q3 ? `💛 מילה לזוהר: ${q3}` : ''
-          ].filter(Boolean).join('
-');
+          ].filter(Boolean).join('\n');
         }
 
         const contactInfo = `PHONE:${phone}${note ? `|NOTE:${note}` : ''}`;
@@ -1331,8 +1307,7 @@
       const seg = segments.find(s => s.id === selectedSegmentId);
       if (!seg) return;
       const text = encodeURIComponent(
-        `היי! אנחנו יוצאים לצעוד לזכרו של זוהר תמיר ז״ל במקטע #${seg.id} (${seg.title} - ${seg.distance} ק״מ) במסגרת פרויקט "צועדים בשביל זוהר". מוזמנים להצטרף! 🥾🇮🇱
-${window.location.href}`
+        `היי! אנחנו יוצאים לצעוד לזכרו של זוהר תמיר ז״ל במקטע #${seg.id} (${seg.title} - ${seg.distance} ק״מ) במסגרת פרויקט "צועדים בשביל זוהר". מוזמנים להצטרף! 🥾🇮🇱\n${window.location.href}`
       );
       window.open(`https://wa.me/?text=${text}`, '_blank');
     }
@@ -1484,8 +1459,7 @@ ${window.location.href}`
     function exportCSV() {
       const headers = ['id', 'segment_id', 'hiker_name', 'hike_date', 'status', 'contact_info', 'story', 'is_approved'];
       const rows = memories.map(m => headers.map(h => `"${String(m[h] ?? '').replace(/"/g, '""')}"`).join(','));
-      const csv = '﻿' + [headers.join(','), ...rows].join('
-');
+      const csv = '\uFEFF' + [headers.join(','), ...rows].join('\n');
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
