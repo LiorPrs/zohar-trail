@@ -584,19 +584,46 @@
               </div>
             </div>
 
-            <!-- Admin Sub-Tabs: Records Approval vs. Site Graphics & Texts CMS -->
-            <div class="grid grid-cols-2 gap-2 p-1 bg-stone-100 rounded-2xl">
-              <button type="button" onclick="switchAdminSubTab('records')" id="adminSubTabRecords" class="touch-btn rounded-xl text-xs font-extrabold bg-white text-stone-900 shadow-xs">
-                📋 ניהול גלויות ושריונים
+            <!-- Admin Sub-Tabs: 3 Dedicated Areas (Postcards | Bookings | Site Design & Content) -->
+            <div class="grid grid-cols-3 gap-1.5 p-1 bg-stone-100 rounded-2xl">
+              <button type="button" onclick="switchAdminSubTab('postcards')" id="adminSubTabPostcards" class="touch-btn rounded-xl text-xs font-extrabold bg-white text-emerald-900 shadow-xs gap-1">
+                <span>✉️ גלויות</span>
+                <span id="adminPostcardsPendingBadge" class="hidden px-1.5 py-0.2 rounded-full bg-amber-500 text-white text-[10px] font-black">0</span>
+              </button>
+              <button type="button" onclick="switchAdminSubTab('bookings')" id="adminSubTabBookings" class="touch-btn rounded-xl text-xs font-bold text-stone-600 gap-1">
+                <span>📅 שריונים</span>
+                <span id="adminBookingsCountBadge" class="px-1.5 py-0.2 rounded-full bg-stone-200 text-stone-700 text-[10px] font-black">0</span>
               </button>
               <button type="button" onclick="switchAdminSubTab('cms')" id="adminSubTabCms" class="touch-btn rounded-xl text-xs font-bold text-stone-600">
-                🎨 עיצוב ותוכן האתר
+                <span>🎨 עיצוב האתר</span>
               </button>
             </div>
 
-            <!-- Sub-Tab 1: Records List -->
-            <div id="adminRecordsSection" class="space-y-2.5 max-h-96 overflow-y-auto">
-              <div id="adminRecordsList" class="space-y-2.5"></div>
+            <!-- Sub-Tab 1: Postcards & Messages Management -->
+            <div id="adminPostcardsSection" class="space-y-2.5 max-h-96 overflow-y-auto">
+              <div class="flex items-center justify-between px-1 text-[11px] text-stone-500 font-bold">
+                <span>גלויות מהשטח והודעות ממטיילים</span>
+                <select id="adminPostcardFilter" onchange="renderAdminList()" class="bg-stone-100 border border-stone-200 rounded-lg px-2 py-1 text-[11px] font-bold text-stone-800">
+                  <option value="all">הכל</option>
+                  <option value="pending">ממתינות לאישור</option>
+                  <option value="approved">מאושרות באתר</option>
+                  <option value="messages">הודעות למנהלים</option>
+                </select>
+              </div>
+              <div id="adminPostcardsList" class="space-y-2.5"></div>
+            </div>
+
+            <!-- Sub-Tab 2: Bookings (Planned Hikes) Management -->
+            <div id="adminBookingsSection" class="hidden space-y-2.5 max-h-96 overflow-y-auto">
+              <div class="flex items-center justify-between px-1 text-[11px] text-stone-500 font-bold">
+                <span>מקטעים משוריינים עתידיים / שעבר תאריכם</span>
+                <select id="adminBookingFilter" onchange="renderAdminList()" class="bg-stone-100 border border-stone-200 rounded-lg px-2 py-1 text-[11px] font-bold text-stone-800">
+                  <option value="all">כל השריונים</option>
+                  <option value="overdue">עבר התאריך (דורש מעקב)</option>
+                  <option value="upcoming">עתידיים</option>
+                </select>
+              </div>
+              <div id="adminBookingsList" class="space-y-2.5"></div>
             </div>
 
             <!-- Sub-Tab 2: Site Graphics & Texts CMS -->
@@ -1009,21 +1036,27 @@
     }
 
     function switchAdminSubTab(tab) {
-      const recSec = document.getElementById('adminRecordsSection');
-      const cmsSec = document.getElementById('adminCmsSection');
-      const recBtn = document.getElementById('adminSubTabRecords');
-      const cmsBtn = document.getElementById('adminSubTabCms');
+      const views = {
+        postcards: { sec: 'adminPostcardsSection', btn: 'adminSubTabPostcards', activeClass: 'touch-btn rounded-xl text-xs font-extrabold bg-white text-emerald-900 shadow-xs gap-1' },
+        bookings:  { sec: 'adminBookingsSection',  btn: 'adminSubTabBookings',  activeClass: 'touch-btn rounded-xl text-xs font-extrabold bg-white text-amber-900 shadow-xs gap-1' },
+        cms:       { sec: 'adminCmsSection',       btn: 'adminSubTabCms',       activeClass: 'touch-btn rounded-xl text-xs font-extrabold bg-white text-stone-900 shadow-xs' }
+      };
 
-      if (tab === 'records') {
-        recSec.classList.remove('hidden');
-        cmsSec.classList.add('hidden');
-        recBtn.className = 'touch-btn rounded-xl text-xs font-extrabold bg-white text-stone-900 shadow-xs';
-        cmsBtn.className = 'touch-btn rounded-xl text-xs font-bold text-stone-600';
-      } else {
-        cmsSec.classList.remove('hidden');
-        recSec.classList.add('hidden');
-        cmsBtn.className = 'touch-btn rounded-xl text-xs font-extrabold bg-white text-emerald-900 shadow-xs';
-        recBtn.className = 'touch-btn rounded-xl text-xs font-bold text-stone-600';
+      Object.entries(views).forEach(([key, cfg]) => {
+        const secEl = document.getElementById(cfg.sec);
+        const btnEl = document.getElementById(cfg.btn);
+        if (!secEl || !btnEl) return;
+
+        if (key === tab) {
+          secEl.classList.remove('hidden');
+          btnEl.className = cfg.activeClass;
+        } else {
+          secEl.classList.add('hidden');
+          btnEl.className = 'touch-btn rounded-xl text-xs font-bold text-stone-600 gap-1';
+        }
+      });
+
+      if (tab === 'cms') {
         applySiteSettingsToDOM();
       }
     }
@@ -1700,52 +1733,146 @@
     }
 
     function renderAdminList() {
-      const list = document.getElementById('adminRecordsList');
+      const postcardsList = document.getElementById('adminPostcardsList');
+      const bookingsList = document.getElementById('adminBookingsList');
       const badge = document.getElementById('adminBadgeDot');
-      if (!list) return;
+      const pcPendingBadge = document.getElementById('adminPostcardsPendingBadge');
+      const bkCountBadge = document.getElementById('adminBookingsCountBadge');
+      if (!postcardsList || !bookingsList) return;
 
-      const pendingCount = memories.filter(m => !m.is_approved).length;
-      if (pendingCount > 0) {
-        badge.textContent = pendingCount;
+      const today = new Date().toISOString().split('T')[0];
+
+      // Split records by type
+      const postcardAndMsgItems = memories.filter(m => m.status === 'completed' || m.status === 'message');
+      const bookingItems = memories.filter(m => m.status === 'planned');
+
+      const pendingPostcardsCount = postcardAndMsgItems.filter(m => !m.is_approved).length;
+      if (pendingPostcardsCount > 0) {
+        badge.textContent = pendingPostcardsCount;
         badge.classList.remove('hidden');
+        if (pcPendingBadge) {
+          pcPendingBadge.textContent = pendingPostcardsCount;
+          pcPendingBadge.classList.remove('hidden');
+        }
       } else {
         badge.classList.add('hidden');
+        if (pcPendingBadge) pcPendingBadge.classList.add('hidden');
       }
 
-      list.innerHTML = '';
-      memories.forEach(m => {
+      if (bkCountBadge) {
+        bkCountBadge.textContent = bookingItems.length;
+      }
+
+      // 1. Render Postcards & Messages Tab
+      const pcFilter = document.getElementById('adminPostcardFilter')?.value || 'all';
+      const filteredPostcards = postcardAndMsgItems.filter(m => {
+        if (pcFilter === 'pending') return m.status === 'completed' && !m.is_approved;
+        if (pcFilter === 'approved') return m.status === 'completed' && m.is_approved;
+        if (pcFilter === 'messages') return m.status === 'message';
+        return true;
+      });
+
+      postcardsList.innerHTML = filteredPostcards.length === 0
+        ? '<p class="text-center text-xs text-stone-400 py-6">אין גלויות או הודעות להצגה בסינון זה</p>'
+        : '';
+
+      filteredPostcards.forEach(m => {
         const phoneMatch = (m.contact_info || '').match(/PHONE:([^|]+)/);
         const phone = phoneMatch ? phoneMatch[1].trim() : '';
         const waPhone = phone.replace(/[^0-9]/g, '').replace(/^0/, '972');
+        const isMsg = m.status === 'message';
 
         const item = document.createElement('div');
-        item.className = `p-3 rounded-xl border text-xs space-y-2 ${!m.is_approved ? 'bg-amber-50 border-amber-300' : 'bg-stone-50 border-stone-200'}`;
+        item.className = `p-3 rounded-xl border text-xs space-y-2 ${isMsg ? 'bg-sky-50/70 border-sky-200' : (!m.is_approved ? 'bg-amber-50 border-amber-300' : 'bg-emerald-50/40 border-stone-200')}`;
         item.innerHTML = `
           <div class="flex items-center justify-between font-extrabold">
-            <span>#${m.segment_id} • ${m.hiker_name} (${m.status})</span>
+            <span>#${m.segment_id} • ${m.hiker_name} ${isMsg ? '<span class="px-1.5 py-0.5 rounded bg-sky-200 text-sky-950 text-[10px]">הודעה</span>' : (m.is_approved ? '<span class="px-1.5 py-0.5 rounded bg-emerald-200 text-emerald-950 text-[10px]">מאושר</span>' : '<span class="px-1.5 py-0.5 rounded bg-amber-200 text-amber-950 text-[10px]">ממתין לאישור</span>')}</span>
             <span>${formatDate(m.hike_date)}</span>
           </div>
           ${phone ? `<p class="text-stone-600">📞 ${phone}</p>` : ''}
-          ${m.story ? `<p class="text-stone-700">${m.story}</p>` : ''}
-          ${m.photo_url ? `<img src="${m.photo_url}" class="h-24 w-full object-cover rounded-lg" />` : ''}
+          ${m.story ? `<p class="text-stone-700 whitespace-pre-line">${m.story}</p>` : ''}
+          ${m.photo_url ? `<img src="${m.photo_url}" onclick="openLightbox('${m.photo_url}', '#${m.segment_id} ${m.hiker_name}')" class="h-28 w-full object-cover rounded-lg cursor-pointer" />` : ''}
           <div class="flex items-center gap-2 pt-1">
-            ${!m.is_approved ? `
-              <button onclick="approveMemory('${m.id}')" class="touch-btn flex-1 h-11 rounded-xl bg-emerald-700 text-white font-bold">
-                ✓ אישור פרסום
+            ${(!isMsg && !m.is_approved) ? `
+              <button onclick="approveMemory('${m.id}')" class="touch-btn flex-1 h-10 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold">
+                ✓ אישור גלויה
               </button>
             ` : ''}
             ${waPhone ? `
-              <a href="https://wa.me/${waPhone}" target="_blank" class="touch-btn flex-1 h-11 rounded-xl bg-green-100 text-green-900 font-bold">
+              <a href="https://wa.me/${waPhone}" target="_blank" class="touch-btn flex-1 h-10 rounded-xl bg-green-100 text-green-900 font-bold">
                 📲 וואטסאפ
               </a>
             ` : ''}
-            <button onclick="deleteMemory('${m.id}')" class="touch-btn px-3 h-11 rounded-xl bg-red-100 text-red-800 font-bold">
+            <button onclick="deleteMemory('${m.id}')" class="touch-btn px-3 h-10 rounded-xl bg-red-100 text-red-800 font-bold">
               🗑️ מחיקה
             </button>
           </div>
         `;
-        list.appendChild(item);
+        postcardsList.appendChild(item);
       });
+
+      // 2. Render Bookings Tab
+      const bkFilter = document.getElementById('adminBookingFilter')?.value || 'all';
+      const filteredBookings = bookingItems.filter(m => {
+        const isOverdue = m.hike_date && m.hike_date < today;
+        if (bkFilter === 'overdue') return isOverdue;
+        if (bkFilter === 'upcoming') return !isOverdue;
+        return true;
+      });
+
+      bookingsList.innerHTML = filteredBookings.length === 0
+        ? '<p class="text-center text-xs text-stone-400 py-6">אין שריונים להצגה בסינון זה</p>'
+        : '';
+
+      filteredBookings.forEach(m => {
+        const phoneMatch = (m.contact_info || '').match(/PHONE:([^|]+)/);
+        const noteMatch = (m.contact_info || '').match(/NOTE:([^|]+)/);
+        const phone = phoneMatch ? phoneMatch[1].trim() : '';
+        const note = noteMatch ? noteMatch[1].trim() : '';
+        const waPhone = phone.replace(/[^0-9]/g, '').replace(/^0/, '972');
+        const isOverdue = m.hike_date && m.hike_date < today;
+
+        const item = document.createElement('div');
+        item.className = `p-3 rounded-xl border text-xs space-y-2 ${isOverdue ? 'bg-red-50/80 border-red-300' : 'bg-amber-50/60 border-amber-200'}`;
+        item.innerHTML = `
+          <div class="flex items-center justify-between font-extrabold">
+            <span>#${m.segment_id} • ${m.hiker_name}</span>
+            <span class="${isOverdue ? 'text-red-700 font-black' : 'text-amber-900'}">${isOverdue ? '⚠️ עבר תאריך: ' : '📅 '}${formatDate(m.hike_date)}</span>
+          </div>
+          ${phone ? `<p class="text-stone-600">📞 ${phone}</p>` : ''}
+          ${note ? `<p class="text-stone-700">💬 ${note}</p>` : ''}
+          <div class="flex items-center gap-2 pt-1">
+            <button onclick="openEditBookingDate('${m.id}', '${m.hike_date}')" class="touch-btn flex-1 h-10 rounded-xl bg-white border border-stone-300 hover:bg-stone-100 text-stone-800 font-bold">
+              ✏️ שינוי תאריך
+            </button>
+            ${waPhone ? `
+              <a href="https://wa.me/${waPhone}" target="_blank" class="touch-btn flex-1 h-10 rounded-xl bg-green-100 text-green-900 font-bold">
+                📲 וואטסאפ
+              </a>
+            ` : ''}
+            <button onclick="deleteMemory('${m.id}')" class="touch-btn px-3 h-10 rounded-xl bg-red-100 text-red-800 font-bold">
+              🗑️ ביטול שריון
+            </button>
+          </div>
+        `;
+        bookingsList.appendChild(item);
+      });
+    }
+
+    async function openEditBookingDate(id, currentDate) {
+      const newDate = prompt('הזן תאריך חדש לשריון (YYYY-MM-DD):', currentDate || '');
+      if (!newDate || newDate === currentDate) return;
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(newDate.trim())) {
+        showToast('פורמט תאריך לא תקין. השתמש ב-YYYY-MM-DD');
+        return;
+      }
+      const { error } = await sb.from('memories').update({ hike_date: newDate.trim() }).eq('id', id);
+      if (!error) {
+        showToast('תאריך השריון עודכן בהצלחה ✓');
+        await loadData();
+      } else {
+        showToast('שגיאה בעדכון התאריך');
+      }
     }
 
     async function approveMemory(id) {
