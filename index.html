@@ -401,6 +401,7 @@
                 <p id="mfcMeta" class="text-xs text-stone-600 mt-0.5">📏 16.5 ק״מ • ⛰️ בינוני</p>
               </div>
             </div>
+            <div id="mfcBookingNoteBox" class="hidden text-xs bg-amber-50 text-amber-950 px-3 py-2 rounded-xl border border-amber-200 space-y-0.5"></div>
 
             <div class="flex items-center gap-2">
               <button id="mfcActionBtn" onclick="openSegmentModal(selectedSegmentId)" class="touch-btn flex-1 h-12 rounded-2xl bg-gradient-to-l from-emerald-700 to-teal-700 hover:from-emerald-800 hover:to-teal-800 text-white font-extrabold text-sm shadow-sm">
@@ -1166,6 +1167,13 @@
       if (currentUser) renderAdminList();
     }
 
+    function getBookingPublicNote(m) {
+      if (!m) return '';
+      if (m.public_note && String(m.public_note).trim()) return String(m.public_note).trim();
+      const match = (m.contact_info || '').match(/NOTE:([^|]+)/);
+      return match ? match[1].trim() : '';
+    }
+
     function getSegmentStatusInfo(segId) {
       const today = new Date().toISOString().split('T')[0];
       const segMems = memories.filter(m => m.segment_id === segId && m.status !== 'message');
@@ -1345,6 +1353,20 @@
       const mfcLink = document.getElementById('mfcOfficialLink');
       if (mfcLink) mfcLink.href = seg.official_url || 'https://www.teva.org.il/israel-national-trail';
 
+      const mfcNoteBox = document.getElementById('mfcBookingNoteBox');
+      if (mfcNoteBox) {
+        if (info.planned.length > 0) {
+          mfcNoteBox.classList.remove('hidden');
+          mfcNoteBox.innerHTML = info.planned.map(p => {
+            const note = getBookingPublicNote(p);
+            return `<div>📅 <strong>${p.hiker_name}</strong> (${formatDate(p.hike_date)})${note ? ` — <span class="text-amber-900">💬 ${note}</span>` : ''}</div>`;
+          }).join('');
+        } else {
+          mfcNoteBox.classList.add('hidden');
+          mfcNoteBox.innerHTML = '';
+        }
+      }
+
       const thumbBox = document.getElementById('mfcThumbBox');
       if (latestPhoto) {
         thumbBox.className = 'w-16 h-16 rounded-2xl overflow-hidden shrink-0 cursor-pointer border-2 border-emerald-400 shadow-xs';
@@ -1474,8 +1496,16 @@
               <p class="text-xs text-stone-600 mt-1">📏 ${seg.distance} ק״מ • ⛰️ ${seg.difficulty}</p>
 
               ${info.planned.length > 0 ? `
-                <div class="mt-2 text-xs bg-amber-50 text-amber-950 px-2.5 py-1.5 rounded-xl border border-amber-200 truncate">
-                  📅 <strong>${info.planned[0].hiker_name}</strong> (${formatDate(info.planned[0].hike_date)})
+                <div class="mt-2 space-y-1.5">
+                  ${info.planned.map(p => {
+                    const note = getBookingPublicNote(p);
+                    return `
+                      <div class="text-xs bg-amber-50 text-amber-950 px-2.5 py-1.5 rounded-xl border border-amber-200 space-y-0.5">
+                        <div class="font-bold">📅 <strong>${p.hiker_name}</strong> (${formatDate(p.hike_date)})</div>
+                        ${note ? `<p class="text-[11px] text-amber-900 leading-snug whitespace-pre-line">💬 ${note}</p>` : ''}
+                      </div>
+                    `;
+                  }).join('')}
                 </div>
               ` : ''}
             </div>
@@ -1559,7 +1589,7 @@
       if (segMems.length > 0) {
         segMems.forEach(m => {
           const isComp = m.status === 'completed';
-          const note = m.public_note || '';
+          const note = getBookingPublicNote(m);
           const div = document.createElement('div');
           div.className = `p-3 rounded-2xl border text-xs ${isComp ? 'bg-emerald-50/80 border-emerald-200' : 'bg-amber-50/80 border-amber-200'}`;
           div.innerHTML = `
