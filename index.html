@@ -145,7 +145,7 @@
   </header>
 
   <!-- ==================== HERO SECTION: COMPACT IN MOBILE, 2-COLUMN BALANCED IN DESKTOP ==================== -->
-  <section class="max-w-7xl mx-auto px-3 md:px-6 pt-3 md:pt-5">
+  <section id="heroContainer" class="max-w-7xl mx-auto px-3 md:px-6 pt-3 md:pt-5 transition-opacity duration-200">
     <div class="bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden">
       <!-- Illustrated Trail Banner -->
       <div class="relative h-40 sm:h-48 lg:h-56 w-full bg-[#f5efe6] overflow-hidden">
@@ -830,11 +830,33 @@
       };
     });
 
+    const CMS_CACHE_KEY = 'shvil_zohar_site_settings_v1';
+
+    function hydrateCachedSiteSettings() {
+      try {
+        const raw = localStorage.getItem(CMS_CACHE_KEY);
+        if (raw) {
+          siteSettings = JSON.parse(raw) || {};
+          applySiteSettingsToDOM();
+          return true;
+        }
+      } catch (e) {}
+      return false;
+    }
+
     // 3. Initialize App
     document.addEventListener('DOMContentLoaded', async () => {
+      const hasCache = hydrateCachedSiteSettings();
+      const heroEl = document.getElementById('heroContainer');
+      if (!hasCache && heroEl) {
+        heroEl.classList.add('opacity-0');
+        setTimeout(() => heroEl.classList.remove('opacity-0'), 550);
+      }
+
       initMap();
       await checkAdminSession();
       await loadSiteSettings();
+      if (heroEl) heroEl.classList.remove('opacity-0');
       await loadData();
       populateSegmentSelect();
     });
@@ -859,6 +881,7 @@
 
         siteSettings = {};
         data.forEach(row => { siteSettings[row.key] = row.value; });
+        try { localStorage.setItem(CMS_CACHE_KEY, JSON.stringify(siteSettings)); } catch (e) {}
         applySiteSettingsToDOM();
       } catch (err) {
         console.warn('Site settings not initialized yet:', err);
@@ -943,6 +966,7 @@
         if (dbErr) throw dbErr;
 
         siteSettings[settingKey] = publicUrl;
+        try { localStorage.setItem(CMS_CACHE_KEY, JSON.stringify(siteSettings)); } catch (e) {}
         applySiteSettingsToDOM();
         showToast('הגרפיקה עודכנה באתר בהצלחה! ✨');
       } catch (err) {
@@ -972,6 +996,7 @@
         if (error) throw error;
 
         updates.forEach(u => { siteSettings[u.key] = u.value; });
+        try { localStorage.setItem(CMS_CACHE_KEY, JSON.stringify(siteSettings)); } catch (e) {}
         applySiteSettingsToDOM();
         showToast('הטקסטים נשמרו ועודכנו באתר ✓');
       } catch (err) {
