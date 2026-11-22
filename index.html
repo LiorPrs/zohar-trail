@@ -29,16 +29,16 @@
     }
     body {
       font-family: 'Heebo', sans-serif;
-      /* כאן אנחנו מגדירים את התמונה כרקע חזרתי, עדין ומקובע */
-      background-image: linear-gradient(rgba(250, 248, 245, 0.75), rgba(250, 248, 245, 0.70)), url('site-bg.jpg');
+      background-color: #faf8f5;
+      background-image: linear-gradient(rgba(250, 248, 245, 0.78), rgba(250, 248, 245, 0.72)), url('site-bg.jpg');
       background-attachment: fixed;
       background-repeat: repeat;
-      background-size: 950px; /* קביעת גודל האיורים - אפשר להקטין/להגדיל לפי הטעם */
+      background-size: 950px;
       color: #1c1917;
       overflow-x: hidden;
     }
     html.font-large { font-size: 114%; }
-    html.high-contrast body { background-color: #000000; color: #ffffff; }
+    html.high-contrast body { background-color: #000000 !important; background-image: none !important; color: #ffffff !important; }
     html.high-contrast .bg-white,
     html.high-contrast .bg-stone-50 { background-color: #111827 !important; color: #ffffff !important; border-color: #facc15 !important; }
     html.high-contrast .text-stone-600,
@@ -155,6 +155,7 @@
           🇮🇱 מחרמון ועד אילת • 1,040 ק״מ
         </div>
       </div>
+
       <!-- Hero Body: 12-Col Grid on Desktop (7 Cols Story + 5 Cols Progress Card) -->
       <div class="px-4 pb-4 md:px-6 md:pb-6 relative z-10">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start">
@@ -372,7 +373,7 @@
 
         <!-- Map Container + Selected Segment Floating Card -->
         <div class="relative bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden">
-          <div class="absolute top-3 left-3 z-20 flex flex-col gap-2">
+          <div class="absolute top-3 left-3 z-[1000] flex flex-col gap-2">
             <button onclick="toggleMapLayer()" id="mapLayerBtn" class="touch-btn px-3 rounded-xl bg-white/95 backdrop-blur shadow-md border border-stone-200 text-xs font-extrabold text-stone-800">
               🗺️ מפת רחובות
             </button>
@@ -401,9 +402,14 @@
               </div>
             </div>
 
-            <button id="mfcActionBtn" onclick="openSegmentModal(selectedSegmentId)" class="touch-btn w-full h-12 rounded-2xl bg-gradient-to-l from-emerald-700 to-teal-700 hover:from-emerald-800 hover:to-teal-800 text-white font-extrabold text-sm shadow-sm">
-              לשריון / תיעוד מקטע ←
-            </button>
+            <div class="flex items-center gap-2">
+              <button id="mfcActionBtn" onclick="openSegmentModal(selectedSegmentId)" class="touch-btn flex-1 h-12 rounded-2xl bg-gradient-to-l from-emerald-700 to-teal-700 hover:from-emerald-800 hover:to-teal-800 text-white font-extrabold text-sm shadow-sm">
+                לשריון / תיעוד מקטע ←
+              </button>
+              <a id="mfcOfficialLink" href="https://www.teva.org.il/israel-national-trail" target="_blank" rel="noopener noreferrer" title="סיפור דרך רשמי - החברה להגנת הטבע" class="touch-btn px-3.5 h-12 rounded-2xl bg-sky-50 hover:bg-sky-100 text-sky-900 border border-sky-200 text-xs font-extrabold shrink-0">
+                🧭 החברה להגנת הטבע ↗
+              </a>
+            </div>
           </div>
         </div>
       </main>
@@ -599,7 +605,7 @@
               <div class="bg-amber-50 border border-amber-300 rounded-2xl p-3 text-xs text-amber-950 space-y-1">
                 <p class="font-black">📐 הנחיות מפרט טכני לגרפיקה (חובה לשמור על יחס הגובה-רוחב):</p>
                 <ul class="list-disc list-inside space-y-0.5 text-[11px]">
-                  <li><strong>באנר מחשב:</strong> <code>1600×400 px</code> (יחס 4:1) — המוקד בצד שמאל/מרכז (צד ימין מאחורי הפורטרט).</li>
+                  <li><strong>באנר מחשב:</strong> <code>1600×300 px</code> (יחס 5.3:1) — טבע ארץ ישראלי רחב.</li>
                   <li><strong>באנר מובייל:</strong> <code>900×450 px</code> (יחס 2:1) — ללא טקסט קטן בשוליים.</li>
                   <li><strong>תמונת פורטרט (זוהר):</strong> <code>600×600 px</code> (ריבוע 1:1) — פנים במרכז התמונה.</li>
                   <li><strong>כרטיסיית 5 דקות:</strong> <code>1080×1350 px</code> (יחס 4:5 אנכי) — קריא בנייד ללא אינטרנט.</li>
@@ -609,7 +615,7 @@
               <!-- Image Uploaders -->
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div class="p-3 rounded-2xl border border-stone-200 bg-stone-50 space-y-2">
-                  <p class="text-xs font-black text-stone-800">🖼️ באנר מחשב (1600×400)</p>
+                  <p class="text-xs font-black text-stone-800">🖼️ באנר מחשב (1600×300)</p>
                   <label class="touch-btn w-full h-11 px-3 rounded-xl bg-white border border-stone-300 hover:bg-stone-100 text-xs font-bold cursor-pointer">
                     העלאת באנר מחשב חדש
                     <input type="file" accept="image/*" class="hidden" onchange="uploadSiteAsset(this, 'banner_desktop_url', 1600)" />
@@ -738,6 +744,24 @@
     <p id="lightboxCaption" class="text-white text-sm font-bold mt-3 text-center"></p>
   </div>
 
+  <!-- ==================== SITE FOOTER & ATTRIBUTION CREDITS ==================== -->
+  <footer class="max-w-7xl mx-auto px-3 md:px-6 pt-8 pb-4">
+    <div class="bg-white/90 backdrop-blur rounded-3xl border border-stone-200 px-5 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-stone-600 shadow-2xs">
+      <div class="text-center sm:text-right">
+        <p class="font-extrabold text-stone-800">צועדים בשביל זוהר • לזכרו של זוהר תמיר ז״ל</p>
+        <p class="text-[11px] text-stone-500 mt-0.5">הנתונים, חלוקת 56 המקטעים וסיפורי הדרך מבוססים באהבה ובתודה על המידע הרשמי של <a href="https://www.teva.org.il/israel-national-trail" target="_blank" rel="noopener noreferrer" class="font-bold text-emerald-800 underline hover:text-emerald-950">החברה להגנת הטבע (הוועדה לשבילי ישראל)</a>.</p>
+      </div>
+      <div class="flex flex-wrap items-center justify-center gap-2 shrink-0 text-[11px] font-bold">
+        <a href="https://www.teva.org.il/israel-national-trail" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-900 border border-emerald-200 hover:bg-emerald-100">
+          🌿 אתר שביל ישראל • החברה להגנת הטבע ↗
+        </a>
+        <a href="https://israelhiking.osm.org.il" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-xl bg-stone-100 text-stone-700 border border-stone-200 hover:bg-stone-200">
+          🗺️ Israel Hiking Map
+        </a>
+      </div>
+    </div>
+  </footer>
+
   <!-- ==================== TOAST NOTIFICATION ==================== -->
   <div id="toastBox" class="hidden fixed top-16 inset-x-4 md:inset-x-auto md:left-6 md:w-96 z-50 bg-stone-900 text-white px-4 py-3.5 rounded-2xl shadow-xl text-sm font-bold text-center"></div>
 
@@ -842,45 +866,54 @@
     }
 
     function applySiteSettingsToDOM() {
-      if (siteSettings.banner_desktop_url) {
-        document.getElementById('heroDesktopBannerImg').src = siteSettings.banner_desktop_url;
+      const desktopBanner = document.getElementById('bannerDesktopImg');
+      if (desktopBanner && siteSettings.banner_desktop_url) {
+        desktopBanner.src = siteSettings.banner_desktop_url;
       }
-      if (siteSettings.banner_mobile_url) {
-        document.getElementById('heroMobileBannerImg').src = siteSettings.banner_mobile_url;
+      const mobileBanner = document.getElementById('bannerMobileImg');
+      if (mobileBanner && siteSettings.banner_mobile_url) {
+        mobileBanner.src = siteSettings.banner_mobile_url;
       }
-      if (siteSettings.zohar_portrait_url) {
-        document.getElementById('heroZoharImg').src = siteSettings.zohar_portrait_url;
+      const portraitImg = document.getElementById('heroZoharImg');
+      if (portraitImg && siteSettings.zohar_portrait_url) {
+        portraitImg.src = siteSettings.zohar_portrait_url;
       }
-      if (siteSettings.postcard_5min_url) {
-        const imgEl = document.getElementById('fiveMinCardImg');
-        imgEl.style.display = 'block';
-        imgEl.src = siteSettings.postcard_5min_url;
-        document.getElementById('fiveMinDownloadLink').href = siteSettings.postcard_5min_url;
+      const fiveMinImg = document.getElementById('fiveMinCardImg');
+      if (fiveMinImg && siteSettings.postcard_5min_url) {
+        fiveMinImg.style.display = 'block';
+        fiveMinImg.src = siteSettings.postcard_5min_url;
+        const dlLink = document.getElementById('fiveMinDownloadLink');
+        if (dlLink) dlLink.href = siteSettings.postcard_5min_url;
       }
-      if (siteSettings.hero_heading) {
-        document.getElementById('heroMainHeading').textContent = siteSettings.hero_heading;
+      const headingEl = document.getElementById('heroMainHeading');
+      if (headingEl && siteSettings.hero_heading) {
+        headingEl.textContent = siteSettings.hero_heading;
       }
-      if (siteSettings.hero_badge) {
-        document.getElementById('heroBadgeText').textContent = siteSettings.hero_badge;
+      const badgeEl = document.getElementById('heroBadgeText');
+      if (badgeEl && siteSettings.hero_badge) {
+        badgeEl.textContent = siteSettings.hero_badge;
       }
-      if (siteSettings.hero_intro) {
-        document.getElementById('heroIntroParagraph').textContent = siteSettings.hero_intro;
+      const introEl = document.getElementById('heroIntroParagraph');
+      if (introEl && siteSettings.hero_intro) {
+        introEl.textContent = siteSettings.hero_intro;
       }
-      if (siteSettings.hero_ext1) {
-        document.getElementById('heroExtendedParagraph1').textContent = siteSettings.hero_ext1;
+      const ext1El = document.getElementById('heroExtendedParagraph1');
+      if (ext1El && siteSettings.hero_ext1) {
+        ext1El.textContent = siteSettings.hero_ext1;
       }
-      if (siteSettings.hero_ext2) {
-        document.getElementById('heroExtendedParagraph2').textContent = siteSettings.hero_ext2;
+      const ext2El = document.getElementById('heroExtendedParagraph2');
+      if (ext2El && siteSettings.hero_ext2) {
+        ext2El.textContent = siteSettings.hero_ext2;
       }
 
       // Sync CMS inputs if admin is logged in
       const hInput = document.getElementById('cmsHeroHeading');
       if (hInput) {
-        hInput.value = siteSettings.hero_heading || document.getElementById('heroMainHeading').textContent.trim();
-        document.getElementById('cmsHeroBadge').value = siteSettings.hero_badge || document.getElementById('heroBadgeText').textContent.trim();
-        document.getElementById('cmsHeroIntro').value = siteSettings.hero_intro || document.getElementById('heroIntroParagraph').textContent.trim();
-        document.getElementById('cmsHeroExt1').value = siteSettings.hero_ext1 || document.getElementById('heroExtendedParagraph1').textContent.trim();
-        document.getElementById('cmsHeroExt2').value = siteSettings.hero_ext2 || document.getElementById('heroExtendedParagraph2').textContent.trim();
+        hInput.value = siteSettings.hero_heading || (headingEl ? headingEl.textContent.trim() : '');
+        document.getElementById('cmsHeroBadge').value = siteSettings.hero_badge || (badgeEl ? badgeEl.textContent.trim() : '');
+        document.getElementById('cmsHeroIntro').value = siteSettings.hero_intro || (introEl ? introEl.textContent.trim() : '');
+        document.getElementById('cmsHeroExt1').value = siteSettings.hero_ext1 || (ext1El ? ext1El.textContent.trim() : '');
+        document.getElementById('cmsHeroExt2').value = siteSettings.hero_ext2 || (ext2El ? ext2El.textContent.trim() : '');
       }
     }
 
@@ -1177,6 +1210,8 @@
       document.getElementById('mfcRegion').textContent = `${rStyle.icon} ${seg.region}`;
       document.getElementById('mfcTitle').textContent = seg.title;
       document.getElementById('mfcMeta').textContent = `📏 ${seg.distance} ק״מ • ⛰️ ${seg.difficulty}`;
+      const mfcLink = document.getElementById('mfcOfficialLink');
+      if (mfcLink) mfcLink.href = seg.official_url || 'https://www.teva.org.il/israel-national-trail';
 
       const thumbBox = document.getElementById('mfcThumbBox');
       if (latestPhoto) {
@@ -1314,10 +1349,13 @@
             </div>
           </div>
 
-          <div class="px-3.5 pb-3.5 mt-auto">
-            <button onclick="openSegmentModal(${seg.id})" class="touch-btn w-full h-11 rounded-2xl ${info.state === 'available' ? 'bg-gradient-to-l from-emerald-700 to-teal-700 hover:from-emerald-800 hover:to-teal-800 text-white' : 'bg-stone-100 hover:bg-stone-200 text-stone-900'} font-extrabold text-xs sm:text-sm shadow-2xs">
+          <div class="px-3.5 pb-3.5 mt-auto flex items-center gap-2">
+            <button onclick="openSegmentModal(${seg.id})" class="touch-btn flex-1 h-11 rounded-2xl ${info.state === 'available' ? 'bg-gradient-to-l from-emerald-700 to-teal-700 hover:from-emerald-800 hover:to-teal-800 text-white' : 'bg-stone-100 hover:bg-stone-200 text-stone-900'} font-extrabold text-xs sm:text-sm shadow-2xs">
               ${info.state === 'available' ? 'לשריון מקטע / פרטים ←' : 'פרטים / הצטרפות / תיעוד ←'}
             </button>
+            <a href="${seg.official_url || 'https://www.teva.org.il/israel-national-trail'}" target="_blank" rel="noopener noreferrer" title="סיפור דרך רשמי באתר החברה להגנת הטבע" class="touch-btn px-3 h-11 rounded-2xl bg-sky-50 hover:bg-sky-100 text-sky-900 border border-sky-200 text-xs font-extrabold shrink-0">
+              🧭 מסלול ↗
+            </a>
           </div>
         `;
         grid.appendChild(card);
