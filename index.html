@@ -789,6 +789,32 @@
     </div>
   </footer>
 
+  <!-- ==================== EDIT BOOKING DATE PICKER MODAL ==================== -->
+  <div id="editBookingDateModal" class="hidden fixed inset-0 z-[60] bg-stone-900/65 backdrop-blur-xs flex items-end md:items-center justify-center md:p-4">
+    <div class="bottom-sheet-enter bg-white w-full md:max-w-sm rounded-t-3xl md:rounded-3xl overflow-hidden shadow-2xl">
+      <div class="px-4 py-3.5 border-b border-stone-200 flex items-center justify-between bg-amber-50">
+        <h3 class="text-base font-black text-amber-950">📅 עדכון תאריך שריון</h3>
+        <button type="button" onclick="closeModal('editBookingDateModal')" class="touch-btn w-11 h-11 rounded-full bg-amber-200/60 text-amber-950 font-black">✕</button>
+      </div>
+      <form onsubmit="submitEditBookingDate(event)" class="p-4 space-y-3">
+        <input type="hidden" id="editBookingRecordId" />
+        <p id="editBookingLabel" class="text-xs font-bold text-stone-600"></p>
+        <div>
+          <label class="block text-xs font-extrabold text-stone-700 mb-1">בחרו תאריך חדש מהלוח *</label>
+          <input type="date" id="editBookingDateInput" required class="w-full h-12 px-3.5 rounded-xl border border-stone-300 focus:border-emerald-600 focus:outline-none bg-white font-bold" />
+        </div>
+        <div class="flex items-center gap-2 pt-1">
+          <button type="submit" id="saveBookingDateBtn" class="touch-btn flex-1 h-12 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-sm shadow-sm">
+            שמירת תאריך חדש ✓
+          </button>
+          <button type="button" onclick="closeModal('editBookingDateModal')" class="touch-btn px-4 h-12 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-sm">
+            ביטול
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- ==================== TOAST NOTIFICATION ==================== -->
   <div id="toastBox" class="hidden fixed top-16 inset-x-4 md:inset-x-auto md:left-6 md:w-96 z-50 bg-stone-900 text-white px-4 py-3.5 rounded-2xl shadow-xl text-sm font-bold text-center"></div>
 
@@ -1842,7 +1868,7 @@
           ${phone ? `<p class="text-stone-600">📞 ${phone}</p>` : ''}
           ${note ? `<p class="text-stone-700">💬 ${note}</p>` : ''}
           <div class="flex items-center gap-2 pt-1">
-            <button onclick="openEditBookingDate('${m.id}', '${m.hike_date}')" class="touch-btn flex-1 h-10 rounded-xl bg-white border border-stone-300 hover:bg-stone-100 text-stone-800 font-bold">
+            <button onclick="openEditBookingDate('${m.id}', '${m.hike_date}', ${m.segment_id}, '${String(m.hiker_name || '').replace(/'/g, "\'")}')" class="touch-btn flex-1 h-10 rounded-xl bg-white border border-stone-300 hover:bg-stone-100 text-stone-800 font-bold">
               ✏️ שינוי תאריך
             </button>
             ${waPhone ? `
@@ -1859,19 +1885,44 @@
       });
     }
 
-    async function openEditBookingDate(id, currentDate) {
-      const newDate = prompt('הזן תאריך חדש לשריון (YYYY-MM-DD):', currentDate || '');
-      if (!newDate || newDate === currentDate) return;
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(newDate.trim())) {
-        showToast('פורמט תאריך לא תקין. השתמש ב-YYYY-MM-DD');
-        return;
+    function openEditBookingDate(id, currentDate, segId, hikerName) {
+      document.getElementById('editBookingRecordId').value = id;
+      const dateInput = document.getElementById('editBookingDateInput');
+      dateInput.value = currentDate || '';
+      const labelEl = document.getElementById('editBookingLabel');
+      if (labelEl) {
+        labelEl.textContent = segId ? `מקטע #${segId} • ${hikerName || ''}` : '';
       }
-      const { error } = await sb.from('memories').update({ hike_date: newDate.trim() }).eq('id', id);
-      if (!error) {
+      document.getElementById('editBookingDateModal').classList.remove('hidden');
+      setTimeout(() => {
+        if (dateInput.showPicker) {
+          try { dateInput.showPicker(); } catch (e) {}
+        }
+      }, 120);
+    }
+
+    async function submitEditBookingDate(e) {
+      e.preventDefault();
+      const id = document.getElementById('editBookingRecordId').value;
+      const newDate = document.getElementById('editBookingDateInput').value;
+      const btn = document.getElementById('saveBookingDateBtn');
+      if (!id || !newDate) return;
+
+      btn.disabled = true;
+      btn.textContent = 'מעדכן...';
+
+      try {
+        const { error } = await sb.from('memories').update({ hike_date: newDate }).eq('id', id);
+        if (error) throw error;
+        closeModal('editBookingDateModal');
         showToast('תאריך השריון עודכן בהצלחה ✓');
         await loadData();
-      } else {
+      } catch (err) {
+        console.error(err);
         showToast('שגיאה בעדכון התאריך');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'שמירת תאריך חדש ✓';
       }
     }
 
