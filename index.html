@@ -789,25 +789,73 @@
     </div>
   </footer>
 
-  <!-- ==================== EDIT BOOKING DATE PICKER MODAL ==================== -->
-  <div id="editBookingDateModal" class="hidden fixed inset-0 z-[60] bg-stone-900/65 backdrop-blur-xs flex items-end md:items-center justify-center md:p-4">
-    <div class="bottom-sheet-enter bg-white w-full md:max-w-sm rounded-t-3xl md:rounded-3xl overflow-hidden shadow-2xl">
-      <div class="px-4 py-3.5 border-b border-stone-200 flex items-center justify-between bg-amber-50">
-        <h3 class="text-base font-black text-amber-950">📅 עדכון תאריך שריון</h3>
-        <button type="button" onclick="closeModal('editBookingDateModal')" class="touch-btn w-11 h-11 rounded-full bg-amber-200/60 text-amber-950 font-black">✕</button>
+  <!-- ==================== ADMIN FULL RECORD EDITOR MODAL (BOOKINGS & POSTCARDS) ==================== -->
+  <div id="editRecordModal" class="hidden fixed inset-0 z-[60] bg-stone-900/65 backdrop-blur-xs flex items-end md:items-center justify-center md:p-4">
+    <div class="bottom-sheet-enter bg-white w-full md:max-w-lg max-h-[92vh] rounded-t-3xl md:rounded-3xl flex flex-col overflow-hidden shadow-2xl">
+      <div class="px-4 py-3.5 border-b border-stone-200 flex items-center justify-between bg-amber-50 shrink-0">
+        <h3 id="editRecordModalTitle" class="text-base font-black text-amber-950">✏️ עריכת פרטי רשומה</h3>
+        <button type="button" onclick="closeModal('editRecordModal')" class="touch-btn w-11 h-11 rounded-full bg-amber-200/60 text-amber-950 font-black">✕</button>
       </div>
-      <form onsubmit="submitEditBookingDate(event)" class="p-4 space-y-3">
-        <input type="hidden" id="editBookingRecordId" />
-        <p id="editBookingLabel" class="text-xs font-bold text-stone-600"></p>
-        <div>
-          <label class="block text-xs font-extrabold text-stone-700 mb-1">בחרו תאריך חדש מהלוח *</label>
-          <input type="date" id="editBookingDateInput" required class="w-full h-12 px-3.5 rounded-xl border border-stone-300 focus:border-emerald-600 focus:outline-none bg-white font-bold" />
+      <form onsubmit="submitEditRecord(event)" class="p-4 overflow-y-auto space-y-3 flex-1">
+        <input type="hidden" id="editRecId" />
+        <input type="hidden" id="editRecStatus" />
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-xs font-extrabold text-stone-700 mb-1">מקטע בשביל *</label>
+            <select id="editRecSegmentId" required class="w-full h-11 px-3 rounded-xl border border-stone-300 bg-white font-bold"></select>
+          </div>
+          <div>
+            <label class="block text-xs font-extrabold text-stone-700 mb-1">תאריך *</label>
+            <input type="date" id="editRecDate" required class="w-full h-11 px-3 rounded-xl border border-stone-300 bg-white font-bold" />
+          </div>
         </div>
-        <div class="flex items-center gap-2 pt-1">
-          <button type="submit" id="saveBookingDateBtn" class="touch-btn flex-1 h-12 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-sm shadow-sm">
-            שמירת תאריך חדש ✓
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-xs font-extrabold text-stone-700 mb-1">שם המטייל / הקבוצה *</label>
+            <input type="text" id="editRecHikerName" required class="w-full h-11 px-3 rounded-xl border border-stone-300" />
+          </div>
+          <div>
+            <label class="block text-xs font-extrabold text-stone-700 mb-1">טלפון (חסוי למנהלים)</label>
+            <input type="tel" id="editRecPhone" placeholder="050-0000000" class="w-full h-11 px-3 rounded-xl border border-stone-300" />
+          </div>
+        </div>
+
+        <!-- Booking-specific public note -->
+        <div id="editRecNoteWrap" class="hidden">
+          <label class="block text-xs font-extrabold text-stone-700 mb-1">הערה פומבית לשריון</label>
+          <input type="text" id="editRecPublicNote" placeholder="הערה המוצגת בכרטיסיית המקטע..." class="w-full h-11 px-3 rounded-xl border border-stone-300" />
+        </div>
+
+        <!-- Postcard / Message text & photo controls -->
+        <div id="editRecStoryWrap" class="hidden space-y-2.5">
+          <div>
+            <label class="block text-xs font-extrabold text-stone-700 mb-1">תוכן הגלויה / ההודעה</label>
+            <textarea id="editRecStory" rows="4" class="w-full p-3 rounded-xl border border-stone-300 text-sm leading-relaxed"></textarea>
+          </div>
+
+          <div id="editRecPhotoControls" class="p-3 rounded-2xl border border-stone-200 bg-stone-50 space-y-2">
+            <p class="text-xs font-extrabold text-stone-700">🖼️ ניהול תמונה מצורפת:</p>
+            <img id="editRecPhotoPreview" src="" alt="תצוגה מקדימה" class="hidden h-36 w-full object-cover rounded-xl border border-stone-300" />
+            <div class="flex flex-wrap items-center gap-2">
+              <label class="touch-btn flex-1 h-10 px-3 rounded-xl bg-white border border-stone-300 hover:bg-stone-100 text-xs font-bold cursor-pointer">
+                📷 החלפת תמונה
+                <input type="file" id="editRecNewPhotoInput" accept="image/*" onchange="handleEditRecPhotoSelect(this)" class="hidden" />
+              </label>
+              <button type="button" id="editRecRemovePhotoBtn" onclick="markEditRecPhotoRemoved()" class="hidden touch-btn px-3 h-10 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-bold">
+                🗑️ הסרת תמונה
+              </button>
+            </div>
+            <p id="editRecPhotoStatus" class="text-[11px] text-stone-500 font-semibold"></p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 pt-2">
+          <button type="submit" id="saveEditRecordBtn" class="touch-btn flex-1 h-12 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-sm shadow-sm">
+            💾 שמירת כל השינויים
           </button>
-          <button type="button" onclick="closeModal('editBookingDateModal')" class="touch-btn px-4 h-12 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-sm">
+          <button type="button" onclick="closeModal('editRecordModal')" class="touch-btn px-4 h-12 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-sm">
             ביטול
           </button>
         </div>
@@ -916,7 +964,7 @@
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
-        ['segmentModal', 'menuDrawer', 'contactAdminModal', 'fiveMinModal', 'lightboxModal', 'editBookingDateModal'].forEach(closeModal);
+        ['segmentModal', 'menuDrawer', 'contactAdminModal', 'fiveMinModal', 'lightboxModal', 'editRecordModal'].forEach(closeModal);
       }
     });
 
@@ -1818,14 +1866,17 @@
           ${phone ? `<p class="text-stone-600">📞 ${phone}</p>` : ''}
           ${m.story ? `<p class="text-stone-700 whitespace-pre-line">${m.story}</p>` : ''}
           ${m.photo_url ? `<img src="${m.photo_url}" onclick="openLightbox('${m.photo_url}', '#${m.segment_id} ${m.hiker_name}')" class="h-28 w-full object-cover rounded-lg cursor-pointer" />` : ''}
-          <div class="flex items-center gap-2 pt-1">
+          <div class="flex flex-wrap items-center gap-1.5 pt-1">
             ${(!isMsg && !m.is_approved) ? `
-              <button onclick="approveMemory('${m.id}')" class="touch-btn flex-1 h-10 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold">
-                ✓ אישור גלויה
+              <button onclick="approveMemory('${m.id}')" class="touch-btn flex-1 h-10 px-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold">
+                ✓ אישור
               </button>
             ` : ''}
+            <button onclick="openEditRecordModal('${m.id}')" class="touch-btn flex-1 h-10 px-2.5 rounded-xl bg-white border border-stone-300 hover:bg-stone-100 text-stone-800 font-bold">
+              ✏️ עריכת פרטים
+            </button>
             ${waPhone ? `
-              <a href="https://wa.me/${waPhone}" target="_blank" class="touch-btn flex-1 h-10 rounded-xl bg-green-100 text-green-900 font-bold">
+              <a href="https://wa.me/${waPhone}" target="_blank" class="touch-btn px-3 h-10 rounded-xl bg-green-100 text-green-900 font-bold">
                 📲 וואטסאפ
               </a>
             ` : ''}
@@ -1868,8 +1919,8 @@
           ${phone ? `<p class="text-stone-600">📞 ${phone}</p>` : ''}
           ${note ? `<p class="text-stone-700">💬 ${note}</p>` : ''}
           <div class="flex items-center gap-2 pt-1">
-            <button onclick="openEditBookingDate('${m.id}')" class="touch-btn flex-1 h-10 rounded-xl bg-white border border-stone-300 hover:bg-stone-100 text-stone-800 font-bold">
-              ✏️ שינוי תאריך
+            <button onclick="openEditRecordModal('${m.id}')" class="touch-btn flex-1 h-10 rounded-xl bg-white border border-stone-300 hover:bg-stone-100 text-stone-800 font-bold">
+              ✏️ עריכת שריון
             </button>
             ${waPhone ? `
               <a href="https://wa.me/${waPhone}" target="_blank" class="touch-btn flex-1 h-10 rounded-xl bg-green-100 text-green-900 font-bold">
@@ -1885,45 +1936,166 @@
       });
     }
 
-    function openEditBookingDate(id) {
+    let editRecNewPhotoFile = null;
+    let editRecRemovePhotoFlag = false;
+
+    function openEditRecordModal(id) {
       const rec = memories.find(item => String(item.id) === String(id));
-      document.getElementById('editBookingRecordId').value = id;
-      const dateInput = document.getElementById('editBookingDateInput');
-      dateInput.value = rec?.hike_date || '';
-      const labelEl = document.getElementById('editBookingLabel');
-      if (labelEl) {
-        labelEl.textContent = rec ? `מקטע #${rec.segment_id} • ${rec.hiker_name || ''}` : '';
+      if (!rec) return;
+
+      editRecNewPhotoFile = null;
+      editRecRemovePhotoFlag = false;
+      const fileInp = document.getElementById('editRecNewPhotoInput');
+      if (fileInp) fileInp.value = '';
+
+      document.getElementById('editRecId').value = rec.id;
+      document.getElementById('editRecStatus').value = rec.status;
+
+      const titleEl = document.getElementById('editRecordModalTitle');
+      if (titleEl) {
+        titleEl.textContent = rec.status === 'planned'
+          ? '✏️ עריכת פרטי שריון'
+          : (rec.status === 'message' ? '✏️ עריכת הודעה' : '✏️ עריכת פרטי גלויה');
       }
-      document.getElementById('editBookingDateModal').classList.remove('hidden');
-      setTimeout(() => {
-        if (dateInput.showPicker) {
-          try { dateInput.showPicker(); } catch (e) {}
+
+      const segSel = document.getElementById('editRecSegmentId');
+      segSel.innerHTML = '';
+      segments.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        opt.textContent = `#${s.id} - ${s.title}`;
+        if (Number(s.id) === Number(rec.segment_id)) opt.selected = true;
+        segSel.appendChild(opt);
+      });
+
+      document.getElementById('editRecDate').value = rec.hike_date || '';
+      document.getElementById('editRecHikerName').value = rec.hiker_name || '';
+
+      const phoneMatch = (rec.contact_info || '').match(/PHONE:([^|]+)/);
+      const noteMatch = (rec.contact_info || '').match(/NOTE:([^|]+)/);
+      document.getElementById('editRecPhone').value = phoneMatch ? phoneMatch[1].trim() : '';
+
+      const noteWrap = document.getElementById('editRecNoteWrap');
+      const storyWrap = document.getElementById('editRecStoryWrap');
+      const photoControls = document.getElementById('editRecPhotoControls');
+
+      if (rec.status === 'planned') {
+        noteWrap.classList.remove('hidden');
+        storyWrap.classList.add('hidden');
+        document.getElementById('editRecPublicNote').value = noteMatch ? noteMatch[1].trim() : '';
+      } else {
+        noteWrap.classList.add('hidden');
+        storyWrap.classList.remove('hidden');
+        document.getElementById('editRecStory').value = rec.story || '';
+
+        if (rec.status === 'completed') {
+          photoControls.classList.remove('hidden');
+          const prevImg = document.getElementById('editRecPhotoPreview');
+          const remBtn = document.getElementById('editRecRemovePhotoBtn');
+          const statusTxt = document.getElementById('editRecPhotoStatus');
+          if (rec.photo_url) {
+            prevImg.src = rec.photo_url;
+            prevImg.classList.remove('hidden');
+            remBtn.classList.remove('hidden');
+            statusTxt.textContent = 'תמונה קיימת מצורפת לגלויה';
+          } else {
+            prevImg.src = '';
+            prevImg.classList.add('hidden');
+            remBtn.classList.add('hidden');
+            statusTxt.textContent = 'אין תמונה מצורפת כרגע';
+          }
+        } else {
+          photoControls.classList.add('hidden');
         }
-      }, 120);
+      }
+
+      document.getElementById('editRecordModal').classList.remove('hidden');
     }
 
-    async function submitEditBookingDate(e) {
-      e.preventDefault();
-      const id = document.getElementById('editBookingRecordId').value;
-      const newDate = document.getElementById('editBookingDateInput').value;
-      const btn = document.getElementById('saveBookingDateBtn');
-      if (!id || !newDate) return;
+    function handleEditRecPhotoSelect(input) {
+      const file = input.files?.[0] || null;
+      if (!file) return;
+      editRecNewPhotoFile = file;
+      editRecRemovePhotoFlag = false;
+      const prevImg = document.getElementById('editRecPhotoPreview');
+      const remBtn = document.getElementById('editRecRemovePhotoBtn');
+      const statusTxt = document.getElementById('editRecPhotoStatus');
+      prevImg.src = URL.createObjectURL(file);
+      prevImg.classList.remove('hidden');
+      remBtn.classList.remove('hidden');
+      statusTxt.textContent = `נבחרה תמונה חדשה להחלפה: ${file.name}`;
+    }
 
+    function markEditRecPhotoRemoved() {
+      editRecNewPhotoFile = null;
+      editRecRemovePhotoFlag = true;
+      const prevImg = document.getElementById('editRecPhotoPreview');
+      const remBtn = document.getElementById('editRecRemovePhotoBtn');
+      const statusTxt = document.getElementById('editRecPhotoStatus');
+      prevImg.src = '';
+      prevImg.classList.add('hidden');
+      remBtn.classList.add('hidden');
+      statusTxt.textContent = 'התמונה תוסר בעת שמירת השינויים';
+    }
+
+    async function submitEditRecord(e) {
+      e.preventDefault();
+      const id = document.getElementById('editRecId').value;
+      const status = document.getElementById('editRecStatus').value;
+      const rec = memories.find(item => String(item.id) === String(id));
+      if (!id || !rec) return;
+
+      const btn = document.getElementById('saveEditRecordBtn');
       btn.disabled = true;
-      btn.textContent = 'מעדכן...';
+      btn.textContent = 'שומר שינויים...';
 
       try {
-        const { error } = await sb.from('memories').update({ hike_date: newDate }).eq('id', id);
+        const segmentId = Number(document.getElementById('editRecSegmentId').value) || rec.segment_id;
+        const hikeDate = document.getElementById('editRecDate').value;
+        const hikerName = document.getElementById('editRecHikerName').value.trim();
+        const phone = document.getElementById('editRecPhone').value.trim();
+
+        const updatePayload = {
+          segment_id: segmentId,
+          hike_date: hikeDate,
+          hiker_name: hikerName
+        };
+
+        if (status === 'planned') {
+          const note = document.getElementById('editRecPublicNote').value.trim();
+          updatePayload.contact_info = `PHONE:${phone}${note ? `|NOTE:${note}` : ''}`;
+        } else {
+          updatePayload.contact_info = `PHONE:${phone}`;
+          updatePayload.story = document.getElementById('editRecStory').value.trim();
+
+          if (status === 'completed') {
+            if (editRecNewPhotoFile) {
+              const compressedBlob = await compressImage(editRecNewPhotoFile);
+              const filePath = `seg_${segmentId}_${Date.now()}.jpg`;
+              const { error: upErr } = await sb.storage
+                .from('trail-photos')
+                .upload(filePath, compressedBlob, { contentType: 'image/jpeg' });
+              if (upErr) throw upErr;
+              const { data: pubData } = sb.storage.from('trail-photos').getPublicUrl(filePath);
+              updatePayload.photo_url = pubData.publicUrl;
+            } else if (editRecRemovePhotoFlag) {
+              updatePayload.photo_url = null;
+            }
+          }
+        }
+
+        const { error } = await sb.from('memories').update(updatePayload).eq('id', id);
         if (error) throw error;
-        closeModal('editBookingDateModal');
-        showToast('תאריך השריון עודכן בהצלחה ✓');
+
+        closeModal('editRecordModal');
+        showToast('הפרטים עודכנו ונשמרו בהצלחה ✓');
         await loadData();
       } catch (err) {
         console.error(err);
-        showToast('שגיאה בעדכון התאריך');
+        showToast('שגיאה בשמירת השינויים');
       } finally {
         btn.disabled = false;
-        btn.textContent = 'שמירת תאריך חדש ✓';
+        btn.textContent = '💾 שמירת כל השינויים';
       }
     }
 
