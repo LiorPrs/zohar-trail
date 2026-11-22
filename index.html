@@ -144,6 +144,17 @@
     </div>
   </header>
 
+  <!-- ==================== GLOBAL SYSTEM ANNOUNCEMENT BANNER (CMS CONTROLLED) ==================== -->
+  <div id="globalNoticeBar" class="hidden bg-gradient-to-l from-amber-500 via-orange-500 to-amber-600 text-white border-b border-amber-600 shadow-xs">
+    <div class="max-w-7xl mx-auto px-3 md:px-6 py-2.5 flex items-center justify-between gap-3 text-xs sm:text-sm font-extrabold">
+      <div class="flex items-center gap-2">
+        <span class="text-base shrink-0">📢</span>
+        <p id="globalNoticeText" class="leading-snug"></p>
+      </div>
+      <button type="button" onclick="dismissGlobalNotice()" class="px-2.5 py-1 rounded-lg bg-black/15 hover:bg-black/25 text-white text-xs font-black shrink-0" aria-label="סגירת הודעה">✕</button>
+    </div>
+  </div>
+
   <!-- ==================== HERO SECTION: COMPACT IN MOBILE, 2-COLUMN BALANCED IN DESKTOP ==================== -->
   <section id="heroContainer" class="max-w-7xl mx-auto px-3 md:px-6 pt-3 md:pt-5 transition-opacity duration-200">
     <div class="bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden">
@@ -616,9 +627,12 @@
 
             <!-- Sub-Tab 2: Bookings (Planned Hikes) Management -->
             <div id="adminBookingsSection" class="hidden space-y-2.5 max-h-96 overflow-y-auto">
-              <div class="flex items-center justify-between px-1 text-[11px] text-stone-500 font-bold">
-                <span>מקטעים משוריינים עתידיים / שעבר תאריכם</span>
-                <select id="adminBookingFilter" onchange="renderAdminList()" class="bg-stone-100 border border-stone-200 rounded-lg px-2 py-1 text-[11px] font-bold text-stone-800">
+              <div class="flex flex-wrap items-center justify-between gap-2 px-1 text-[11px] text-stone-500 font-bold">
+                <button type="button" onclick="openBroadcastModal()" class="touch-btn px-3 h-9 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-extrabold gap-1.5 shadow-2xs">
+                  <span>📢</span>
+                  <span>רשימת תפוצה והודעה למשריינים</span>
+                </button>
+                <select id="adminBookingFilter" onchange="renderAdminList()" class="bg-stone-100 border border-stone-200 rounded-lg px-2.5 py-1.5 text-[11px] font-bold text-stone-800">
                   <option value="all">כל השריונים</option>
                   <option value="overdue">עבר התאריך (דורש מעקב)</option>
                   <option value="upcoming">עתידיים</option>
@@ -697,6 +711,11 @@
                 <div>
                   <label class="block text-[11px] font-bold text-stone-600 mb-1">שורת הדגשה ירוקה</label>
                   <input type="text" id="cmsHeroExt2" class="w-full h-11 px-3 rounded-xl border border-stone-300" />
+                </div>
+                <div class="p-3 rounded-2xl bg-amber-50/90 border border-amber-200 space-y-1">
+                  <label class="block text-xs font-black text-amber-950">📢 פס הודעה / עדכון חם בראש האתר (אופציונלי)</label>
+                  <input type="text" id="cmsGlobalNotice" placeholder="השאירו ריק כדי להסתיר. לדוגמה: שימו לב לתחזית השיטפונות בדרום בסופ״ש!" class="w-full h-11 px-3 rounded-xl border border-amber-300 bg-white text-sm" />
+                  <p class="text-[11px] text-amber-800">יופיע כפס בולט מתחת לתפריט העליון לכל המבקרים באתר.</p>
                 </div>
                 <button type="submit" id="saveCmsTextsBtn" class="touch-btn w-full h-12 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-sm shadow-sm">
                   💾 שמירת טקסטים ועדכון האתר
@@ -864,6 +883,67 @@
     </div>
   </div>
 
+  <!-- ==================== ADMIN BROADCAST LIST MODAL ==================== -->
+  <div id="broadcastModal" class="hidden fixed inset-0 z-[60] bg-stone-900/65 backdrop-blur-xs flex items-end md:items-center justify-center md:p-4">
+    <div class="bottom-sheet-enter bg-white w-full md:max-w-xl max-h-[92vh] rounded-t-3xl md:rounded-3xl flex flex-col overflow-hidden shadow-2xl">
+      <div class="px-4 py-3.5 border-b border-stone-200 flex items-center justify-between bg-emerald-50 shrink-0">
+        <h3 class="text-base font-black text-emerald-950">📢 רשימת תפוצה והודעה למשריינים</h3>
+        <button type="button" onclick="closeModal('broadcastModal')" class="touch-btn w-11 h-11 rounded-full bg-emerald-200/60 text-emerald-950 font-black">✕</button>
+      </div>
+
+      <div class="p-4 overflow-y-auto space-y-4 flex-1 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div>
+            <label class="block font-extrabold text-stone-700 mb-1">1. סינון קהל יעד</label>
+            <select id="broadcastAudienceFilter" onchange="refreshBroadcastList()" class="w-full h-11 px-3 rounded-xl border border-stone-300 bg-white font-bold">
+              <option value="all">כל המשריינים הפעילים</option>
+              <option value="upcoming">עתידיים בלבד (טרם יצאו)</option>
+              <option value="overdue">עבר התאריך (תזכורת לגלויה)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-extrabold text-stone-700 mb-1">2. בחירת תבנית הודעה</label>
+            <select id="broadcastTemplateSelect" onchange="applyBroadcastTemplate()" class="w-full h-11 px-3 rounded-xl border border-stone-300 bg-white font-bold">
+              <option value="reminder">🥾 תזכורת לפני יציאה לשביל</option>
+              <option value="postcard">📸 בקשה להעלאת גלויה בסיום</option>
+              <option value="weather">⚠️ עדכון מזג אוויר / בטיחות</option>
+              <option value="custom">✍️ הודעה חופשית</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Phone numbers list for WhatsApp Broadcast -->
+        <div class="p-3 rounded-2xl bg-stone-50 border border-stone-200 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-black text-stone-800">📱 מספרי טלפון (<span id="broadcastPhoneCount">0</span> נמענים):</span>
+            <button type="button" onclick="copyBroadcastPhones()" class="touch-btn px-3 h-9 rounded-xl bg-stone-900 hover:bg-stone-800 text-white font-bold text-xs">
+              📋 העתקת כל המספרים
+            </button>
+          </div>
+          <textarea id="broadcastPhonesBox" rows="2" readonly class="w-full p-2.5 rounded-xl border border-stone-200 bg-white text-xs font-mono text-stone-700" dir="ltr"></textarea>
+          <p class="text-[11px] text-stone-500">טיפ: בוואטסאפ בנייד, היכנסו ל-<strong>רשימות תפוצה (Broadcast Lists)</strong> כדי לשלוח הודעה אישית לכולם יחד בלי לפתוח קבוצה.</p>
+        </div>
+
+        <!-- Editable Message Text -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="font-black text-stone-800">✉️ נוסח ההודעה להעתקה:</label>
+            <button type="button" onclick="copyBroadcastMessage()" class="touch-btn px-3 h-9 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs">
+              📋 העתקת נוסח ההודעה
+            </button>
+          </div>
+          <textarea id="broadcastMessageBox" rows="4" oninput="refreshBroadcastList()" oninput="refreshBroadcastList()" class="w-full p-3 rounded-xl border border-stone-300 bg-white text-sm leading-relaxed"></textarea>
+        </div>
+
+        <!-- Quick Individual WhatsApp Launchers -->
+        <div class="space-y-1.5">
+          <p class="font-black text-stone-800">🚀 או שליחה ישירה בוואטסאפ בלחיצה לכל משריין:</p>
+          <div id="broadcastQuickSendList" class="max-h-44 overflow-y-auto space-y-1.5 pr-0.5"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ==================== TOAST NOTIFICATION ==================== -->
   <div id="toastBox" class="hidden fixed top-16 inset-x-4 md:inset-x-auto md:left-6 md:w-96 z-50 bg-stone-900 text-white px-4 py-3.5 rounded-2xl shadow-xl text-sm font-bold text-center"></div>
 
@@ -965,7 +1045,7 @@
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
-        ['segmentModal', 'menuDrawer', 'contactAdminModal', 'fiveMinModal', 'lightboxModal', 'editRecordModal'].forEach(closeModal);
+        ['segmentModal', 'menuDrawer', 'contactAdminModal', 'fiveMinModal', 'lightboxModal', 'editRecordModal', 'broadcastModal'].forEach(closeModal);
       }
     });
 
@@ -1031,6 +1111,19 @@
         ext2El.textContent = siteSettings.hero_ext2;
       }
 
+      const noticeBar = document.getElementById('globalNoticeBar');
+      const noticeTextEl = document.getElementById('globalNoticeText');
+      if (noticeBar && noticeTextEl) {
+        const noticeVal = (siteSettings.global_notice || '').trim();
+        const dismissedVal = sessionStorage.getItem('dismissed_global_notice') || '';
+        if (noticeVal && noticeVal !== dismissedVal) {
+          noticeTextEl.textContent = noticeVal;
+          noticeBar.classList.remove('hidden');
+        } else {
+          noticeBar.classList.add('hidden');
+        }
+      }
+
       // Sync CMS inputs if admin is logged in
       const hInput = document.getElementById('cmsHeroHeading');
       if (hInput) {
@@ -1039,6 +1132,8 @@
         document.getElementById('cmsHeroIntro').value = siteSettings.hero_intro || (introEl ? introEl.textContent.trim() : '');
         document.getElementById('cmsHeroExt1').value = siteSettings.hero_ext1 || (ext1El ? ext1El.textContent.trim() : '');
         document.getElementById('cmsHeroExt2').value = siteSettings.hero_ext2 || (ext2El ? ext2El.textContent.trim() : '');
+        const noticeInp = document.getElementById('cmsGlobalNotice');
+        if (noticeInp) noticeInp.value = siteSettings.global_notice || '';
       }
     }
 
@@ -1090,7 +1185,8 @@
         { key: 'hero_badge', value: document.getElementById('cmsHeroBadge').value.trim() },
         { key: 'hero_intro', value: document.getElementById('cmsHeroIntro').value.trim() },
         { key: 'hero_ext1', value: document.getElementById('cmsHeroExt1').value.trim() },
-        { key: 'hero_ext2', value: document.getElementById('cmsHeroExt2').value.trim() }
+        { key: 'hero_ext2', value: document.getElementById('cmsHeroExt2').value.trim() },
+        { key: 'global_notice', value: (document.getElementById('cmsGlobalNotice')?.value || '').trim() }
       ].map(item => ({ ...item, updated_at: new Date().toISOString() }));
 
       try {
@@ -1953,7 +2049,7 @@
               ✏️ עריכת שריון
             </button>
             ${waPhone ? `
-              <a href="https://wa.me/${waPhone}" target="_blank" class="touch-btn flex-1 h-10 rounded-xl bg-green-100 text-green-900 font-bold">
+              <a href="https://wa.me/${waPhone}?text=${encodeURIComponent(isOverdue ? `היי ${m.hiker_name}, ראינו ששריינתם את מקטע #${m.segment_id} ב״צועדים בשביל זוהר״ לתאריך ${formatDate(m.hike_date)} 🥾. נשמח לשמוע איך היה ואם תרצו להעלות תמונה וגלויה מהדרך!` : `היי ${m.hiker_name}, תודה ששריינתם את מקטע #${m.segment_id} ב״צועדים בשביל זוהר״ לתאריך ${formatDate(m.hike_date)} 🥾🇮🇱. אל תשכחו לעצור ל-5 דקות לזכרו של זוהר ולשתף תמונה בסיום!`)}" target="_blank" class="touch-btn flex-1 h-10 rounded-xl bg-green-100 hover:bg-green-200 text-green-900 font-bold">
                 📲 וואטסאפ
               </a>
             ` : ''}
@@ -2156,6 +2252,108 @@
       a.href = url;
       a.download = `shvil-zohar-backup-${new Date().toISOString().split('T')[0]}.csv`;
       a.click();
+    }
+
+    function dismissGlobalNotice() {
+      const noticeVal = (siteSettings.global_notice || '').trim();
+      if (noticeVal) {
+        try { sessionStorage.setItem('dismissed_global_notice', noticeVal); } catch (e) {}
+      }
+      const bar = document.getElementById('globalNoticeBar');
+      if (bar) bar.classList.add('hidden');
+    }
+
+    function openBroadcastModal() {
+      document.getElementById('broadcastModal').classList.remove('hidden');
+      applyBroadcastTemplate();
+      refreshBroadcastList();
+    }
+
+    function applyBroadcastTemplate() {
+      const tpl = document.getElementById('broadcastTemplateSelect').value;
+      const box = document.getElementById('broadcastMessageBox');
+      const siteUrl = window.location.origin + window.location.pathname;
+      const templates = {
+        reminder: `היי! איזה כיף שאתם צועדים איתנו ב״צועדים בשביל זוהר״ לזכרו של זוהר תמיר ז״ל 🥾🇮🇱.\nתזכורת קטנה לדרך: נשמח שתעצרו ל-5 דקות לזכרו של זוהר, תצטלמו ותעלו בסיום גלויה ותמונה מהשטח באתר:\n${siteUrl}`,
+        postcard: `היי! מקווים שנהניתם מהצעידה בשביל ישראל לזכרו של זוהר תמיר ז״ל 🌿💛.\nנשמח מאוד שתעלו תמונה וגלויה קצרה מהמקטע שצעדתם כדי שנאשר ונפרסם באתר:\n${siteUrl}`,
+        weather: `עדכון חשוב לצועדים ב״צועדים בשביל זוהר״ ⚠️🥾:\nלפני היציאה למסלול הקרוב, אנא ודאו את תחזית מזג האוויר, עומסי חום או התרעות שיטפונות מול מוקד הרט״ג (*3639). צעידה בטוחה ומהנה!`,
+        custom: ''
+      };
+      if (tpl !== 'custom') {
+        box.value = templates[tpl] || '';
+      }
+      refreshBroadcastList();
+    }
+
+    function refreshBroadcastList() {
+      const filter = document.getElementById('broadcastAudienceFilter').value;
+      const today = new Date().toISOString().split('T')[0];
+      const msgText = document.getElementById('broadcastMessageBox').value;
+
+      const bookings = memories.filter(m => {
+        if (m.status !== 'planned') return false;
+        const isOverdue = m.hike_date && m.hike_date < today;
+        if (filter === 'overdue') return isOverdue;
+        if (filter === 'upcoming') return !isOverdue;
+        return true;
+      });
+
+      const uniquePhones = [];
+      const quickList = document.getElementById('broadcastQuickSendList');
+      quickList.innerHTML = '';
+
+      bookings.forEach(m => {
+        const phoneMatch = (m.contact_info || '').match(/PHONE:([^|]+)/);
+        const rawPhone = phoneMatch ? phoneMatch[1].trim() : '';
+        const cleanDigits = rawPhone.replace(/[^0-9]/g, '');
+        const waPhone = cleanDigits.replace(/^0/, '972');
+
+        if (rawPhone && !uniquePhones.includes(rawPhone)) {
+          uniquePhones.push(rawPhone);
+        }
+
+        if (waPhone) {
+          const row = document.createElement('div');
+          row.className = 'flex items-center justify-between gap-2 bg-stone-50 border border-stone-200 rounded-xl px-3 py-2';
+          row.innerHTML = `
+            <div class="min-w-0">
+              <p class="font-extrabold text-stone-900 truncate">#${m.segment_id} • ${m.hiker_name}</p>
+              <p class="text-[11px] text-stone-500">${formatDate(m.hike_date)} • ${rawPhone}</p>
+            </div>
+            <a href="https://wa.me/${waPhone}?text=${encodeURIComponent(msgText)}" target="_blank" class="touch-btn px-3 h-9 rounded-lg bg-green-600 hover:bg-green-700 text-white text-xs font-extrabold shrink-0">
+              📲 שלח בוואטסאפ
+            </a>
+          `;
+          quickList.appendChild(row);
+        }
+      });
+
+      document.getElementById('broadcastPhoneCount').textContent = uniquePhones.length;
+      document.getElementById('broadcastPhonesBox').value = uniquePhones.join(', ');
+
+      if (bookings.length === 0) {
+        quickList.innerHTML = '<p class="text-center text-stone-400 py-3">אין משריינים בסינון זה</p>';
+      }
+    }
+
+    function copyBroadcastPhones() {
+      const val = document.getElementById('broadcastPhonesBox').value;
+      if (!val) {
+        showToast('אין מספרי טלפון להעתקה');
+        return;
+      }
+      navigator.clipboard.writeText(val);
+      showToast('מספרי הטלפון הועתקו ללוח 📋');
+    }
+
+    function copyBroadcastMessage() {
+      const val = document.getElementById('broadcastMessageBox').value;
+      if (!val) {
+        showToast('נוסח ההודעה ריק');
+        return;
+      }
+      navigator.clipboard.writeText(val);
+      showToast('נוסח ההודעה הועתק ללוח 📋');
     }
 
     // 13. UI Helpers
